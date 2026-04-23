@@ -17,6 +17,71 @@ function todayISO() {
   const jakarta = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
   return jakarta.toISOString().slice(0, 10);
 }
+function normalizeMonth(month) {
+  return /^\d{4}-\d{2}$/.test(month || '') ? month : '';
+}
+function monthFromDate(date) {
+  return (date || '').slice(0, 7);
+}
+function summarizeMonth(submissions) {
+  const storeMap = {};
+  const brandMap = {};
+
+  submissions.forEach(submission => {
+    if (!storeMap[submission.store_code]) {
+      storeMap[submission.store_code] = {
+        store_code: submission.store_code,
+        store_name: submission.store_name,
+        store_leader: submission.store_leader,
+        total_customers: 0,
+        report_count: 0,
+        latest_submission_date: submission.submission_date,
+        latest_submitted_at: submission.submitted_at,
+        brand_totals: {}
+      };
+    }
+
+    const bucket = storeMap[submission.store_code];
+    bucket.total_customers += submission.total_customers || 0;
+    bucket.report_count += 1;
+
+    if ((submission.submitted_at || '') > (bucket.latest_submitted_at || '')) {
+      bucket.latest_submitted_at = submission.submitted_at;
+      bucket.latest_submission_date = submission.submission_date;
+      bucket.store_leader = submission.store_leader;
+    }
+
+    (submission.spg_data || []).forEach(spg => {
+      const count = parseInt(spg.customer_count, 10) || 0;
+      bucket.brand_totals[spg.brand] = (bucket.brand_totals[spg.brand] || 0) + count;
+      brandMap[spg.brand] = (brandMap[spg.brand] || 0) + count;
+    });
+  });
+
+  const storeSummaries = Object.values(storeMap)
+    .map(store => ({
+      ...store,
+      spg_details: Object.entries(store.brand_totals)
+        .map(([brand, customer_count]) => ({ brand, customer_count }))
+        .sort((a, b) => b.customer_count - a.customer_count)
+    }))
+    .sort((a, b) => {
+      if ((b.total_customers || 0) !== (a.total_customers || 0)) {
+        return (b.total_customers || 0) - (a.total_customers || 0);
+      }
+      return (b.latest_submitted_at || '').localeCompare(a.latest_submitted_at || '');
+    });
+
+  const brandTotals = Object.entries(brandMap)
+    .map(([brand, total]) => ({ brand, total }))
+    .sort((a, b) => b.total - a.total);
+
+  return {
+    storeSummaries,
+    brandTotals,
+    grandTotal: submissions.reduce((sum, item) => sum + (item.total_customers || 0), 0)
+  };
+}
 
 function getRoute(request) {
   const { pathname } = new URL(request.url);
@@ -40,6 +105,16 @@ async function readDB(store) {
 
 async function writeDB(store, db) {
   await store.set('data.json', JSON.stringify(db, null, 2));
+}
+function validateAdminPin(request) {
+  const adminPin = request.headers.get('x-admin-pin');
+  if (!process.env.ADMIN_PIN) {
+    return { ok: false, response: json({ error: 'Admin PIN belum dikonfigurasi' }, 503) };
+  }
+  if (adminPin !== process.env.ADMIN_PIN) {
+    return { ok: false, response: json({ error: 'PIN admin salah' }, 401) };
+  }
+  return { ok: true };
 }
 
 export default async function handler(request) {
@@ -94,44 +169,43 @@ export default async function handler(request) {
 
     if (request.method === 'GET' && route === 'data') {
       const date = url.searchParams.get('date') || todayISO();
+      const month = normalizeMonth(url.searchParams.get('month')) || monthFromDate(date);
       const db = await readDB(store);
-      const submissions = db.submissions
-        .filter(s => s.submission_date === date)
-        .map(s => ({ ...s, spg_details: [...s.spg_data].sort((a, b) => b.customer_count - a.customer_count) }));
-
-      const brandMap = {};
-      submissions.forEach(s => s.spg_data.forEach(spg => {
-        brandMap[spg.brand] = (brandMap[spg.brand] || 0) + spg.customer_count;
-      }));
-
-      const brandTotals = Object.entries(brandMap)
-        .map(([brand, total]) => ({ brand, total }))
-        .sort((a, b) => b.total - a.total);
-
-      const grandTotal = submissions.reduce((sum, s) => sum + (s.total_customers || 0), 0);
+      const monthSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === month);
+      const { storeSummaries, brandTotals, grandTotal } = summarizeMonth(monthSubmissions);
       return json({
         date,
-        submissions,
+        month,
+        periodType: 'month',
+        submissions: storeSummaries,
+        activityFeed: [...monthSubmissions]
+          .sort((a, b) => (b.submitted_at || '').localeCompare(a.submitted_at || ''))
+          .slice(0, 20),
         brandTotals,
         grandTotal,
-        storeCount: submissions.length,
+        reportCount: monthSubmissions.length,
+        storeCount: storeSummaries.length,
         registeredStores: stores.length,
-        pendingStores: Math.max(stores.length - submissions.length, 0)
+        pendingStores: Math.max(stores.length - storeSummaries.length, 0)
       });
     }
 
     if (request.method === 'GET' && route === 'history') {
       const days = parseInt(url.searchParams.get('days'), 10) || 7;
+      const month = normalizeMonth(url.searchParams.get('month'));
       const db = await readDB(store);
       const dayMap = {};
-      db.submissions.forEach(s => {
+      db.submissions
+        .filter(s => !month || monthFromDate(s.submission_date) === month)
+        .forEach(s => {
         if (!dayMap[s.submission_date]) {
           dayMap[s.submission_date] = { submission_date: s.submission_date, total: 0, store_count: 0 };
         }
         dayMap[s.submission_date].total += s.total_customers || 0;
         dayMap[s.submission_date].store_count += 1;
       });
-      return json(Object.values(dayMap).sort((a, b) => a.submission_date.localeCompare(b.submission_date)).slice(-days));
+      const rows = Object.values(dayMap).sort((a, b) => a.submission_date.localeCompare(b.submission_date));
+      return json(month ? rows : rows.slice(-days));
     }
 
     if (request.method === 'POST' && route === 'submit') {
@@ -175,13 +249,10 @@ export default async function handler(request) {
 
     if (request.method === 'DELETE' && route === 'submission') {
       const body = await request.json();
-      const adminPin = request.headers.get('x-admin-pin') || body.admin_pin || '';
-      if (!process.env.ADMIN_PIN) {
-        return json({ error: 'Admin PIN belum dikonfigurasi' }, 503);
-      }
-      if (adminPin !== process.env.ADMIN_PIN) {
-        return json({ error: 'PIN admin salah' }, 401);
-      }
+      const adminCheck = validateAdminPin({
+        headers: new Headers({ 'x-admin-pin': request.headers.get('x-admin-pin') || body.admin_pin || '' })
+      });
+      if (!adminCheck.ok) return adminCheck.response;
 
       const storeCode = (body.store_code || '').trim().toUpperCase();
       const date = body.date;
@@ -201,6 +272,27 @@ export default async function handler(request) {
 
       await writeDB(store, db);
       return json({ success: true });
+    }
+
+    if (request.method === 'POST' && route === 'reset-month') {
+      const body = await request.json();
+      const adminCheck = validateAdminPin({
+        headers: new Headers({ 'x-admin-pin': request.headers.get('x-admin-pin') || body.admin_pin || '' })
+      });
+      if (!adminCheck.ok) return adminCheck.response;
+
+      const month = normalizeMonth(body.month);
+      if (!month) {
+        return json({ error: 'Bulan reset wajib diisi dengan format YYYY-MM' }, 400);
+      }
+
+      const db = await readDB(store);
+      const before = db.submissions.length;
+      db.submissions = db.submissions.filter(s => monthFromDate(s.submission_date) !== month);
+      const removed = before - db.submissions.length;
+
+      await writeDB(store, db);
+      return json({ success: true, removed });
     }
 
     return json({ error: 'Endpoint tidak ditemukan' }, 404);

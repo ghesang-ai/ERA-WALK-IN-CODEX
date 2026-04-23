@@ -134,6 +134,22 @@
       color: #059669;
       border-color: rgba(6,214,160,.3);
     }
+    .btn-reset {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,35,60,.08);
+      color: var(--red);
+      border: 1px solid rgba(239,35,60,.16);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(239,35,60,.08);
+    }
+    body.admin-mode .btn-reset { display: inline-flex; }
     .admin-overlay {
       position: fixed;
       inset: 0;
@@ -238,6 +254,30 @@
 
     /* ══ MAIN ══ */
     .main { padding: 28px 32px 48px; max-width: 1440px; margin: 0 auto; }
+    .month-strip {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(80px, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .month-btn {
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.86);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .month-btn.active {
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(67,97,238,.18);
+    }
 
     /* ══ KPI GRID ══ */
     .kpi-grid {
@@ -663,6 +703,7 @@
         gap: 8px;
         align-items: center;
       }
+      .month-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .live-pill {
         padding: 6px 10px;
         font-size: 11px;
@@ -688,6 +729,12 @@
       .btn-label { display: none; }
       .btn-icon { font-size: 15px; line-height: 1; }
       .btn-admin {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 10px;
+        justify-content: center;
+      }
+      .btn-reset {
         min-width: 38px;
         height: 38px;
         padding: 0 10px;
@@ -857,6 +904,7 @@
       .header-right { grid-template-columns: auto 1fr auto auto; }
       .kpi-grid { grid-template-columns: 1fr; }
       .chart-wrap { height: 235px; }
+      .month-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -874,9 +922,9 @@
   <div class="header-right">
     <div class="live-pill"><div class="live-dot"></div>LIVE</div>
     <div class="date-chip" id="dateChipDisplay">—</div>
-    <input type="date" class="date-picker-hidden" id="datePicker" onchange="onDateChange()" />
     <div class="last-upd" id="lastUpd"></div>
     <button class="btn-admin" type="button" onclick="toggleAdminMode()" aria-label="Admin"><span class="btn-icon">⚙</span><span class="btn-label" id="adminBtnLabel">Admin</span></button>
+    <button class="btn-reset" type="button" onclick="resetSelectedMonth()" aria-label="Reset Bulan"><span class="btn-icon">⟲</span><span class="btn-label">Reset Bulan</span></button>
     <a href="/architecture" class="btn-form" aria-label="Workflow"><span class="btn-icon">⌬</span><span class="btn-label">Workflow</span></a>
     <a href="/form" class="btn-form" aria-label="Form Submit"><span class="btn-icon">⊕</span><span class="btn-label">Form Submit</span></a>
   </div>
@@ -898,34 +946,35 @@
 
 <!-- ═══════ MAIN ═══════ -->
 <main class="main">
+  <div class="month-strip" id="monthStrip"></div>
 
   <!-- KPI -->
   <div class="kpi-grid">
     <div class="kpi-card c-blue">
       <div class="kpi-watermark">👥</div>
       <div class="kpi-orb">👥</div>
-      <div class="kpi-label">Total Walk-In Hari Ini</div>
+      <div class="kpi-label" id="kpiTotalLabel">Total Walk-In Bulan Ini</div>
       <div class="kpi-value" id="kpiTotal">—</div>
-      <div class="kpi-sub">Seluruh toko aktif</div>
+      <div class="kpi-sub" id="kpiTotalSub">Akumulasi seluruh toko aktif</div>
     </div>
     <div class="kpi-card c-green">
       <div class="kpi-watermark">🏪</div>
       <div class="kpi-orb">🏪</div>
-      <div class="kpi-label">Toko Sudah Report</div>
+      <div class="kpi-label" id="kpiStoresLabel">Toko Sudah Report Bulan Ini</div>
       <div class="kpi-value" id="kpiStores">—</div>
       <div class="kpi-sub" id="kpiStoresSub">dari toko terdaftar</div>
     </div>
     <div class="kpi-card c-orange">
       <div class="kpi-watermark">📊</div>
       <div class="kpi-orb">📊</div>
-      <div class="kpi-label">Rata-rata per Toko</div>
+      <div class="kpi-label" id="kpiAvgLabel">Rata-rata per Toko</div>
       <div class="kpi-value" id="kpiAvg">—</div>
-      <div class="kpi-sub">customer / toko</div>
+      <div class="kpi-sub" id="kpiAvgSub">customer / toko per bulan</div>
     </div>
     <div class="kpi-card c-purple">
       <div class="kpi-watermark">🏆</div>
       <div class="kpi-orb">🏆</div>
-      <div class="kpi-label">Brand Terlaris</div>
+      <div class="kpi-label" id="kpiTopLabel">Brand Terlaris</div>
       <div class="kpi-value" id="kpiTopBrand" style="font-size:22px;margin-top:8px">—</div>
       <div class="kpi-sub" id="kpiTopSub">—</div>
     </div>
@@ -936,8 +985,8 @@
     <div class="chart-card">
       <div class="card-header">
         <div>
-          <div class="card-title">Customer per Brand</div>
-          <div class="card-sub">Agregat semua toko hari ini</div>
+          <div class="card-title" id="brandChartTitle">Customer per Brand</div>
+          <div class="card-sub" id="brandChartSub">Agregat semua toko bulan ini</div>
         </div>
         <span class="badge" id="totalBadge">0 total</span>
       </div>
@@ -946,8 +995,8 @@
     <div class="chart-card">
       <div class="card-header">
         <div>
-          <div class="card-title">Tren 7 Hari Terakhir</div>
-          <div class="card-sub">Total walk-in harian</div>
+          <div class="card-title" id="trendChartTitle">Tren Harian Bulan Ini</div>
+          <div class="card-sub" id="trendChartSub">Total walk-in harian per tanggal</div>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
@@ -959,7 +1008,7 @@
     <div class="card-header">
       <div>
         <div class="card-title">Live Activity Feed</div>
-        <div class="card-sub">Update otomatis saat toko submit</div>
+        <div class="card-sub" id="feedSub">Aktivitas submit terbaru pada bulan terpilih</div>
       </div>
       <div class="live-pill"><div class="live-dot"></div>Realtime</div>
     </div>
@@ -973,7 +1022,7 @@
   <div class="progress-banner">
     <div class="progress-left">
       <div class="progress-label">
-        <span>Progress Laporan Hari Ini</span>
+        <span id="progressTitle">Progress Report Bulanan</span>
         <span class="progress-pct" id="progressPct">0%</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -1190,6 +1239,11 @@ function initCharts() {
 const fmt = n => (n||0).toLocaleString('id-ID');
 const fmtTime = s => s ? new Date(s).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
 const fmtDate = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'}); };
+const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const now = new Date();
+const selectedYear = now.getFullYear();
+let selectedMonth = `${selectedYear}-${String(now.getMonth()+1).padStart(2,'0')}`;
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -1270,27 +1324,30 @@ async function initAdminAccess() {
   updateAdminState();
 }
 
-/* ─── DATE ─── */
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('datePicker').value = today;
-document.getElementById('dateChipDisplay').textContent =
-  new Date(today+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-
-function onDateChange() {
-  const d = document.getElementById('datePicker').value;
-  document.getElementById('dateChipDisplay').textContent =
-    new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-  loadData();
+/* ─── MONTH FILTER ─── */
+function formatMonthLabel(monthKey) {
+  const [year, month] = monthKey.split('-');
+  return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
 }
-document.getElementById('dateChipDisplay').addEventListener('click', () => {
-  document.getElementById('datePicker').showPicker && document.getElementById('datePicker').showPicker();
-});
+function renderMonthStrip() {
+  const wrap = document.getElementById('monthStrip');
+  wrap.innerHTML = MONTH_SHORT.map((label, idx) => {
+    const key = `${selectedYear}-${String(idx + 1).padStart(2,'0')}`;
+    return `<button class="month-btn ${key === selectedMonth ? 'active' : ''}" type="button" onclick="setMonthFilter('${key}')">${label}</button>`;
+  }).join('');
+  document.getElementById('dateChipDisplay').textContent = formatMonthLabel(selectedMonth);
+}
+function setMonthFilter(monthKey) {
+  selectedMonth = monthKey;
+  renderMonthStrip();
+  loadData();
+  loadTrend();
+}
 
 /* ─── LOAD DATA ─── */
 async function loadData() {
-  const date = document.getElementById('datePicker').value;
   try {
-    const res = await fetch(`/api/data?date=${date}`);
+    const res = await fetch(`/api/data?month=${selectedMonth}`);
     const data = await res.json();
     renderDashboard(data);
     document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
@@ -1299,7 +1356,7 @@ async function loadData() {
 
 async function loadTrend() {
   try {
-    const res = await fetch('/api/history?days=7');
+    const res = await fetch(`/api/history?month=${selectedMonth}`);
     const data = await res.json();
     trendChart.data.labels = data.map(d=>fmtDate(d.submission_date));
     trendChart.data.datasets[0].data = data.map(d=>d.total);
@@ -1309,18 +1366,22 @@ async function loadTrend() {
 
 /* ─── RENDER ─── */
 function renderDashboard(data) {
+  const periodLabel = formatMonthLabel(data.month || selectedMonth);
+  document.getElementById('dateChipDisplay').textContent = periodLabel;
+
   // KPIs
   document.getElementById('kpiTotal').textContent = fmt(data.grandTotal);
   document.getElementById('kpiStores').textContent = data.storeCount;
   const registeredStores = data.registeredStores || Object.keys(STORE_MAP).length;
+  document.getElementById('kpiTotalSub').textContent = `Akumulasi WIC ${periodLabel}`;
   document.getElementById('kpiStoresSub').textContent = `dari ${registeredStores} toko terdaftar`;
   document.getElementById('kpiAvg').textContent = data.storeCount > 0 ? fmt(Math.round(data.grandTotal/data.storeCount)) : '0';
-  document.getElementById('totalBadge').textContent = fmt(data.grandTotal) + ' total';
+  document.getElementById('totalBadge').textContent = `${fmt(data.grandTotal)} total`;
 
   if (data.brandTotals.length > 0) {
     const top = data.brandTotals[0];
     document.getElementById('kpiTopBrand').textContent = top.brand;
-    document.getElementById('kpiTopSub').textContent = `${fmt(top.total)} customer hari ini`;
+    document.getElementById('kpiTopSub').textContent = `${fmt(top.total)} customer pada ${periodLabel}`;
   } else {
     document.getElementById('kpiTopBrand').textContent = '—';
     document.getElementById('kpiTopSub').textContent = 'belum ada data';
@@ -1342,7 +1403,7 @@ function renderDashboard(data) {
   document.getElementById('progressPct').textContent  = pct + '%';
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressSub').textContent  =
-    `${data.storeCount} dari ${totalStores} toko sudah kirim laporan hari ini`;
+    `${data.storeCount} dari ${totalStores} toko sudah kirim laporan pada ${periodLabel}`;
   document.getElementById('pstatDone').textContent = data.storeCount;
   document.getElementById('pstatPend').textContent = pendingCodes.length;
   document.getElementById('tabDoneCount').textContent = data.storeCount;
@@ -1353,7 +1414,7 @@ function renderDashboard(data) {
   if (data.submissions.length === 0) {
     doneGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">
       <div style="font-size:40px;margin-bottom:10px;opacity:.3">📭</div>
-      Belum ada toko yang submit hari ini
+      Belum ada toko yang submit pada ${periodLabel}
     </div>`;
   } else {
     doneGrid.innerHTML = data.submissions.map(s => {
@@ -1374,14 +1435,13 @@ function renderDashboard(data) {
               <div class="store-leader-txt">👤 ${s.store_leader}</div>
             </div>
             <div class="store-actions">
-              <span class="pill-done">✓ Report</span>
-              <button class="delete-report-btn" type="button" onclick="deleteReport('${s.store_code}', '${s.submission_date}', '${s.store_name.replace(/'/g, "\\'")}')">Hapus</button>
+              <span class="pill-done">✓ ${s.report_count} Report</span>
             </div>
           </div>
           <div class="store-num">${fmt(s.total_customers)}</div>
-          <div class="store-num-label">walk-in customer</div>
+          <div class="store-num-label">walk-in customer pada ${periodLabel}</div>
           <div class="mini-bars">${bars}</div>
-          <div class="store-time">⏱ ${fmtTime(s.submitted_at)}</div>
+          <div class="store-time">⏱ ${fmtDate(s.latest_submission_date)} · ${fmtTime(s.latest_submitted_at)}</div>
         </div>`;
     }).join('');
   }
@@ -1390,7 +1450,7 @@ function renderDashboard(data) {
   window._pendingCodes = pendingCodes;
   updatePendingFilterCounts(pendingCodes);
   filterPending();
-  renderActivityFeed(data.submissions, pendingCodes.length, totalStores);
+  renderActivityFeed(data.activityFeed || [], data.reportCount || 0, pendingCodes.length, periodLabel);
 }
 
 /* ─── TAB SWITCH ─── */
@@ -1425,7 +1485,7 @@ function renderPendingTable(codes) {
   const tbody = document.getElementById('pendingTableBody');
   const footer = document.getElementById('pendingFooter');
   if (!codes.length) {
-    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">🎉 Semua toko sudah report hari ini!</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">🎉 Semua toko sudah report pada ${formatMonthLabel(selectedMonth)}!</td></tr>`;
     footer.textContent = '';
     return;
   }
@@ -1436,7 +1496,7 @@ function renderPendingTable(codes) {
       <td data-label="Status"><span class="ptable-status">✗ Belum Report</span></td>
     </tr>`).join('');
   const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
-  footer.textContent = `Menampilkan ${codes.length} toko belum report untuk ${channelLabel}`;
+  footer.textContent = `Menampilkan ${codes.length} toko belum report untuk ${channelLabel} pada ${formatMonthLabel(selectedMonth)}`;
 }
 
 function filterPending() {
@@ -1484,15 +1544,15 @@ async function deleteReport(storeCode, date, storeName) {
 
 /* ─── FEED ─── */
 let feedItems = [];
-function renderActivityFeed(submissions, pendingCount, totalStores) {
+function renderActivityFeed(submissions, reportCount, pendingCount, periodLabel) {
   const summary = document.getElementById('feedSummary');
   const list = document.getElementById('feedList');
   const latest = [...submissions].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
   const last = latest[0];
   summary.innerHTML = `
     <div class="feed-stat">
-      <div class="feed-stat-num">${latest.length}</div>
-      <div class="feed-stat-label">Report Hari Ini</div>
+      <div class="feed-stat-num">${reportCount}</div>
+      <div class="feed-stat-label">Report Bulan Ini</div>
     </div>
     <div class="feed-stat">
       <div class="feed-stat-num">${pendingCount}</div>
@@ -1506,7 +1566,7 @@ function renderActivityFeed(submissions, pendingCount, totalStores) {
   if (!latest.length) {
     list.innerHTML = `<div class="empty-feed">
       <div class="ei">📡</div>
-      Belum ada toko yang report untuk tanggal ini.<br>
+      Belum ada toko yang report untuk ${periodLabel}.<br>
       <span style="font-size:11px">Feed akan terisi otomatis setelah Store Leader submit.</span>
     </div>`;
     return;
@@ -1526,6 +1586,37 @@ function renderActivityFeed(submissions, pendingCount, totalStores) {
         <div class="feed-time">${fmtTime(s.submitted_at)}</div>
       </div>`;
   }).join('');
+}
+
+async function resetSelectedMonth() {
+  const adminPin = getAdminPin();
+  if (!adminPin) {
+    alert('Masuk mode Admin dulu untuk reset data bulanan.');
+    toggleAdminMode();
+    return;
+  }
+  const periodLabel = formatMonthLabel(selectedMonth);
+  const ok = confirm(`Reset semua data Walk In Customer untuk ${periodLabel}?\n\nSemua laporan di bulan ini akan dihapus.`);
+  if (!ok) return;
+
+  try {
+    const res = await fetch('/api/reset-month', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-pin': adminPin },
+      body: JSON.stringify({ month: selectedMonth })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (res.status === 401) clearAdminPin();
+      alert(data.error || 'Gagal reset data bulanan');
+      return;
+    }
+    alert(`Reset selesai. ${fmt(data.removed || 0)} laporan dihapus untuk ${periodLabel}.`);
+    loadData();
+    loadTrend();
+  } catch (e) {
+    alert('Gagal terhubung ke server saat reset data bulanan');
+  }
 }
 
 function addFeed(store, leader, total, time) {
@@ -1557,9 +1648,6 @@ function connectSSE() {
       return;
     }
     if(m.type==='new_submission') {
-      addFeed(`[${m.store_code}] ${m.store}`, m.store_leader, m.total, m.time);
-      const card = document.getElementById('sc-'+m.store_code);
-      if(card) card.classList.add('new-highlight');
       loadData(); loadTrend();
     }
   };
@@ -1574,6 +1662,7 @@ function connectSSE() {
 
 /* ─── INIT ─── */
 initCharts();
+renderMonthStrip();
 document.getElementById('adminPinInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') loginAdmin();
 });

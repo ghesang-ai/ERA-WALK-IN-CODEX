@@ -35,7 +35,6 @@
       padding: 20px 24px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 16px;
       box-shadow: 0 4px 20px rgba(0,52,153,0.25);
     }
@@ -60,32 +59,6 @@
     }
     .header h1 { font-size: 18px; font-weight: 700; }
     .header p { font-size: 13px; opacity: 0.8; margin-top: 2px; }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-    .header-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-width: 112px;
-      height: 40px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.28);
-      background: rgba(255,255,255,0.14);
-      color: white;
-      font-size: 13px;
-      font-weight: 700;
-      text-decoration: none;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-    }
-    .header-btn:hover { background: rgba(255,255,255,0.2); }
 
     /* Main container */
     .container {
@@ -360,17 +333,8 @@
     @media (max-width: 640px) {
       .header {
         padding: 18px 16px;
-        align-items: flex-start;
-        flex-direction: column;
       }
       .header-left { width: 100%; }
-      .header-actions {
-        width: 100%;
-        justify-content: flex-end;
-      }
-      .header-btn {
-        width: 100%;
-      }
     }
   </style>
 </head>
@@ -383,9 +347,6 @@
       <h1>Walk-In Customer Form</h1>
       <p>Input data customer harian per SPG</p>
     </div>
-  </div>
-  <div class="header-actions">
-    <a class="header-btn" href="/dashboard">Admin</a>
   </div>
 </div>
 

@@ -136,6 +136,71 @@ if (!fs.existsSync(DB_FILE)) {
 }
 function readDB()  { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); }
 function writeDB(d){ fs.writeFileSync(DB_FILE, JSON.stringify(d, null, 2)); }
+function normalizeMonth(month) {
+  return /^\d{4}-\d{2}$/.test(month || '') ? month : '';
+}
+function monthFromDate(date) {
+  return (date || '').slice(0, 7);
+}
+function summarizeMonth(submissions) {
+  const storeMap = {};
+  const brandMap = {};
+
+  submissions.forEach(submission => {
+    if (!storeMap[submission.store_code]) {
+      storeMap[submission.store_code] = {
+        store_code: submission.store_code,
+        store_name: submission.store_name,
+        store_leader: submission.store_leader,
+        total_customers: 0,
+        report_count: 0,
+        latest_submission_date: submission.submission_date,
+        latest_submitted_at: submission.submitted_at,
+        brand_totals: {}
+      };
+    }
+
+    const bucket = storeMap[submission.store_code];
+    bucket.total_customers += submission.total_customers || 0;
+    bucket.report_count += 1;
+
+    if ((submission.submitted_at || '') > (bucket.latest_submitted_at || '')) {
+      bucket.latest_submitted_at = submission.submitted_at;
+      bucket.latest_submission_date = submission.submission_date;
+      bucket.store_leader = submission.store_leader;
+    }
+
+    (submission.spg_data || []).forEach(spg => {
+      const count = parseInt(spg.customer_count, 10) || 0;
+      bucket.brand_totals[spg.brand] = (bucket.brand_totals[spg.brand] || 0) + count;
+      brandMap[spg.brand] = (brandMap[spg.brand] || 0) + count;
+    });
+  });
+
+  const storeSummaries = Object.values(storeMap)
+    .map(store => ({
+      ...store,
+      spg_details: Object.entries(store.brand_totals)
+        .map(([brand, customer_count]) => ({ brand, customer_count }))
+        .sort((a, b) => b.customer_count - a.customer_count)
+    }))
+    .sort((a, b) => {
+      if ((b.total_customers || 0) !== (a.total_customers || 0)) {
+        return (b.total_customers || 0) - (a.total_customers || 0);
+      }
+      return (b.latest_submitted_at || '').localeCompare(a.latest_submitted_at || '');
+    });
+
+  const brandTotals = Object.entries(brandMap)
+    .map(([brand, total]) => ({ brand, total }))
+    .sort((a, b) => b.total - a.total);
+
+  return {
+    storeSummaries,
+    brandTotals,
+    grandTotal: submissions.reduce((sum, item) => sum + (item.total_customers || 0), 0)
+  };
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -161,6 +226,18 @@ app.post('/api/admin-login', (req, res) => {
   }
   res.json({ success: true });
 });
+function validateAdminPin(req, res) {
+  const adminPin = req.get('x-admin-pin') || req.body?.admin_pin || '';
+  if (!process.env.ADMIN_PIN) {
+    res.status(503).json({ error: 'Admin PIN belum dikonfigurasi' });
+    return null;
+  }
+  if (adminPin !== process.env.ADMIN_PIN) {
+    res.status(401).json({ error: 'PIN admin salah' });
+    return null;
+  }
+  return adminPin;
+}
 
 // ── SSE ──
 let sseClients = [];
@@ -237,13 +314,7 @@ app.get('/api/today', (req, res) => {
 // ── Admin delete submission ──
 app.delete('/api/submission', (req, res) => {
   const { store_code, date } = req.body || {};
-  const adminPin = req.get('x-admin-pin') || req.body?.admin_pin || '';
-  if (!process.env.ADMIN_PIN) {
-    return res.status(503).json({ error: 'Admin PIN belum dikonfigurasi' });
-  }
-  if (adminPin !== process.env.ADMIN_PIN) {
-    return res.status(401).json({ error: 'PIN admin salah' });
-  }
+  if (!validateAdminPin(req, res)) return;
 
   const storeCode = (store_code || '').trim().toUpperCase();
   if (!storeCode || !date) {
@@ -265,47 +336,63 @@ app.delete('/api/submission', (req, res) => {
   res.json({ success: true });
 });
 
+app.post('/api/reset-month', (req, res) => {
+  const month = normalizeMonth(req.body?.month);
+  if (!validateAdminPin(req, res)) return;
+  if (!month) {
+    return res.status(400).json({ error: 'Bulan reset wajib diisi dengan format YYYY-MM' });
+  }
+
+  const db = readDB();
+  const before = db.submissions.length;
+  db.submissions = db.submissions.filter(s => monthFromDate(s.submission_date) !== month);
+  const removed = before - db.submissions.length;
+
+  writeDB(db);
+  broadcastUpdate({ type: 'reset_month', month, removed, time: new Date().toISOString() });
+  res.json({ success: true, removed });
+});
+
 // ── Dashboard data ──
 app.get('/api/data', (req, res) => {
   const date = req.query.date || new Date().toISOString().split('T')[0];
+  const month = normalizeMonth(req.query.month) || monthFromDate(date);
   const db = readDB();
-
-  const submissions = db.submissions
-    .filter(s => s.submission_date === date)
-    .map(s => ({ ...s, spg_details: [...s.spg_data].sort((a,b) => b.customer_count - a.customer_count) }));
-
-  const brandMap = {};
-  submissions.forEach(s => s.spg_data.forEach(spg => {
-    brandMap[spg.brand] = (brandMap[spg.brand] || 0) + spg.customer_count;
-  }));
-  const brandTotals = Object.entries(brandMap)
-    .map(([brand, total]) => ({ brand, total }))
-    .sort((a,b) => b.total - a.total);
-
-  const grandTotal = submissions.reduce((sum, s) => sum + (s.total_customers||0), 0);
+  const monthSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === month);
+  const { storeSummaries, brandTotals, grandTotal } = summarizeMonth(monthSubmissions);
   res.json({
     date,
-    submissions,
+    month,
+    periodType: 'month',
+    submissions: storeSummaries,
+    activityFeed: [...monthSubmissions]
+      .sort((a, b) => (b.submitted_at || '').localeCompare(a.submitted_at || ''))
+      .slice(0, 20),
     brandTotals,
     grandTotal,
-    storeCount: submissions.length,
+    reportCount: monthSubmissions.length,
+    storeCount: storeSummaries.length,
     registeredStores: STORE_LIST.length,
-    pendingStores: Math.max(STORE_LIST.length - submissions.length, 0)
+    pendingStores: Math.max(STORE_LIST.length - storeSummaries.length, 0)
   });
 });
 
 // ── History ──
 app.get('/api/history', (req, res) => {
   const days = parseInt(req.query.days) || 7;
+  const month = normalizeMonth(req.query.month);
   const db = readDB();
   const dayMap = {};
-  db.submissions.forEach(s => {
+  db.submissions
+    .filter(s => !month || monthFromDate(s.submission_date) === month)
+    .forEach(s => {
     if (!dayMap[s.submission_date])
       dayMap[s.submission_date] = { submission_date: s.submission_date, total: 0, store_count: 0 };
     dayMap[s.submission_date].total += s.total_customers || 0;
     dayMap[s.submission_date].store_count += 1;
   });
-  res.json(Object.values(dayMap).sort((a,b) => a.submission_date.localeCompare(b.submission_date)).slice(-days));
+  const rows = Object.values(dayMap).sort((a,b) => a.submission_date.localeCompare(b.submission_date));
+  res.json(month ? rows : rows.slice(-days));
 });
 
 app.listen(PORT, '127.0.0.1', () => {
