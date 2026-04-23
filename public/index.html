@@ -236,6 +236,33 @@
     .feed-time { font-size: 10px; color: var(--muted); }
     .empty-feed { text-align:center; padding:32px 0; color:var(--muted); font-size:13px; }
     .empty-feed .ei { font-size:36px; margin-bottom:8px; opacity:0.4; }
+    .feed-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .feed-stat {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #FAFBFF;
+      padding: 12px;
+    }
+    .feed-stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .feed-stat-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
 
     /* ══ SECTION HEADER ══ */
     .section-hd {
@@ -574,6 +601,7 @@
       .badge { flex-shrink: 0; }
 
       .feed-list { max-height: 250px; }
+      .feed-summary { grid-template-columns: 1fr; }
       .feed-item {
         display: grid;
         grid-template-columns: 32px 1fr auto;
@@ -777,6 +805,7 @@
       </div>
       <div class="live-pill"><div class="live-dot"></div>Realtime</div>
     </div>
+    <div class="feed-summary" id="feedSummary"></div>
     <div class="feed-list" id="feedList">
       <div class="empty-feed"><div class="ei">📡</div>Menunggu laporan masuk…</div>
     </div>
@@ -1129,6 +1158,7 @@ function renderDashboard(data) {
   window._pendingCodes = pendingCodes;
   updatePendingFilterCounts(pendingCodes);
   filterPending();
+  renderActivityFeed(data.submissions, pendingCodes.length, totalStores);
 }
 
 /* ─── TAB SWITCH ─── */
@@ -1193,6 +1223,50 @@ function filterPending() {
 
 /* ─── FEED ─── */
 let feedItems = [];
+function renderActivityFeed(submissions, pendingCount, totalStores) {
+  const summary = document.getElementById('feedSummary');
+  const list = document.getElementById('feedList');
+  const latest = [...submissions].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+  const last = latest[0];
+  summary.innerHTML = `
+    <div class="feed-stat">
+      <div class="feed-stat-num">${latest.length}</div>
+      <div class="feed-stat-label">Report Hari Ini</div>
+    </div>
+    <div class="feed-stat">
+      <div class="feed-stat-num">${pendingCount}</div>
+      <div class="feed-stat-label">Belum Report</div>
+    </div>
+    <div class="feed-stat">
+      <div class="feed-stat-num">${last ? fmtTime(last.submitted_at).slice(0,5) : '—'}</div>
+      <div class="feed-stat-label">Update Terakhir</div>
+    </div>`;
+
+  if (!latest.length) {
+    list.innerHTML = `<div class="empty-feed">
+      <div class="ei">📡</div>
+      Belum ada toko yang report untuk tanggal ini.<br>
+      <span style="font-size:11px">Feed akan terisi otomatis setelah Store Leader submit.</span>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = latest.slice(0, 20).map(s => {
+    const topBrand = [...(s.spg_data || [])].sort((a,b) => b.customer_count - a.customer_count)[0];
+    const channel = channelOf(s.store_code);
+    return `
+      <div class="feed-item">
+        <div class="feed-icon">🏪</div>
+        <div style="flex:1">
+          <div class="feed-store">[${s.store_code}] ${s.store_name}</div>
+          <div class="feed-detail">${channel} · SL ${s.store_leader} · Top ${topBrand?.brand || '-'} ${topBrand?.customer_count || 0}</div>
+        </div>
+        <div class="feed-total">+${fmt(s.total_customers)}</div>
+        <div class="feed-time">${fmtTime(s.submitted_at)}</div>
+      </div>`;
+  }).join('');
+}
+
 function addFeed(store, leader, total, time) {
   const list = document.getElementById('feedList');
   const empty = list.querySelector('.empty-feed');
