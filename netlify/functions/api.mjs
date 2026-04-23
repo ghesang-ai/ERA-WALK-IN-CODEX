@@ -1,18 +1,15 @@
-const { getStore } = require('@netlify/blobs');
-const stores = require('../../data/stores.json');
+import { getStore } from '@netlify/blobs';
+import stores from '../../data/stores.json' with { type: 'json' };
 
 const STORE_DIRECTORY = Object.fromEntries(stores.map(store => [store.code, store.name]));
 
-function json(statusCode, body, extraHeaders = {}) {
-  return {
-    statusCode,
+function json(body, status = 200) {
+  return Response.json(body, {
+    status,
     headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
-      ...extraHeaders
-    },
-    body: JSON.stringify(body)
-  };
+      'cache-control': 'no-store'
+    }
+  });
 }
 
 function todayISO() {
@@ -21,17 +18,16 @@ function todayISO() {
   return jakarta.toISOString().slice(0, 10);
 }
 
-function routeFromEvent(event) {
-  const rawPath = event.rawUrl ? new URL(event.rawUrl).pathname : event.path;
-  return rawPath
+function getRoute(request) {
+  const { pathname } = new URL(request.url);
+  return pathname
     .replace(/^\/api\/?/, '')
     .replace(/^\/\.netlify\/functions\/api\/?/, '')
     .replace(/^\/+/, '')
     .split('/')[0] || '';
 }
 
-async function readDB() {
-  const store = getStore('era-walkin');
+async function readDB(store) {
   const text = await store.get('data.json');
   if (!text) return { submissions: [] };
   try {
@@ -42,44 +38,44 @@ async function readDB() {
   }
 }
 
-async function writeDB(db) {
-  const store = getStore('era-walkin');
+async function writeDB(store, db) {
   await store.set('data.json', JSON.stringify(db, null, 2));
 }
 
-exports.handler = async function handler(event) {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type' } };
+export default async function handler(request) {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204 });
   }
 
-  const route = routeFromEvent(event);
-  const query = event.queryStringParameters || {};
+  const route = getRoute(request);
+  const url = new URL(request.url);
+  const store = getStore('era-walkin');
 
   try {
-    if (event.httpMethod === 'GET' && route === 'stores') {
-      return json(200, STORE_DIRECTORY);
+    if (request.method === 'GET' && route === 'stores') {
+      return json(STORE_DIRECTORY);
     }
 
-    if (event.httpMethod === 'GET' && route === 'store-master') {
-      return json(200, stores);
+    if (request.method === 'GET' && route === 'store-master') {
+      return json(stores);
     }
 
-    if (event.httpMethod === 'GET' && route === 'stream') {
-      return json(200, { type: 'polling_mode', message: 'Netlify production uses scheduled polling instead of SSE.' });
+    if (request.method === 'GET' && route === 'stream') {
+      return json({ type: 'polling_mode', message: 'Netlify production uses scheduled polling instead of SSE.' });
     }
 
-    if (event.httpMethod === 'GET' && route === 'today') {
-      const code = (query.store_code || '').trim().toUpperCase();
-      const date = query.date || todayISO();
-      const db = await readDB();
+    if (request.method === 'GET' && route === 'today') {
+      const code = (url.searchParams.get('store_code') || '').trim().toUpperCase();
+      const date = url.searchParams.get('date') || todayISO();
+      const db = await readDB(store);
       const found = db.submissions.find(s => s.store_code === code && s.submission_date === date);
-      if (!found) return json(200, { exists: false });
-      return json(200, { exists: true, submission: found, spg_data: found.spg_data });
+      if (!found) return json({ exists: false });
+      return json({ exists: true, submission: found, spg_data: found.spg_data });
     }
 
-    if (event.httpMethod === 'GET' && route === 'data') {
-      const date = query.date || todayISO();
-      const db = await readDB();
+    if (request.method === 'GET' && route === 'data') {
+      const date = url.searchParams.get('date') || todayISO();
+      const db = await readDB(store);
       const submissions = db.submissions
         .filter(s => s.submission_date === date)
         .map(s => ({ ...s, spg_details: [...s.spg_data].sort((a, b) => b.customer_count - a.customer_count) }));
@@ -94,7 +90,7 @@ exports.handler = async function handler(event) {
         .sort((a, b) => b.total - a.total);
 
       const grandTotal = submissions.reduce((sum, s) => sum + (s.total_customers || 0), 0);
-      return json(200, {
+      return json({
         date,
         submissions,
         brandTotals,
@@ -105,9 +101,9 @@ exports.handler = async function handler(event) {
       });
     }
 
-    if (event.httpMethod === 'GET' && route === 'history') {
-      const days = parseInt(query.days, 10) || 7;
-      const db = await readDB();
+    if (request.method === 'GET' && route === 'history') {
+      const days = parseInt(url.searchParams.get('days'), 10) || 7;
+      const db = await readDB(store);
       const dayMap = {};
       db.submissions.forEach(s => {
         if (!dayMap[s.submission_date]) {
@@ -116,19 +112,19 @@ exports.handler = async function handler(event) {
         dayMap[s.submission_date].total += s.total_customers || 0;
         dayMap[s.submission_date].store_count += 1;
       });
-      return json(200, Object.values(dayMap).sort((a, b) => a.submission_date.localeCompare(b.submission_date)).slice(-days));
+      return json(Object.values(dayMap).sort((a, b) => a.submission_date.localeCompare(b.submission_date)).slice(-days));
     }
 
-    if (event.httpMethod === 'POST' && route === 'submit') {
-      const body = JSON.parse(event.body || '{}');
+    if (request.method === 'POST' && route === 'submit') {
+      const body = await request.json();
       const { store_code, store_leader, submission_date, spg_data } = body;
       if (!store_code || !store_leader || !submission_date || !Array.isArray(spg_data)) {
-        return json(400, { error: 'Data tidak lengkap' });
+        return json({ error: 'Data tidak lengkap' }, 400);
       }
 
       const storeCode = store_code.trim().toUpperCase();
       if (!STORE_DIRECTORY[storeCode]) {
-        return json(400, { error: 'Store Code tidak valid' });
+        return json({ error: 'Store Code tidak valid' }, 400);
       }
 
       const cleanSpg = spg_data.map(spg => ({
@@ -139,7 +135,7 @@ exports.handler = async function handler(event) {
       const total = cleanSpg.reduce((sum, spg) => sum + spg.customer_count, 0);
       const now = new Date().toISOString();
 
-      const db = await readDB();
+      const db = await readDB(store);
       db.submissions = db.submissions.filter(
         s => !(s.store_code === storeCode && s.submission_date === submission_date)
       );
@@ -154,12 +150,12 @@ exports.handler = async function handler(event) {
         total_customers: total
       });
 
-      await writeDB(db);
-      return json(200, { success: true, store_name: STORE_DIRECTORY[storeCode] });
+      await writeDB(store, db);
+      return json({ success: true, store_name: STORE_DIRECTORY[storeCode] });
     }
 
-    return json(404, { error: 'Endpoint tidak ditemukan' });
+    return json({ error: 'Endpoint tidak ditemukan' }, 404);
   } catch (error) {
-    return json(500, { error: error.message });
+    return json({ error: error.message }, 500);
   }
-};
+}
