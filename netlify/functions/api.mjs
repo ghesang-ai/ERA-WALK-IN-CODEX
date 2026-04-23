@@ -156,6 +156,14 @@ export default async function handler(request) {
 
     if (request.method === 'DELETE' && route === 'submission') {
       const body = await request.json();
+      const adminPin = request.headers.get('x-admin-pin') || body.admin_pin || '';
+      if (!process.env.ADMIN_PIN) {
+        return json({ error: 'Admin PIN belum dikonfigurasi' }, 503);
+      }
+      if (adminPin !== process.env.ADMIN_PIN) {
+        return json({ error: 'PIN admin salah' }, 401);
+      }
+
       const storeCode = (body.store_code || '').trim().toUpperCase();
       const date = body.date;
       if (!storeCode || !date) {

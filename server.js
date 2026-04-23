@@ -223,6 +223,14 @@ app.get('/api/today', (req, res) => {
 // ── Admin delete submission ──
 app.delete('/api/submission', (req, res) => {
   const { store_code, date } = req.body || {};
+  const adminPin = req.get('x-admin-pin') || req.body?.admin_pin || '';
+  if (!process.env.ADMIN_PIN) {
+    return res.status(503).json({ error: 'Admin PIN belum dikonfigurasi' });
+  }
+  if (adminPin !== process.env.ADMIN_PIN) {
+    return res.status(401).json({ error: 'PIN admin salah' });
+  }
+
   const storeCode = (store_code || '').trim().toUpperCase();
   if (!storeCode || !date) {
     return res.status(400).json({ error: 'Store code dan tanggal wajib diisi' });
