@@ -220,6 +220,29 @@ app.get('/api/today', (req, res) => {
   res.json({ exists: true, submission: found, spg_data: found.spg_data });
 });
 
+// ── Admin delete submission ──
+app.delete('/api/submission', (req, res) => {
+  const { store_code, date } = req.body || {};
+  const storeCode = (store_code || '').trim().toUpperCase();
+  if (!storeCode || !date) {
+    return res.status(400).json({ error: 'Store code dan tanggal wajib diisi' });
+  }
+
+  const db = readDB();
+  const before = db.submissions.length;
+  db.submissions = db.submissions.filter(
+    s => !(s.store_code === storeCode && s.submission_date === date)
+  );
+
+  if (db.submissions.length === before) {
+    return res.status(404).json({ error: 'Data report tidak ditemukan' });
+  }
+
+  writeDB(db);
+  broadcastUpdate({ type: 'deleted_submission', store_code: storeCode, date, time: new Date().toISOString() });
+  res.json({ success: true });
+});
+
 // ── Dashboard data ──
 app.get('/api/data', (req, res) => {
   const date = req.query.date || new Date().toISOString().split('T')[0];

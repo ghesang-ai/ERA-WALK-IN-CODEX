@@ -429,6 +429,22 @@
       font-size: 10px; font-weight: 700;
       background:rgba(6,214,160,.1); color:#059669; border:1px solid rgba(6,214,160,.25);
     }
+    .delete-report-btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 3px 10px; border-radius: 100px; flex-shrink:0;
+      font-size: 10px; font-weight: 800;
+      border: 1px solid rgba(239,35,60,.18);
+      background: rgba(239,35,60,.07);
+      color: var(--red);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    .store-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
     .store-num {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 34px; font-weight: 800; color: var(--blue); margin-bottom: 2px;
@@ -1144,7 +1160,10 @@ function renderDashboard(data) {
               <div class="store-name">${s.store_name}</div>
               <div class="store-leader-txt">👤 ${s.store_leader}</div>
             </div>
-            <span class="pill-done">✓ Report</span>
+            <div class="store-actions">
+              <span class="pill-done">✓ Report</span>
+              <button class="delete-report-btn" type="button" onclick="deleteReport('${s.store_code}', '${s.submission_date}', '${s.store_name.replace(/'/g, "\\'")}')">Hapus</button>
+            </div>
           </div>
           <div class="store-num">${fmt(s.total_customers)}</div>
           <div class="store-num-label">walk-in customer</div>
@@ -1219,6 +1238,28 @@ function filterPending() {
   const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
   document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan · ${channelLabel}`;
   renderPendingTable(filtered);
+}
+
+async function deleteReport(storeCode, date, storeName) {
+  const ok = window.confirm(`Hapus report WIC ${storeCode} - ${storeName} untuk tanggal ${date}?\n\nData akan hilang dari dashboard dan toko akan kembali masuk daftar Belum Report.`);
+  if (!ok) return;
+
+  try {
+    const res = await fetch('/api/submission', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ store_code: storeCode, date })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      alert(data.error || 'Gagal menghapus report');
+      return;
+    }
+    loadData();
+    loadTrend();
+  } catch(e) {
+    alert('Gagal terhubung ke server saat menghapus report');
+  }
 }
 
 /* ─── FEED ─── */

@@ -154,6 +154,28 @@ export default async function handler(request) {
       return json({ success: true, store_name: STORE_DIRECTORY[storeCode] });
     }
 
+    if (request.method === 'DELETE' && route === 'submission') {
+      const body = await request.json();
+      const storeCode = (body.store_code || '').trim().toUpperCase();
+      const date = body.date;
+      if (!storeCode || !date) {
+        return json({ error: 'Store code dan tanggal wajib diisi' }, 400);
+      }
+
+      const db = await readDB(store);
+      const before = db.submissions.length;
+      db.submissions = db.submissions.filter(
+        s => !(s.store_code === storeCode && s.submission_date === date)
+      );
+
+      if (db.submissions.length === before) {
+        return json({ error: 'Data report tidak ditemukan' }, 404);
+      }
+
+      await writeDB(store, db);
+      return json({ success: true });
+    }
+
     return json({ error: 'Endpoint tidak ditemukan' }, 404);
   } catch (error) {
     return json({ error: error.message }, 500);
