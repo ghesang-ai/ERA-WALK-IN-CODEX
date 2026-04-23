@@ -1,0 +1,10 @@
+node_modules/
+.netlify/
+.DS_Store
+npm-debug.log*
+
+# Local preview database. Netlify production stores submissions in Netlify Blobs.
+data.json
+
+# Source workbook contains personal contact data; use data/stores.json for deploy.
+*.xlsx

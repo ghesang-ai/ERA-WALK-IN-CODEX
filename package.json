@@ -1,0 +1,13 @@
+{
+  "name": "era-walkin-system",
+  "version": "1.0.0",
+  "description": "Erafone Walk-In Customer Tracking System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.2",
+    "express": "^4.18.2"
+  }
+}

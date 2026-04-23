@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Walk-In Customer — Erafone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #0052CC;
+      --blue-dark: #003A96;
+      --blue-light: #E8F0FE;
+      --red: #E53935;
+      --green: #2E7D32;
+      --green-light: #E8F5E9;
+      --gray: #F4F6FA;
+      --border: #DDE3EE;
+      --text: #1A2340;
+      --muted: #6B7A99;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0,52,153,0.25);
+    }
+    .header-logo {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header p { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+    /* Main container */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: var(--blue);
+      border-radius: 2px;
+    }
+
+    /* Form fields */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .form-group { margin-bottom: 4px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group input[type="search"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .form-group select:focus,
+    .form-group input:focus,
+    .store-code-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,82,204,0.12);
+    }
+
+    /* Alert box for existing submission */
+    .alert-update {
+      background: #FFF8E1;
+      border: 1px solid #FFD740;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #856404;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-update.show { display: flex; }
+
+    /* SPG Grid */
+    .spg-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .spg-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--gray);
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .spg-row:focus-within {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .brand-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .spg-info { flex: 1; }
+    .spg-brand { font-weight: 600; font-size: 14px; }
+    .spg-name { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .spg-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .spg-input-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .spg-input {
+      width: 72px;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .spg-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,82,204,0.12);
+    }
+    .spg-input::-webkit-inner-spin-button { opacity: 1; }
+
+    /* Stepper buttons */
+    .stepper { display: flex; align-items: center; gap: 6px; }
+    .step-btn {
+      width: 30px;
+      height: 30px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+      font-weight: 600;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .step-btn:hover { background: var(--blue-light); border-color: var(--blue); }
+    .step-btn:active { transform: scale(0.94); }
+
+    /* Total preview */
+    .total-preview {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      border-radius: 14px;
+      padding: 18px 20px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .total-preview-label { font-size: 14px; opacity: 0.85; }
+    .total-preview-num { font-size: 36px; font-weight: 800; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .btn-submit:hover { opacity: 0.92; }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Success overlay */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .success-overlay.show { display: flex; }
+    .success-card {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .success-icon { font-size: 64px; margin-bottom: 16px; }
+    .success-title { font-size: 22px; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+    .success-msg { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .success-total {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin: 16px 0;
+      font-size: 14px;
+      color: var(--green);
+      font-weight: 600;
+    }
+    .btn-ok {
+      margin-top: 8px;
+      padding: 12px 32px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    /* Error toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--red);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform 0.3s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">ERA</div>
+  <div>
+    <h1>Walk-In Customer Form</h1>
+    <p>Input data customer harian per SPG</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Store Info -->
+  <div class="card">
+    <div class="card-title">Informasi Toko</div>
+
+    <!-- Store Code input -->
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Store Code / Plant Code</label>
+      <div style="position:relative">
+        <input type="text" id="storeCode" placeholder="Contoh: E113, X033, S044, N216…"
+               autocomplete="off" autocapitalize="characters"
+               style="text-transform:uppercase;font-weight:700;letter-spacing:1px;font-size:15px"
+               oninput="onStoreCodeInput()" />
+      </div>
+      <!-- Live lookup result -->
+      <div id="storeNameResult" style="
+        margin-top:8px; padding:10px 14px; border-radius:10px;
+        font-size:13px; font-weight:500; display:none;
+      "></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="display:none">
+        <label>Nama Toko</label>
+        <select id="storeName">
+          <option value="">-- Pilih Toko --</option>
+          <optgroup label="── ERAFONE ──">
+          <option>ERAFONE ANDMORE RUKO ITC ROXY MAS</option>
+          <option>ERAFONE 2 ITC ROXY MAS</option>
+          <option>ERAFONE GAJAH MADA PLAZA</option>
+          <option>ERAFONE SENAYAN PARK</option>
+          <option>ERAFONE 3.0 SENAYAN CITY</option>
+          <option>ERAFONE MULTIBRAND BENDUNGAN HILIR</option>
+          <option>ERAFONE MB KH MANSYUR TANAH ABANG</option>
+          <option>ERAFONE MB SAMANHUDI</option>
+          <option>ERAFONE 2.5 AGORA MALL</option>
+          <option>ERAFONE 1 ITC CEMPAKA MAS</option>
+          <option>ERAFONE GRAND INDONESIA</option>
+          <option>ERAFONE MAL ATRIUM SENEN (ERAFONE MILLENIUM MALL)</option>
+          <option>ERAFONE GREEN PRAMUKA SQUARE</option>
+          <option>ERAFONE FRANCHISE RUKO SUMUR BATU</option>
+          <option>ERAFONE RUKO PERCETAKAN NEGARA</option>
+          <option>ERAFONE RUKO GARUDA KEMAYORAN</option>
+          <option>ERAFONE RUKO SABANG</option>
+          <option>ERAFONE AND MORE RAWASARI</option>
+          <option>ERAFONE K MALL AT MENARA JAKARTA</option>
+          <option>ERAFONE DAAN MOGOT MALL</option>
+          <option>ERAFONE GREEN SEDAYU MALL</option>
+          <option>ERAFONE AND MORE KAMAL RAYA</option>
+          <option>ERAFONE RUKO TAMAN SURYA JAKBA</option>
+          <option>ERAFONE KRESEK KOSAMBI</option>
+          <option>ERAFONE RUKO PETA BARAT JAKBAR</option>
+          <option>ERAFONE RUKO DURI KOSAMBI</option>
+          <option>ERAFONE MB MENCENG RAYA</option>
+          <option>ERAFONE 2.5 KAPUK CENGKARENG</option>
+          <option>ERAFONE MB POS PENGUMBEN</option>
+          <option>ERAFONE RUKO GOLDEN GREEN KEDOYA</option>
+          <option>ERAFONE RUKO KEBAYORAN LAMA</option>
+          <option>ERAFONE MB JALAN PANJANG</option>
+          <option>ERAFONE MB TAMAN RATU</option>
+          <option>ERAFONE MAL PURI INDAH</option>
+          <option>ERAFONE PX PAVILION ST MORITS</option>
+          <option>ERAFONE RUKO MERUYA</option>
+          <option>ERAFONE FRANCHISE RUKO MERUYA SELATAN</option>
+          <option>ERAFONE MULTIBRAND JOGLO RAYA</option>
+          <option>ERAFONE MB SRENGSENG</option>
+          <option>ERAFONE KEMBANGAN UTARA</option>
+          <option>ERAFONE MERUYA ILIR</option>
+          <option>ERAFONE AND MORE PURI INDAH MALL</option>
+          <option>ERAFONE RUKO KEBON JERUK BINUS</option>
+          <option>ERAFONE MANGGA BESAR</option>
+          <option>ERAFONE JEMBATAN LIMA</option>
+          <option>ERAFONE MAL TAMAN ANGGREK</option>
+          <option>MEGASTORE CENTRAL PARK 3.0</option>
+          <option>ERAFONE MAL CIPUTRA JAKARTA</option>
+          <option>ERAFONE TANJUNG DUREN</option>
+          <option>ERAFONE 2.5 KEMANGGISAN UTAMA RAYA</option>
+          <option>ERAFONE MB JEMBATAN BESI</option>
+          <option>ERAFONE MAL CIPUTRA JAKARTA 2.5</option>
+          <option>MEGASTORE BINTARO X-CHANGE</option>
+          <option>ERAFONE BINTARO X-CHANGE II</option>
+          <option>ERAFONE RUKO JOMBANG TANGSEL</option>
+          <option>ERAFONE RUKO CEGER TANGERANG</option>
+          <option>ERAFONE 2.5 PAJAJARAN PAMULANG</option>
+          <option>ERAFONE CIRENDEU PONDOK CABE</option>
+          <option>MEGASTORE RUKO REMPOA CIPUTAT</option>
+          <option>ERAFONE RUKO SUDIMARA CIPUTAT</option>
+          <option>ERAFONE AND MORE CIPUTAT</option>
+          <option>ERAFONE RUKO DEWANTARA CIPUTAT</option>
+          <option>ERAFONE PLAZA BINTARO JAYA</option>
+          <option>ERAFONE MB PONDOK BETUNG</option>
+          <option>ERAFONE RUKO WR SUPRATMAN CIPUTAT</option>
+          <option>ERAFONE 1 SUPERMALL KARAWACI</option>
+          <option>ERAFONE AND MORE SERPONG</option>
+          <option>ERAFONE MB CIHUNI PAGEDANGAN (ERAFONE CIHUNI GADING SERPONG)</option>
+          <option>ERAFONE MB LEGOK</option>
+          <option>ERAFONE MULTIBRAND DASANA INDAH</option>
+          <option>ERAFONE MULTIBRAND SERPONG GARDEN CISAUK</option>
+          <option>ERAFONE RUKO KELAPA DUA TANGERANG</option>
+          <option>MEGASTORE SUMMARECON MAL SERPONG</option>
+          <option>MEGASTORE SUPERMAL KARAWACI</option>
+          <option>ERAFONE AND MORE EASTVARA MALL</option>
+          <option>ERAFONE AND MORE CIPUTRA CITRARAYA TANGERANG</option>
+          <option>ERAFONE 2.5 TELAGA BESTARI</option>
+          <option>MEGASTORE RUKO CIKUPA</option>
+          <option>ERAFONE AND MORE TELUK NAGA</option>
+          <option>ERAFONE RUKO CISOKA</option>
+          <option>ERAFONE RUKO CURUG TANGERANG</option>
+          <option>ERAFONE MB TIGARAKSA</option>
+          <option>ERAFONE PASAR KEMIS</option>
+          <option>ERAFONE MULTIBRAND BINONG</option>
+          <option>ERAFONE RUKO KUTABUMI</option>
+          <option>ERAFONE RUKO KRESEK BALARAJA</option>
+          <option>ERAFONE RUKO RAJEG TANGERANG</option>
+          <option>ERAFONE 2.5 SEPATAN</option>
+          <option>ERAFONE 2.5 GRAND BATAVIA</option>
+          <option>MEGASTORE RUKO CILEDUG</option>
+          <option>ERAFONE RUKO COKROAMINOTO CILEDUG</option>
+          <option>ERAFONE CILEDUG 2.5 RAYA</option>
+          <option>MEGASTORE RUKO CIPONDOH TANGERANG</option>
+          <option>ERAFONE FRANCHISE RUKO PORIS</option>
+          <option>ERAFONE BATU CEPER</option>
+          <option>ERAFONE CILEGON CENTER MALL</option>
+          <option>ERAFONE MALL OF SERANG</option>
+          <option>ERAFONE RUKO AHMAD YANI SERANG</option>
+          <option>ERAFONE RUKO RANGKASBITUNG</option>
+          <option>ERAFONE RUKO MAYOR SAFEI SERANG</option>
+          <option>ERAFONE RUKO PANDEGLANG BANTEN</option>
+          <option>ERAFONE RUKO PANIMBANG PANDEGLANG</option>
+          <option>ERAFONE LABUAN PANDEGLANG</option>
+          <option>ERAFONE RUKO MULTIBRAND CILEGON</option>
+          <option>ERAFONE MB ANYER</option>
+          <option>ERAFONE MB KRAGILAN</option>
+          <option>ERAFONE RANGKASBITUNG 2</option>
+          <option>ERAFONE MB CIPARE</option>
+          <option>ERAFONE RUKO SURYA KENCANA PAMULANG</option>
+          <option>ERAFONE 2.5 PAMULANG</option>
+          <option>ERAFONE SERPONG PARADISE WALK</option>
+          <option>ERAFONE RUKO CIATER RAYA SERPONG</option>
+          <option>ERAFONE ITC BSD</option>
+          <option>ERAFONE MB RAYA SERPONG</option>
+          <option>ERAFONE RUKO GRAHA RAYA</option>
+          <option>ERAFONE KEDAUNG TANGSEL</option>
+          <option>ERAFONE RUKO BENDA RAYA PAMULANG</option>
+          <option>ERAFONE LIVING WORLD ALAM SUTERA</option>
+          <option>ERAFONE AEON MAL BSD CITY</option>
+          <option>ERAFONE TANGERANG CITY MALL</option>
+          <option>ERAFONE MB RASUNA SAID</option>
+          <option>ERAFONE RUKO HASYIM ASYARI CILEDUG</option>
+          <option>ENM KISAMAUN</option>
+          <option>ERAFONE RUKO M TOHA TANGERANG</option>
+          <option>ERAFONE RUKO JATAKE TANGERANG</option>
+          <option>ERAFONE FRANCHISE RUKO BOROBUDUR RAYA</option>
+          <option>MEGASTORE RUKO JATIUWUNG</option>
+          <option>ERAFONE RUKO SANGIANG TANGERANG</option>
+          <option>ERAFONE FRANCHISE RUKO BERINGIN KARAWACI</option>
+          <option>ERAFONE RUKO CIMONE</option>
+          <option>ERAFONE &amp; MORE EDC</option>
+          </optgroup>
+          <optgroup label="── IBOX ──">
+          <option>IBOX BINTARO PLAZA</option>
+          <option>IBOX - SDC SERPONG</option>
+          <option>IBOX APP SUMMARECON MALL SERPONG</option>
+          <option>IBOX PARAMOUNT BSD</option>
+          <option>IBOX TANGERANG CITY MALL</option>
+          <option>IBOX PAMULANG</option>
+          <option>IBOX CILEGON CENTRE</option>
+          <option>IBOX CIPUTRA CITRARAYA TANGERANG</option>
+          <option>IBOX LIVING WORLD ALAM SUTRA</option>
+          <option>IBOX AHMAD YANI SERANG</option>
+          <option>IBOX MALL ALAM SUTRA</option>
+          <option>IBOX GREENLAKE</option>
+          <option>IBOX APP BXC CHANGE 2</option>
+          <option>IBOX APP CENTRAL PARK</option>
+          <option>IBOX ITC ROXY</option>
+          <option>IBOX MAL CIPUTRA JAKARTA</option>
+          <option>IBOX APP ST MORITZ</option>
+          <option>IBOX GAJAH MADA MALL</option>
+          <option>IBOX MAL ATRIUM SENEN (IBOX MILLENUM MALL)</option>
+          <option>IBOX MENTENG CENTRAL</option>
+          <option>IBOX APP PLAZA INDONESIA</option>
+          <option>IBOX APP SENAYAN CITY</option>
+          <option>IBOX MANGGA DUA</option>
+          <option>IBOX SENAYAN PARK</option>
+          <option>IBOX K MALL AT MENARA JAKARTA</option>
+          <option>IBOX EDC</option>
+          </optgroup>
+          <optgroup label="── SAMSUNG ──">
+          <option>SES 2 ITC ROXY MAS</option>
+          <option>SES ST MORITZ MALL</option>
+          <option>SEP ITC CEMPAKA MAS</option>
+          <option>SES PLAZA SENAYAN</option>
+          <option>SES SENAYAN CITY</option>
+          <option>SES GREEN PRAMUKA SQUARE</option>
+          <option>SES SENAYAN PARK</option>
+          <option>SES CENTRAL PARK</option>
+          <option>SAMSUNG AGORA MALL</option>
+          <option>SES K MALL AT MENARA JAKARTA</option>
+          <option>SES CIPUTRA MALL JKT</option>
+          <option>SES GRAND INDONESIA EAST MALL</option>
+          <option>SES MALL TAMAN ANGGREK</option>
+          <option>SES PLAZA INDONESIA</option>
+          <option>SES AEON MALL BSD CITY</option>
+          <option>SES BINTARO X CHANGE</option>
+          <option>SES CILEGON CENTER MALL</option>
+          <option>SES SUMMARECON MALL SERPONG</option>
+          <option>SES TANGERANG CITY MALL</option>
+          <option>SES MALL CIPUTRA CITRA RAYA TANGERANG</option>
+          <option>SAMSUNG PARTNER PLAZA PANDEGLANG</option>
+          <option>SAMSUNG PARTNER PLAZA CILEGON</option>
+          <option>SAMSUNG (SEP) SERPONG PARADISE</option>
+          <option>SAMSUNG BINTARO X CHANGE II</option>
+          <option>SAMSUNG HAMPTON SQUARE SERPONG</option>
+          <option>Samsung EDC</option>
+          </optgroup>
+          <optgroup label="── XIAOMI ──">
+          <option>XIAOMI STORE CIPUTRA CITRA RAYA TANGERANG</option>
+          <option>XIAOMI STORE 1 SUMMARECON MAL SERPONG</option>
+          <option>XIAOMI STORE TANGERANG CITY MALL</option>
+          <option>XIAOMI STORE LIVING WORLD ALAM SUTRA</option>
+          <option>XIAOMI STORE CENTRAL PARK</option>
+          <option>XIAOMI STORE BINTARO EXCHANGE MALL</option>
+          <option>XIAOMI STORE LIPPO MALL ST. MORITZ</option>
+          <option>XIAOMI STORE CILEGON CENTER MALL</option>
+          <option>XIAOMI STORE AEON MAL BSD CITY</option>
+          <option>XIAOMI STORE E-CENTER SUPERMAL KARAWACI</option>
+          <option>MI- STORE K MALL AT MENARA JAKARTA</option>
+          <option>MI STORE MALL MATAHARI DAAN MOGOT</option>
+          <option>MI-STORE PLAZA BINTARO JAYA</option>
+          <option>Xiaomi Store Grand Indonesia</option>
+          <option>Xiaomi EDC</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanggal</label>
+        <input type="date" id="submissionDate" />
+      </div>
+      <div class="form-group">
+        <label>Nama Store Leader</label>
+        <input type="text" id="storeLeader" placeholder="Nama Store Leader" />
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-update" id="alertUpdate">
+    <span>⚠️</span>
+    <span>Toko ini sudah submit hari ini. Data akan <strong>diperbarui</strong> jika submit ulang.</span>
+  </div>
+
+  <!-- SPG Data -->
+  <div class="card">
+    <div class="card-title">Data Customer per Brand</div>
+    <div class="spg-grid" id="spgGrid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- Total Preview -->
+  <div class="total-preview">
+    <div>
+      <div class="total-preview-label">Total Walk-In Hari Ini</div>
+      <div class="total-preview-num" id="totalPreview">0</div>
+    </div>
+    <div style="font-size: 40px; opacity: 0.3">👥</div>
+  </div>
+
+  <!-- Submit -->
+  <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+    Submit Laporan Harian
+  </button>
+
+</div>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Berhasil!</div>
+    <div class="success-msg">Data walk-in customer berhasil dikirim ke PIC.</div>
+    <div class="success-total" id="successDetail"></div>
+    <button class="btn-ok" onclick="closeSuccess()">Tutup</button>
+  </div>
+</div>
+
+<!-- Error Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SPG_LIST = [
+    { brand: 'Apple',   spg_name: 'SPG Apple',   icon: '🍎', color: '#555555', bg: '#F5F5F5' },
+    { brand: 'Samsung', spg_name: 'SPG Samsung', icon: '📱', color: '#1428A0', bg: '#E8EEFF' },
+    { brand: 'Oppo',    spg_name: 'SPG Oppo',    icon: '📷', color: '#1D6B2B', bg: '#E8F5E9' },
+    { brand: 'Vivo',    spg_name: 'SPG Vivo',    icon: '🎵', color: '#415FFF', bg: '#EEF1FF' },
+    { brand: 'Infinix', spg_name: 'SPB Infinix', icon: '⚡', color: '#D35400', bg: '#FFF3E0' },
+    { brand: 'Huawei',  spg_name: 'SPG Huawei',  icon: '🌸', color: '#CF0A2C', bg: '#FFEBEE' },
+    { brand: 'Xiaomi',  spg_name: 'SPG Xiaomi',  icon: '🔥', color: '#FF6900', bg: '#FFF3E0' },
+    { brand: 'Honor',   spg_name: 'SPG Honor',   icon: '👑', color: '#333333', bg: '#F5F5F5' },
+    { brand: 'Realme',  spg_name: 'SPG Realme',  icon: '💛', color: '#C8A200', bg: '#FFFDE7' },
+  ];
+
+  // Render SPG grid
+  const grid = document.getElementById('spgGrid');
+  SPG_LIST.forEach((spg, i) => {
+    grid.innerHTML += `
+      <div class="spg-row">
+        <div class="brand-dot" style="background:${spg.bg}">${spg.icon}</div>
+        <div class="spg-info">
+          <div class="spg-brand" style="color:${spg.color}">${spg.brand}</div>
+          <div class="spg-name">${spg.spg_name}</div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="step(${i}, -1)">−</button>
+          <input class="spg-input" type="number" id="count_${i}" value="0" min="0" max="999"
+                 onchange="updateTotal()" oninput="updateTotal()" />
+          <button class="step-btn" onclick="step(${i}, 1)">+</button>
+        </div>
+      </div>
+    `;
+  });
+
+  function step(i, delta) {
+    const input = document.getElementById(`count_${i}`);
+    const val = parseInt(input.value) || 0;
+    input.value = Math.max(0, val + delta);
+    updateTotal();
+  }
+
+  function updateTotal() {
+    let total = 0;
+    SPG_LIST.forEach((_, i) => {
+      total += parseInt(document.getElementById(`count_${i}`).value) || 0;
+    });
+    document.getElementById('totalPreview').textContent = total;
+  }
+
+  // Store master loaded from server
+  let STORE_MAP = {};
+  let STORE_MASTER = {};
+  fetch('/api/stores').then(r=>r.json()).then(d=>{ STORE_MAP = d; });
+  fetch('/api/store-master')
+    .then(r=>r.json())
+    .then(list=>{ STORE_MASTER = Object.fromEntries(list.map(store => [store.code, store])); });
+
+  // Set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('submissionDate').value = today;
+
+  // Live lookup saat Store Code diketik
+  function onStoreCodeInput() {
+    const code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const box  = document.getElementById('storeNameResult');
+    const alert = document.getElementById('alertUpdate');
+
+    if (!code) { box.style.display='none'; alert.classList.remove('show'); return; }
+
+    const name = STORE_MAP[code];
+    if (name) {
+      box.style.display = 'block';
+      box.style.background = '#EEF2FF';
+      box.style.border = '1px solid rgba(67,97,238,0.3)';
+      box.style.color = '#3730A3';
+      box.innerHTML = `✅ <strong>${code}</strong> &nbsp;—&nbsp; ${name}`;
+      if (!document.getElementById('storeLeader').value && STORE_MASTER[code]?.leader) {
+        document.getElementById('storeLeader').value = STORE_MASTER[code].leader;
+      }
+      checkExisting();
+    } else {
+      box.style.display = 'block';
+      box.style.background = '#FFF5F5';
+      box.style.border = '1px solid rgba(239,68,68,0.3)';
+      box.style.color = '#B91C1C';
+      box.innerHTML = `❌ Store Code <strong>${code}</strong> tidak ditemukan. Periksa kembali kode toko Anda.`;
+      alert.classList.remove('show');
+    }
+  }
+
+  document.getElementById('submissionDate').addEventListener('change', checkExisting);
+
+  async function checkExisting() {
+    const code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const date = document.getElementById('submissionDate').value;
+    if (!code || !STORE_MAP[code] || !date) return;
+
+    try {
+      const res = await fetch(`/api/today?store_code=${encodeURIComponent(code)}&date=${date}`);
+      const data = await res.json();
+      const alert = document.getElementById('alertUpdate');
+
+      if (data.exists) {
+        alert.classList.add('show');
+        document.getElementById('storeLeader').value = data.submission.store_leader;
+        data.spg_data.forEach(spg => {
+          const idx = SPG_LIST.findIndex(s => s.brand === spg.brand);
+          if (idx >= 0) document.getElementById(`count_${idx}`).value = spg.customer_count;
+        });
+        updateTotal();
+      } else {
+        alert.classList.remove('show');
+      }
+    } catch(e) {}
+  }
+
+  async function submitForm() {
+    const store_code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const store_leader = document.getElementById('storeLeader').value.trim();
+    const submission_date = document.getElementById('submissionDate').value;
+
+    if (!store_code)           return showToast('Masukkan Store Code / Plant Code toko');
+    if (!STORE_MAP[store_code]) return showToast(`Store Code "${store_code}" tidak valid`);
+    if (!store_leader)         return showToast('Masukkan nama Store Leader');
+    if (!submission_date)      return showToast('Pilih tanggal');
+
+    const spg_data = SPG_LIST.map((spg, i) => ({
+      spg_name: spg.spg_name,
+      brand: spg.brand,
+      customer_count: parseInt(document.getElementById(`count_${i}`).value) || 0
+    }));
+
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ store_code, store_leader, submission_date, spg_data })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const total = spg_data.reduce((s,x) => s + x.customer_count, 0);
+        document.getElementById('successDetail').textContent =
+          `[${store_code}] ${data.store_name} — Total: ${total} customer`;
+        document.getElementById('successOverlay').classList.add('show');
+      } else {
+        showToast(data.error || 'Terjadi kesalahan');
+      }
+    } catch(e) {
+      showToast('Gagal terhubung ke server');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Submit Laporan Harian';
+    }
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+    SPG_LIST.forEach((_, i) => { document.getElementById(`count_${i}`).value = 0; });
+    document.getElementById('storeLeader').value = '';
+    document.getElementById('storeCode').value = '';
+    document.getElementById('storeNameResult').style.display = 'none';
+    document.getElementById('alertUpdate').classList.remove('show');
+    updateTotal();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

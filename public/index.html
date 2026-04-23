@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERA Walk-In Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F5F7FF;
+      --surface:   #FFFFFF;
+      --border:    rgba(99,115,255,0.12);
+      --blue:      #4361EE;
+      --blue2:     #3A0CA3;
+      --cyan:      #4CC9F0;
+      --purple:    #7209B7;
+      --green:     #06D6A0;
+      --orange:    #FB8500;
+      --red:       #EF233C;
+      --text:      #0A0F2C;
+      --muted:     #6B7280;
+      --light:     #EEF2FF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ══ HEADER ══ */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 24px rgba(67,97,238,0.06);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
+    .logo {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 14px; color: white;
+      box-shadow: 0 4px 14px rgba(67,97,238,0.35);
+    }
+
+    .header-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px; font-weight: 700; color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .live-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+      border: 1px solid rgba(6,214,160,0.3);
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; color: #059669;
+      letter-spacing: 0.5px;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #10B981; border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.5);
+      animation: sonar 1.8s ease-in-out infinite;
+    }
+    @keyframes sonar {
+      0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    }
+
+    .date-chip {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 13px; font-weight: 600; color: var(--blue);
+    }
+
+    .date-picker-hidden {
+      position: absolute; opacity: 0; pointer-events: none; width: 0;
+    }
+
+    .last-upd { font-size: 11px; color: var(--muted); }
+
+    .btn-form {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: white; border: none; border-radius: 10px;
+      padding: 9px 18px; font-size: 13px; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(67,97,238,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-form:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(67,97,238,0.4); }
+
+    /* ══ MAIN ══ */
+    .main { padding: 28px 32px 48px; max-width: 1440px; margin: 0 auto; }
+
+    /* ══ KPI GRID ══ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(67,97,238,0.1); }
+
+    /* Gradient top-line */
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 20px 20px 0 0;
+    }
+    .kpi-card.c-blue::before   { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+    .kpi-card.c-green::before  { background: linear-gradient(90deg, var(--green), #A3FFDD); }
+    .kpi-card.c-orange::before { background: linear-gradient(90deg, var(--orange), #FFD166); }
+    .kpi-card.c-purple::before { background: linear-gradient(90deg, var(--purple), #C77DFF); }
+
+    /* Watermark icon */
+    .kpi-watermark {
+      position: absolute; right: 20px; top: 18px;
+      font-size: 42px; opacity: 0.07;
+    }
+
+    /* Glow orb */
+    .kpi-orb {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 14px;
+    }
+    .kpi-card.c-blue   .kpi-orb { background: linear-gradient(135deg,rgba(67,97,238,.12),rgba(76,201,240,.12)); }
+    .kpi-card.c-green  .kpi-orb { background: linear-gradient(135deg,rgba(6,214,160,.12),rgba(163,255,221,.12)); }
+    .kpi-card.c-orange .kpi-orb { background: linear-gradient(135deg,rgba(251,133,0,.12),rgba(255,209,102,.12)); }
+    .kpi-card.c-purple .kpi-orb { background: linear-gradient(135deg,rgba(114,9,183,.12),rgba(199,125,255,.12)); }
+
+    .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+    .kpi-card.c-blue   .kpi-value { color: var(--blue); }
+    .kpi-card.c-green  .kpi-value { color: #059669; }
+    .kpi-card.c-orange .kpi-value { color: var(--orange); }
+    .kpi-card.c-purple .kpi-value { color: var(--purple); }
+    .kpi-sub { font-size: 12px; color: var(--muted); }
+
+    /* ══ CHARTS ROW ══ */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+    }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px; font-weight: 600; color: var(--text);
+    }
+    .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .badge {
+      padding: 4px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 600;
+      background: var(--light); color: var(--blue);
+    }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ══ LIVE FEED ══ */
+    .feed-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+      margin-bottom: 24px;
+    }
+    .feed-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0; }
+    .feed-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(99,115,255,0.07);
+      animation: slideIn 0.35s ease;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+    .feed-icon {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: linear-gradient(135deg,var(--light),#E0E7FF);
+      display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+    }
+    .feed-store { font-size: 13px; font-weight: 600; color: var(--text); }
+    .feed-detail { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .feed-total {
+      margin-left: auto; font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px; font-weight: 700; color: var(--blue);
+    }
+    .feed-time { font-size: 10px; color: var(--muted); }
+    .empty-feed { text-align:center; padding:32px 0; color:var(--muted); font-size:13px; }
+    .empty-feed .ei { font-size:36px; margin-bottom:8px; opacity:0.4; }
+
+    /* ══ SECTION HEADER ══ */
+    .section-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px; font-weight: 600; color: var(--text);
+    }
+    .section-meta { font-size: 12px; color: var(--muted); }
+
+    /* ══ PROGRESS BANNER ══ */
+    .progress-banner {
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .progress-left { flex:1; }
+    .progress-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--text);
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .progress-pct { font-size: 22px; font-weight: 800; color: var(--blue); }
+    .progress-track {
+      width: 100%; height: 10px; background: #EEF2FF;
+      border-radius: 10px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 10px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .progress-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .progress-stats { display:flex; gap:20px; flex-shrink:0; }
+    .pstat { text-align:center; }
+    .pstat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px; font-weight: 800;
+    }
+    .pstat-num.green { color:#059669; }
+    .pstat-num.red   { color:var(--red); }
+    .pstat-label { font-size: 10px; color: var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:0.5px; }
+
+    /* ══ TABS ══ */
+    .tab-bar {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--light);
+      border-radius: 12px; padding: 4px;
+      width: fit-content; margin-bottom: 18px;
+    }
+    .tab-btn {
+      padding: 8px 18px; border-radius: 9px; border: none;
+      font-size: 13px; font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+      color: var(--muted); background: transparent;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn.active {
+      background: white; color: var(--blue);
+      box-shadow: 0 2px 8px rgba(67,97,238,0.12);
+    }
+    .tab-count {
+      font-size: 11px; font-weight: 700;
+      padding: 1px 7px; border-radius: 20px;
+    }
+    .tab-btn.active .tab-count { background: var(--light); color: var(--blue); }
+    .tab-btn:not(.active) .tab-count { background: #E5E7EB; color: var(--muted); }
+
+    /* Search bar */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .search-input {
+      flex:1; padding: 10px 16px 10px 38px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 13px; font-family: 'Inter', sans-serif;
+      color: var(--text); background: white; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: 12px center;
+    }
+    .search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
+    .search-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+    /* ══ SUBMITTED CARDS ══ */
+    .done-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .store-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1px solid rgba(6,214,160,0.2);
+      padding: 18px 20px;
+      box-shadow: 0 2px 12px rgba(6,214,160,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .store-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--green), #A3FFDD);
+    }
+    .store-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,214,160,0.12); }
+
+    @keyframes popIn {
+      0%   { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(67,97,238,0.15); }
+      100% { border-color: rgba(6,214,160,0.2); box-shadow: 0 2px 12px rgba(6,214,160,0.06); }
+    }
+    .store-card.new-highlight { animation: popIn 2s ease forwards; }
+
+    .store-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+    .store-code-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 2px 8px; border-radius: 6px;
+      background: #EEF2FF; color: var(--blue); margin-bottom: 4px;
+      display: inline-block;
+    }
+    .store-name { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.4; }
+    .store-leader-txt { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .pill-done {
+      display:inline-flex; align-items:center; gap:3px;
+      padding: 3px 10px; border-radius: 100px; flex-shrink:0;
+      font-size: 10px; font-weight: 700;
+      background:rgba(6,214,160,.1); color:#059669; border:1px solid rgba(6,214,160,.25);
+    }
+    .store-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 34px; font-weight: 800; color: var(--blue); margin-bottom: 2px;
+    }
+    .store-num-label { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+    .mini-bars { display:flex; flex-direction:column; gap:5px; }
+    .mini-row  { display:flex; align-items:center; gap:7px; }
+    .mini-label{ font-size: 10px; color: var(--muted); width: 52px; flex-shrink:0; }
+    .mini-track{ flex:1; height:5px; background:#F1F5F9; border-radius:3px; overflow:hidden; }
+    .mini-fill { height:100%; border-radius:3px; transition: width 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .mini-count{ font-size:10px; font-weight:700; color:var(--text); width:22px; text-align:right; }
+    .store-time { font-size: 10px; color: var(--muted); margin-top: 10px; text-align:right; }
+
+    /* ══ PENDING TABLE ══ */
+    .pending-panel {
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.04);
+    }
+    .pending-table { width:100%; border-collapse:collapse; }
+    .pending-table th {
+      text-align:left; padding: 12px 18px;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.7px;
+      background: #FAFBFF; border-bottom: 1px solid var(--border);
+    }
+    .pending-table td {
+      padding: 11px 18px; font-size: 13px;
+      border-bottom: 1px solid rgba(99,115,255,0.06);
+      vertical-align: middle;
+    }
+    .pending-table tr:last-child td { border-bottom: none; }
+    .pending-table tr:hover td { background: #FAFBFF; }
+    .ptable-code {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 2px 8px; border-radius: 6px;
+      background: #F5F5F5; color: #9CA3AF; display: inline-block;
+    }
+    .ptable-name { font-weight: 600; color: var(--text); }
+    .ptable-status {
+      display:inline-flex; align-items:center; gap:4px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 10px; font-weight: 700;
+      background:rgba(239,35,60,.07); color:var(--red); border:1px solid rgba(239,35,60,.15);
+    }
+    .table-empty { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+    .pending-footer {
+      padding: 12px 18px; background: #FAFBFF;
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--muted); text-align: center;
+    }
+
+    /* ══ SCROLLBAR ══ */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 5px; }
+
+    @media (max-width: 1024px) {
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+      .header {
+        height: auto;
+        min-height: 68px;
+        gap: 14px;
+        padding: 12px 20px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+    @media (max-width: 640px) {
+      body { background: #F7F9FF; }
+      .main {
+        padding: 14px 12px 36px;
+        overflow-x: hidden;
+      }
+      .header {
+        position: static;
+        padding: 12px;
+        border-radius: 0 0 18px 18px;
+      }
+      .header-left { width: 100%; gap: 10px; }
+      .logo { width: 38px; height: 38px; border-radius: 10px; font-size: 12px; }
+      .header-title { font-size: 15px; }
+      .header-sub { font-size: 11px; }
+      .header-right {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .live-pill {
+        padding: 6px 10px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .date-chip {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+      .last-upd { display: none; }
+      .btn-form {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 10px;
+        justify-content: center;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(67,97,238,0.22);
+      }
+      .btn-label { display: none; }
+      .btn-icon { font-size: 15px; line-height: 1; }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .kpi-card {
+        min-height: 132px;
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .kpi-card:hover { transform: none; }
+      .kpi-orb {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+      .kpi-watermark { right: 12px; top: 12px; font-size: 32px; }
+      .kpi-label {
+        font-size: 9px;
+        letter-spacing: .6px;
+        line-height: 1.35;
+        min-height: 26px;
+      }
+      .kpi-value { font-size: 31px; }
+      .kpi-card.c-purple .kpi-value,
+      #kpiTopBrand { font-size: 18px !important; line-height: 1.15; }
+      .kpi-sub { font-size: 11px; line-height: 1.35; }
+
+      .charts-row {
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .chart-card,
+      .feed-card,
+      .progress-banner,
+      .pending-panel {
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .card-header {
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .chart-wrap { height: 255px; }
+      .badge { flex-shrink: 0; }
+
+      .feed-list { max-height: 250px; }
+      .feed-item {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 10px;
+        align-items: start;
+      }
+      .feed-total { grid-column: 3; margin-left: 0; }
+      .feed-time { grid-column: 2 / 4; text-align: right; }
+
+      .progress-banner {
+        display: grid;
+        gap: 16px;
+      }
+      .progress-label { align-items: flex-start; gap: 12px; }
+      .progress-stats {
+        justify-content: space-around;
+        padding-top: 4px;
+      }
+      .pstat-num { font-size: 24px; }
+
+      .tab-bar {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 14px;
+      }
+      .tab-btn {
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .done-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .store-card {
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .store-hd {
+        gap: 10px;
+      }
+      .pill-done { padding: 3px 8px; }
+
+      .search-bar {
+        display: grid;
+        gap: 8px;
+      }
+      .search-meta { white-space: normal; }
+      .pending-panel {
+        padding: 0;
+        overflow: visible;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+      .pending-table,
+      .pending-table tbody,
+      .pending-table tr,
+      .pending-table td {
+        display: block;
+        width: 100%;
+      }
+      .pending-table thead { display: none; }
+      .pending-table tr {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-bottom: 10px;
+        padding: 12px;
+        box-shadow: 0 2px 12px rgba(67,97,238,0.04);
+      }
+      .pending-table td {
+        border-bottom: none;
+        padding: 4px 0;
+        font-size: 12px;
+      }
+      .pending-table td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+      .ptable-name {
+        display: block;
+        line-height: 1.35;
+      }
+      .pending-footer {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+      }
+    }
+
+    @media (max-width: 380px) {
+      .header-right { grid-template-columns: auto 1fr auto auto; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .chart-wrap { height: 235px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">ERA</div>
+    <div>
+      <div class="header-title">Walk-In Customer Dashboard</div>
+      <div class="header-sub">Live Monitor — Semua Toko Erafone</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+    <div class="date-chip" id="dateChipDisplay">—</div>
+    <input type="date" class="date-picker-hidden" id="datePicker" onchange="onDateChange()" />
+    <div class="last-upd" id="lastUpd"></div>
+    <a href="/architecture" class="btn-form" aria-label="Workflow"><span class="btn-icon">⌬</span><span class="btn-label">Workflow</span></a>
+    <a href="/form" class="btn-form" aria-label="Form Submit"><span class="btn-icon">⊕</span><span class="btn-label">Form Submit</span></a>
+  </div>
+</header>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card c-blue">
+      <div class="kpi-watermark">👥</div>
+      <div class="kpi-orb">👥</div>
+      <div class="kpi-label">Total Walk-In Hari Ini</div>
+      <div class="kpi-value" id="kpiTotal">—</div>
+      <div class="kpi-sub">Seluruh toko aktif</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-watermark">🏪</div>
+      <div class="kpi-orb">🏪</div>
+      <div class="kpi-label">Toko Sudah Report</div>
+      <div class="kpi-value" id="kpiStores">—</div>
+      <div class="kpi-sub" id="kpiStoresSub">dari toko terdaftar</div>
+    </div>
+    <div class="kpi-card c-orange">
+      <div class="kpi-watermark">📊</div>
+      <div class="kpi-orb">📊</div>
+      <div class="kpi-label">Rata-rata per Toko</div>
+      <div class="kpi-value" id="kpiAvg">—</div>
+      <div class="kpi-sub">customer / toko</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-watermark">🏆</div>
+      <div class="kpi-orb">🏆</div>
+      <div class="kpi-label">Brand Terlaris</div>
+      <div class="kpi-value" id="kpiTopBrand" style="font-size:22px;margin-top:8px">—</div>
+      <div class="kpi-sub" id="kpiTopSub">—</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Customer per Brand</div>
+          <div class="card-sub">Agregat semua toko hari ini</div>
+        </div>
+        <span class="badge" id="totalBadge">0 total</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartBrand"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Tren 7 Hari Terakhir</div>
+          <div class="card-sub">Total walk-in harian</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Live Feed -->
+  <div class="feed-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Live Activity Feed</div>
+        <div class="card-sub">Update otomatis saat toko submit</div>
+      </div>
+      <div class="live-pill"><div class="live-dot"></div>Realtime</div>
+    </div>
+    <div class="feed-list" id="feedList">
+      <div class="empty-feed"><div class="ei">📡</div>Menunggu laporan masuk…</div>
+    </div>
+  </div>
+
+  <!-- Progress Banner -->
+  <div class="progress-banner">
+    <div class="progress-left">
+      <div class="progress-label">
+        <span>Progress Laporan Hari Ini</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-sub" id="progressSub">Memuat data…</div>
+    </div>
+    <div class="progress-stats">
+      <div class="pstat">
+        <div class="pstat-num green" id="pstatDone">0</div>
+        <div class="pstat-label">Sudah Report</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div class="pstat">
+        <div class="pstat-num red" id="pstatPend">0</div>
+        <div class="pstat-label">Belum Report</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabDone" onclick="switchTab('done')">
+        ✅ Sudah Report <span class="tab-count" id="tabDoneCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabPend" onclick="switchTab('pending')">
+        ⏳ Belum Report <span class="tab-count" id="tabPendCount">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Submitted: Cards -->
+  <div id="panelDone">
+    <div class="done-grid" id="doneGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">
+        <div style="font-size:40px;margin-bottom:10px;opacity:.3">📭</div>
+        Belum ada toko yang submit hari ini
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending: Table -->
+  <div id="panelPend" style="display:none">
+    <div class="search-bar">
+      <input class="search-input" id="searchPend" type="text"
+             placeholder="Cari nama toko atau store code…"
+             oninput="filterPending()" />
+      <div class="search-meta" id="searchMeta"></div>
+    </div>
+    <div class="pending-panel">
+      <table class="pending-table">
+        <thead>
+          <tr>
+            <th>Store Code</th>
+            <th>Nama Toko</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="pendingTableBody"></tbody>
+      </table>
+      <div class="pending-footer" id="pendingFooter"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ─── STORE MAP (code → name) ─── */
+let STORE_MAP = {};
+fetch('/api/stores').then(r=>r.json()).then(d=>{ STORE_MAP=d; loadData(); });
+
+/* ─── DATA ─── */
+const ALL_STORES = [
+  "ERAFONE ANDMORE RUKO ITC ROXY MAS","ERAFONE 2 ITC ROXY MAS","ERAFONE GAJAH MADA PLAZA",
+  "ERAFONE SENAYAN PARK","ERAFONE 3.0 SENAYAN CITY","ERAFONE MULTIBRAND BENDUNGAN HILIR",
+  "ERAFONE MB KH MANSYUR TANAH ABANG","ERAFONE MB SAMANHUDI","ERAFONE 2.5 AGORA MALL",
+  "ERAFONE 1 ITC CEMPAKA MAS","ERAFONE GRAND INDONESIA",
+  "ERAFONE MAL ATRIUM SENEN (ERAFONE MILLENIUM MALL)","ERAFONE GREEN PRAMUKA SQUARE",
+  "ERAFONE FRANCHISE RUKO SUMUR BATU","ERAFONE RUKO PERCETAKAN NEGARA",
+  "ERAFONE RUKO GARUDA KEMAYORAN","ERAFONE RUKO SABANG","ERAFONE AND MORE RAWASARI",
+  "ERAFONE K MALL AT MENARA JAKARTA","ERAFONE DAAN MOGOT MALL","ERAFONE GREEN SEDAYU MALL",
+  "ERAFONE AND MORE KAMAL RAYA","ERAFONE RUKO TAMAN SURYA JAKBA","ERAFONE KRESEK KOSAMBI",
+  "ERAFONE RUKO PETA BARAT JAKBAR","ERAFONE RUKO DURI KOSAMBI","ERAFONE MB MENCENG RAYA",
+  "ERAFONE 2.5 KAPUK CENGKARENG","ERAFONE MB POS PENGUMBEN","ERAFONE RUKO GOLDEN GREEN KEDOYA",
+  "ERAFONE RUKO KEBAYORAN LAMA","ERAFONE MB JALAN PANJANG","ERAFONE MB TAMAN RATU",
+  "ERAFONE MAL PURI INDAH","ERAFONE PX PAVILION ST MORITS","ERAFONE RUKO MERUYA",
+  "ERAFONE FRANCHISE RUKO MERUYA SELATAN","ERAFONE MULTIBRAND JOGLO RAYA","ERAFONE MB SRENGSENG",
+  "ERAFONE KEMBANGAN UTARA","ERAFONE MERUYA ILIR","ERAFONE AND MORE PURI INDAH MALL",
+  "ERAFONE RUKO KEBON JERUK BINUS","ERAFONE MANGGA BESAR","ERAFONE JEMBATAN LIMA",
+  "ERAFONE MAL TAMAN ANGGREK","MEGASTORE CENTRAL PARK 3.0","ERAFONE MAL CIPUTRA JAKARTA",
+  "ERAFONE TANJUNG DUREN","ERAFONE 2.5 KEMANGGISAN UTAMA RAYA","ERAFONE MB JEMBATAN BESI",
+  "ERAFONE MAL CIPUTRA JAKARTA 2.5","MEGASTORE BINTARO X-CHANGE","ERAFONE BINTARO X-CHANGE II",
+  "ERAFONE RUKO JOMBANG TANGSEL","ERAFONE RUKO CEGER TANGERANG","ERAFONE 2.5 PAJAJARAN PAMULANG",
+  "ERAFONE CIRENDEU PONDOK CABE","MEGASTORE RUKO REMPOA CIPUTAT","ERAFONE RUKO SUDIMARA CIPUTAT",
+  "ERAFONE AND MORE CIPUTAT","ERAFONE RUKO DEWANTARA CIPUTAT","ERAFONE PLAZA BINTARO JAYA",
+  "ERAFONE MB PONDOK BETUNG","ERAFONE RUKO WR SUPRATMAN CIPUTAT","ERAFONE 1 SUPERMALL KARAWACI",
+  "ERAFONE AND MORE SERPONG","ERAFONE MB CIHUNI PAGEDANGAN (ERAFONE CIHUNI GADING SERPONG)",
+  "ERAFONE MB LEGOK","ERAFONE MULTIBRAND DASANA INDAH","ERAFONE MULTIBRAND SERPONG GARDEN CISAUK",
+  "ERAFONE RUKO KELAPA DUA TANGERANG","MEGASTORE SUMMARECON MAL SERPONG","MEGASTORE SUPERMAL KARAWACI",
+  "ERAFONE AND MORE EASTVARA MALL","ERAFONE AND MORE CIPUTRA CITRARAYA TANGERANG",
+  "ERAFONE 2.5 TELAGA BESTARI","MEGASTORE RUKO CIKUPA","ERAFONE AND MORE TELUK NAGA",
+  "ERAFONE RUKO CISOKA","ERAFONE RUKO CURUG TANGERANG","ERAFONE MB TIGARAKSA",
+  "ERAFONE PASAR KEMIS","ERAFONE MULTIBRAND BINONG","ERAFONE RUKO KUTABUMI",
+  "ERAFONE RUKO KRESEK BALARAJA","ERAFONE RUKO RAJEG TANGERANG","ERAFONE 2.5 SEPATAN",
+  "ERAFONE 2.5 GRAND BATAVIA","MEGASTORE RUKO CILEDUG","ERAFONE RUKO COKROAMINOTO CILEDUG",
+  "ERAFONE CILEDUG 2.5 RAYA","MEGASTORE RUKO CIPONDOH TANGERANG","ERAFONE FRANCHISE RUKO PORIS",
+  "ERAFONE BATU CEPER","ERAFONE CILEGON CENTER MALL","ERAFONE MALL OF SERANG",
+  "ERAFONE RUKO AHMAD YANI SERANG","ERAFONE RUKO RANGKASBITUNG","ERAFONE RUKO MAYOR SAFEI SERANG",
+  "ERAFONE RUKO PANDEGLANG BANTEN","ERAFONE RUKO PANIMBANG PANDEGLANG","ERAFONE LABUAN PANDEGLANG",
+  "ERAFONE RUKO MULTIBRAND CILEGON","ERAFONE MB ANYER","ERAFONE MB KRAGILAN",
+  "ERAFONE RANGKASBITUNG 2","ERAFONE MB CIPARE","ERAFONE RUKO SURYA KENCANA PAMULANG",
+  "ERAFONE 2.5 PAMULANG","ERAFONE SERPONG PARADISE WALK","ERAFONE RUKO CIATER RAYA SERPONG",
+  "ERAFONE ITC BSD","ERAFONE MB RAYA SERPONG","ERAFONE RUKO GRAHA RAYA","ERAFONE KEDAUNG TANGSEL",
+  "ERAFONE RUKO BENDA RAYA PAMULANG","ERAFONE LIVING WORLD ALAM SUTERA","ERAFONE AEON MAL BSD CITY",
+  "ERAFONE TANGERANG CITY MALL","ERAFONE MB RASUNA SAID","ERAFONE RUKO HASYIM ASYARI CILEDUG",
+  "ENM KISAMAUN","ERAFONE RUKO M TOHA TANGERANG","ERAFONE RUKO JATAKE TANGERANG",
+  "ERAFONE FRANCHISE RUKO BOROBUDUR RAYA","MEGASTORE RUKO JATIUWUNG",
+  "ERAFONE RUKO SANGIANG TANGERANG","ERAFONE FRANCHISE RUKO BERINGIN KARAWACI",
+  "ERAFONE RUKO CIMONE","ERAFONE & MORE EDC",
+  "IBOX BINTARO PLAZA","IBOX - SDC SERPONG","IBOX APP SUMMARECON MALL SERPONG",
+  "IBOX PARAMOUNT BSD","IBOX TANGERANG CITY MALL","IBOX PAMULANG","IBOX CILEGON CENTRE",
+  "IBOX CIPUTRA CITRARAYA TANGERANG","IBOX LIVING WORLD ALAM SUTRA","IBOX AHMAD YANI SERANG",
+  "IBOX MALL ALAM SUTRA","IBOX GREENLAKE","IBOX APP BXC CHANGE 2","IBOX APP CENTRAL PARK",
+  "IBOX ITC ROXY","IBOX MAL CIPUTRA JAKARTA","IBOX APP ST MORITZ","IBOX GAJAH MADA MALL",
+  "IBOX MAL ATRIUM SENEN (IBOX MILLENUM MALL)","IBOX MENTENG CENTRAL","IBOX APP PLAZA INDONESIA",
+  "IBOX APP SENAYAN CITY","IBOX MANGGA DUA","IBOX SENAYAN PARK","IBOX K MALL AT MENARA JAKARTA","IBOX EDC",
+  "SES 2 ITC ROXY MAS","SES ST MORITZ MALL","SEP ITC CEMPAKA MAS","SES PLAZA SENAYAN",
+  "SES SENAYAN CITY","SES GREEN PRAMUKA SQUARE","SES SENAYAN PARK","SES CENTRAL PARK",
+  "SAMSUNG AGORA MALL","SES K MALL AT MENARA JAKARTA","SES CIPUTRA MALL JKT",
+  "SES GRAND INDONESIA EAST MALL","SES MALL TAMAN ANGGREK","SES PLAZA INDONESIA",
+  "SES AEON MALL BSD CITY","SES BINTARO X CHANGE","SES CILEGON CENTER MALL",
+  "SES SUMMARECON MALL SERPONG","SES TANGERANG CITY MALL","SES MALL CIPUTRA CITRA RAYA TANGERANG",
+  "SAMSUNG PARTNER PLAZA PANDEGLANG","SAMSUNG PARTNER PLAZA CILEGON","SAMSUNG (SEP) SERPONG PARADISE",
+  "SAMSUNG BINTARO X CHANGE II","SAMSUNG HAMPTON SQUARE SERPONG","Samsung EDC",
+  "XIAOMI STORE CIPUTRA CITRA RAYA TANGERANG","XIAOMI STORE 1 SUMMARECON MAL SERPONG",
+  "XIAOMI STORE TANGERANG CITY MALL","XIAOMI STORE LIVING WORLD ALAM SUTRA",
+  "XIAOMI STORE CENTRAL PARK","XIAOMI STORE BINTARO EXCHANGE MALL","XIAOMI STORE LIPPO MALL ST. MORITZ",
+  "XIAOMI STORE CILEGON CENTER MALL","XIAOMI STORE AEON MAL BSD CITY",
+  "XIAOMI STORE E-CENTER SUPERMAL KARAWACI","MI- STORE K MALL AT MENARA JAKARTA",
+  "MI STORE MALL MATAHARI DAAN MOGOT","MI-STORE PLAZA BINTARO JAYA",
+  "Xiaomi Store Grand Indonesia","Xiaomi EDC"
+];
+
+const BRAND_COLORS = {
+  Apple:'#6B7280', Samsung:'#4361EE', Oppo:'#06D6A0', Vivo:'#7209B7',
+  Infinix:'#FB8500', Huawei:'#EF233C', Xiaomi:'#F77F00', Honor:'#3A3A3A', Realme:'#E9C46A'
+};
+
+/* ─── CHARTS ─── */
+let brandChart, trendChart;
+
+function initCharts() {
+  Chart.defaults.font.family = 'Inter';
+
+  const ctx1 = document.getElementById('chartBrand').getContext('2d');
+  brandChart = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels:[], datasets:[{
+      data:[], backgroundColor:[], borderRadius:10, borderSkipped:false,
+      borderWidth: 0
+    }]},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'white', titleColor:'#0A0F2C', bodyColor:'#6B7280',
+        borderColor:'rgba(99,115,255,0.15)', borderWidth:1,
+        padding:12, cornerRadius:10,
+        callbacks:{ label: ctx => ` ${ctx.parsed.y} customer` }
+      }},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#9CA3AF', font:{size:11}} },
+        y:{ grid:{color:'rgba(99,115,255,0.07)', drawBorder:false},
+            ticks:{color:'#9CA3AF', font:{size:11}, precision:0} }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('chartTrend').getContext('2d');
+  trendChart = new Chart(ctx2, {
+    type:'line',
+    data:{ labels:[], datasets:[{
+      label:'Walk-In', data:[], borderColor:'#4361EE',
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,200);
+        g.addColorStop(0,'rgba(67,97,238,0.18)'); g.addColorStop(1,'rgba(67,97,238,0)');
+        return g;
+      },
+      borderWidth:2.5, pointBackgroundColor:'white', pointBorderColor:'#4361EE',
+      pointBorderWidth:2, pointRadius:5, fill:true, tension:0.45
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'white', titleColor:'#0A0F2C', bodyColor:'#6B7280',
+        borderColor:'rgba(99,115,255,0.15)', borderWidth:1,
+        padding:12, cornerRadius:10
+      }},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#9CA3AF',font:{size:11}} },
+        y:{ grid:{color:'rgba(99,115,255,0.07)',drawBorder:false},
+            ticks:{color:'#9CA3AF',font:{size:11},precision:0} }
+      }
+    }
+  });
+}
+
+/* ─── HELPERS ─── */
+const fmt = n => (n||0).toLocaleString('id-ID');
+const fmtTime = s => s ? new Date(s).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+const fmtDate = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'}); };
+
+/* ─── DATE ─── */
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('datePicker').value = today;
+document.getElementById('dateChipDisplay').textContent =
+  new Date(today+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+
+function onDateChange() {
+  const d = document.getElementById('datePicker').value;
+  document.getElementById('dateChipDisplay').textContent =
+    new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  loadData();
+}
+document.getElementById('dateChipDisplay').addEventListener('click', () => {
+  document.getElementById('datePicker').showPicker && document.getElementById('datePicker').showPicker();
+});
+
+/* ─── LOAD DATA ─── */
+async function loadData() {
+  const date = document.getElementById('datePicker').value;
+  try {
+    const res = await fetch(`/api/data?date=${date}`);
+    const data = await res.json();
+    renderDashboard(data);
+    document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
+  } catch(e) { console.error(e); }
+}
+
+async function loadTrend() {
+  try {
+    const res = await fetch('/api/history?days=7');
+    const data = await res.json();
+    trendChart.data.labels = data.map(d=>fmtDate(d.submission_date));
+    trendChart.data.datasets[0].data = data.map(d=>d.total);
+    trendChart.update('active');
+  } catch(e) {}
+}
+
+/* ─── RENDER ─── */
+function renderDashboard(data) {
+  // KPIs
+  document.getElementById('kpiTotal').textContent = fmt(data.grandTotal);
+  document.getElementById('kpiStores').textContent = data.storeCount;
+  const registeredStores = data.registeredStores || Object.keys(STORE_MAP).length;
+  document.getElementById('kpiStoresSub').textContent = `dari ${registeredStores} toko terdaftar`;
+  document.getElementById('kpiAvg').textContent = data.storeCount > 0 ? fmt(Math.round(data.grandTotal/data.storeCount)) : '0';
+  document.getElementById('totalBadge').textContent = fmt(data.grandTotal) + ' total';
+
+  if (data.brandTotals.length > 0) {
+    const top = data.brandTotals[0];
+    document.getElementById('kpiTopBrand').textContent = top.brand;
+    document.getElementById('kpiTopSub').textContent = `${fmt(top.total)} customer hari ini`;
+  } else {
+    document.getElementById('kpiTopBrand').textContent = '—';
+    document.getElementById('kpiTopSub').textContent = 'belum ada data';
+  }
+
+  // Brand chart
+  brandChart.data.labels = data.brandTotals.map(b=>b.brand);
+  brandChart.data.datasets[0].data = data.brandTotals.map(b=>b.total);
+  brandChart.data.datasets[0].backgroundColor = data.brandTotals.map(b=>BRAND_COLORS[b.brand]||'#4361EE');
+  brandChart.update('active');
+
+  // ── Progress banner ──
+  const submittedCodes = new Set(data.submissions.map(s => s.store_code));
+  const allCodes = Object.keys(STORE_MAP);
+  const pendingCodes = allCodes.filter(c => !submittedCodes.has(c));
+  const totalStores = allCodes.length;
+  const pct = totalStores > 0 ? Math.round((data.storeCount / totalStores) * 100) : 0;
+
+  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressSub').textContent  =
+    `${data.storeCount} dari ${totalStores} toko sudah kirim laporan hari ini`;
+  document.getElementById('pstatDone').textContent = data.storeCount;
+  document.getElementById('pstatPend').textContent = pendingCodes.length;
+  document.getElementById('tabDoneCount').textContent = data.storeCount;
+  document.getElementById('tabPendCount').textContent = pendingCodes.length;
+
+  // ── Submitted cards ──
+  const doneGrid = document.getElementById('doneGrid');
+  if (data.submissions.length === 0) {
+    doneGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">
+      <div style="font-size:40px;margin-bottom:10px;opacity:.3">📭</div>
+      Belum ada toko yang submit hari ini
+    </div>`;
+  } else {
+    doneGrid.innerHTML = data.submissions.map(s => {
+      const spg  = s.spg_details || [];
+      const maxB = Math.max(...spg.map(x=>x.customer_count), 1);
+      const bars = spg.slice(0,5).map(x=>`
+        <div class="mini-row">
+          <div class="mini-label">${x.brand}</div>
+          <div class="mini-track"><div class="mini-fill" style="width:${Math.round(x.customer_count/maxB*100)}%;background:${BRAND_COLORS[x.brand]||'#4361EE'}"></div></div>
+          <div class="mini-count">${x.customer_count}</div>
+        </div>`).join('');
+      return `
+        <div class="store-card" id="sc-${s.store_code}">
+          <div class="store-hd">
+            <div>
+              <span class="store-code-badge">${s.store_code}</span>
+              <div class="store-name">${s.store_name}</div>
+              <div class="store-leader-txt">👤 ${s.store_leader}</div>
+            </div>
+            <span class="pill-done">✓ Report</span>
+          </div>
+          <div class="store-num">${fmt(s.total_customers)}</div>
+          <div class="store-num-label">walk-in customer</div>
+          <div class="mini-bars">${bars}</div>
+          <div class="store-time">⏱ ${fmtTime(s.submitted_at)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Pending table ──
+  window._pendingCodes = pendingCodes;
+  renderPendingTable(pendingCodes);
+  document.getElementById('searchMeta').textContent = `${pendingCodes.length} toko belum report`;
+}
+
+/* ─── TAB SWITCH ─── */
+function switchTab(tab) {
+  const isDone = tab === 'done';
+  document.getElementById('panelDone').style.display = isDone ? '' : 'none';
+  document.getElementById('panelPend').style.display = isDone ? 'none' : '';
+  document.getElementById('tabDone').classList.toggle('active', isDone);
+  document.getElementById('tabPend').classList.toggle('active', !isDone);
+}
+
+/* ─── PENDING TABLE ─── */
+function renderPendingTable(codes) {
+  const tbody = document.getElementById('pendingTableBody');
+  const footer = document.getElementById('pendingFooter');
+  if (!codes.length) {
+    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">🎉 Semua toko sudah report hari ini!</td></tr>`;
+    footer.textContent = '';
+    return;
+  }
+  tbody.innerHTML = codes.slice(0, 100).map(code => `
+    <tr>
+      <td data-label="Store Code"><span class="ptable-code">${code}</span></td>
+      <td data-label="Nama Toko"><span class="ptable-name">${STORE_MAP[code]||code}</span></td>
+      <td data-label="Status"><span class="ptable-status">✗ Belum Report</span></td>
+    </tr>`).join('');
+  footer.textContent = codes.length > 100
+    ? `Menampilkan 100 dari ${codes.length} toko. Gunakan pencarian untuk filter spesifik.`
+    : `Total ${codes.length} toko belum report`;
+}
+
+function filterPending() {
+  const q = document.getElementById('searchPend').value.trim().toLowerCase();
+  const all = window._pendingCodes || [];
+  const filtered = q
+    ? all.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
+    : all;
+  document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan`;
+  renderPendingTable(filtered);
+}
+
+/* ─── FEED ─── */
+let feedItems = [];
+function addFeed(store, leader, total, time) {
+  const list = document.getElementById('feedList');
+  const empty = list.querySelector('.empty-feed');
+  if(empty) empty.remove();
+  const t = time ? new Date(time).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+  const el = document.createElement('div');
+  el.className='feed-item';
+  el.innerHTML=`
+    <div class="feed-icon">🏪</div>
+    <div style="flex:1">
+      <div class="feed-store">${store}</div>
+      <div class="feed-detail">Store Leader: ${leader}</div>
+    </div>
+    <div class="feed-total">+${fmt(total)}</div>
+    <div class="feed-time">${t}</div>`;
+  list.prepend(el);
+  while(list.children.length>20) list.removeChild(list.lastChild);
+}
+
+/* ─── SSE ─── */
+function connectSSE() {
+  const es = new EventSource('/api/stream');
+  es.onmessage = e => {
+    const m = JSON.parse(e.data);
+    if(m.type==='polling_mode') {
+      es.close();
+      return;
+    }
+    if(m.type==='new_submission') {
+      addFeed(`[${m.store_code}] ${m.store}`, m.store_leader, m.total, m.time);
+      const card = document.getElementById('sc-'+m.store_code);
+      if(card) card.classList.add('new-highlight');
+      loadData(); loadTrend();
+    }
+  };
+  es.onerror = () => {
+    es.close();
+    if (!window._sseRetryDone) {
+      window._sseRetryDone = true;
+      setTimeout(connectSSE, 3000);
+    }
+  };
+}
+
+/* ─── INIT ─── */
+initCharts();
+loadData();
+loadTrend();
+connectSSE();
+setInterval(()=>{ loadData(); loadTrend(); }, 15000);
+</script>
+</body>
+</html>

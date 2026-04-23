@@ -1,0 +1,1190 @@
+[
+  {
+    "code": "E396",
+    "name": "ERAFONE ANDMORE RUKO ITC ROXY MAS",
+    "region": "Region 5",
+    "leader": "Panji Arsy Arya Dillah"
+  },
+  {
+    "code": "E096",
+    "name": "ERAFONE 2 ITC ROXY MAS",
+    "region": "Region 5",
+    "leader": "Ajat Sudrajat"
+  },
+  {
+    "code": "E037",
+    "name": "ERAFONE GAJAH MADA PLAZA",
+    "region": "Region 5",
+    "leader": "Ma'Ruf Wijaya"
+  },
+  {
+    "code": "E216",
+    "name": "ERAFONE SENAYAN PARK",
+    "region": "Region 5",
+    "leader": "Achmad Fauzan"
+  },
+  {
+    "code": "E281",
+    "name": "ERAFONE 3.0 SENAYAN CITY",
+    "region": "Region 5",
+    "leader": "Mohamad Roy Rojiani"
+  },
+  {
+    "code": "E678",
+    "name": "ERAFONE MULTIBRAND BENDUNGAN HILIR",
+    "region": "Region 5",
+    "leader": "Bagus Purbantoro"
+  },
+  {
+    "code": "E682",
+    "name": "ERAFONE MB KH MANSYUR TANAH ABANG",
+    "region": "Region 5",
+    "leader": "Cahyo Suhendro"
+  },
+  {
+    "code": "E898",
+    "name": "ERAFONE MB SAMANHUDI",
+    "region": "Region 5",
+    "leader": "Danang Setyawan"
+  },
+  {
+    "code": "F073",
+    "name": "ERAFONE 2.5 AGORA MALL",
+    "region": "Region 5",
+    "leader": "Dyah Laras Safitri"
+  },
+  {
+    "code": "E047",
+    "name": "ERAFONE 1 ITC CEMPAKA MAS",
+    "region": "Region 5",
+    "leader": "Firman Saputra"
+  },
+  {
+    "code": "E113",
+    "name": "ERAFONE GRAND INDONESIA",
+    "region": "Region 5",
+    "leader": "Erwin Ilyas"
+  },
+  {
+    "code": "E038",
+    "name": "ERAFONE MAL ATRIUM SENEN (ERAFONE MILLENIUM MALL)",
+    "region": "Region 5",
+    "leader": "Khoirul Amirudin"
+  },
+  {
+    "code": "E137",
+    "name": "ERAFONE GREEN PRAMUKA SQUARE",
+    "region": "Region 5",
+    "leader": "Andi Prastowo"
+  },
+  {
+    "code": "E408",
+    "name": "ERAFONE FRANCHISE RUKO SUMUR BATU",
+    "region": "Region 5",
+    "leader": "Ari Ardiansyah"
+  },
+  {
+    "code": "E414",
+    "name": "ERAFONE RUKO PERCETAKAN NEGARA",
+    "region": "Region 5",
+    "leader": "Edy Putra Riansyah"
+  },
+  {
+    "code": "E663",
+    "name": "ERAFONE RUKO GARUDA KEMAYORAN",
+    "region": "Region 5",
+    "leader": "Citra Lusiana"
+  },
+  {
+    "code": "E732",
+    "name": "ERAFONE RUKO SABANG",
+    "region": "Region 5",
+    "leader": "Roby Hidayat"
+  },
+  {
+    "code": "M212",
+    "name": "ERAFONE AND MORE RAWASARI",
+    "region": "Region 5",
+    "leader": "Adityo A Putra"
+  },
+  {
+    "code": "F080",
+    "name": "ERAFONE K MALL AT MENARA JAKARTA",
+    "region": "Region 5",
+    "leader": "Rizky Setyadi"
+  },
+  {
+    "code": "E027",
+    "name": "ERAFONE DAAN MOGOT MALL",
+    "region": "Region 5",
+    "leader": "Asep Mulyana"
+  },
+  {
+    "code": "E215",
+    "name": "ERAFONE GREEN SEDAYU MALL",
+    "region": "Region 5",
+    "leader": "Ridwan Rifaldo"
+  },
+  {
+    "code": "M068",
+    "name": "ERAFONE AND MORE KAMAL RAYA",
+    "region": "Region 5",
+    "leader": "Arif Budiyanto"
+  },
+  {
+    "code": "E233",
+    "name": "ERAFONE RUKO TAMAN SURYA JAKBA",
+    "region": "Region 5",
+    "leader": "Yasir"
+  },
+  {
+    "code": "E312",
+    "name": "ERAFONE KRESEK KOSAMBI",
+    "region": "Region 5",
+    "leader": "Della Putri Fauza"
+  },
+  {
+    "code": "E381",
+    "name": "ERAFONE RUKO PETA BARAT JAKBAR",
+    "region": "Region 5",
+    "leader": "Jenal Aripin"
+  },
+  {
+    "code": "E453",
+    "name": "ERAFONE RUKO DURI KOSAMBI",
+    "region": "Region 5",
+    "leader": "Bagas Ajiyanto"
+  },
+  {
+    "code": "E960",
+    "name": "ERAFONE MB MENCENG RAYA",
+    "region": "Region 5",
+    "leader": "Alija Kalifa Akbar"
+  },
+  {
+    "code": "E992",
+    "name": "ERAFONE 2.5 KAPUK CENGKARENG",
+    "region": "Region 5",
+    "leader": "Habibie Al Ghazali"
+  },
+  {
+    "code": "E875",
+    "name": "ERAFONE MB POS PENGUMBEN",
+    "region": "Region 5",
+    "leader": "Hamid Sanusi"
+  },
+  {
+    "code": "E413",
+    "name": "ERAFONE RUKO GOLDEN GREEN KEDOYA",
+    "region": "Region 5",
+    "leader": "Agung Kurniawan"
+  },
+  {
+    "code": "E465",
+    "name": "ERAFONE RUKO KEBAYORAN LAMA",
+    "region": "Region 5",
+    "leader": "Ananda Aulia Rohman"
+  },
+  {
+    "code": "E923",
+    "name": "ERAFONE MB JALAN PANJANG",
+    "region": "Region 5",
+    "leader": "Muhammad Bajri"
+  },
+  {
+    "code": "E943",
+    "name": "ERAFONE MB TAMAN RATU",
+    "region": "Region 5",
+    "leader": "Firda Sitarah"
+  },
+  {
+    "code": "E028",
+    "name": "ERAFONE MAL PURI INDAH",
+    "region": "Region 5",
+    "leader": "Mukromin"
+  },
+  {
+    "code": "E029",
+    "name": "ERAFONE PX PAVILION ST MORITS",
+    "region": "Region 5",
+    "leader": "Feri Tri Prabowo"
+  },
+  {
+    "code": "E322",
+    "name": "ERAFONE RUKO MERUYA",
+    "region": "Region 5",
+    "leader": "Adit Sukma Anggara"
+  },
+  {
+    "code": "E514",
+    "name": "ERAFONE FRANCHISE RUKO MERUYA SELATAN",
+    "region": "Region 5",
+    "leader": "Fernaldhy Julian Sanusi"
+  },
+  {
+    "code": "E679",
+    "name": "ERAFONE MULTIBRAND JOGLO RAYA",
+    "region": "Region 5",
+    "leader": "Theodorus Eltara I R"
+  },
+  {
+    "code": "E582",
+    "name": "ERAFONE MB SRENGSENG",
+    "region": "Region 5",
+    "leader": "Andro Noca Jaya Pratama"
+  },
+  {
+    "code": "E942",
+    "name": "ERAFONE KEMBANGAN UTARA",
+    "region": "Region 5",
+    "leader": "Dwi Anang Krismanto"
+  },
+  {
+    "code": "E616",
+    "name": "ERAFONE MERUYA ILIR",
+    "region": "Region 5",
+    "leader": "Abdel Fickry Lain"
+  },
+  {
+    "code": "M219",
+    "name": "ERAFONE AND MORE PURI INDAH MALL",
+    "region": "Region 5",
+    "leader": "Riki Novianto"
+  },
+  {
+    "code": "E172",
+    "name": "ERAFONE RUKO KEBON JERUK BINUS",
+    "region": "Region 5",
+    "leader": "Damar Prayoga"
+  },
+  {
+    "code": "E593",
+    "name": "ERAFONE MANGGA BESAR",
+    "region": "Region 5",
+    "leader": "Mohamad Iqbal"
+  },
+  {
+    "code": "E508",
+    "name": "ERAFONE JEMBATAN LIMA",
+    "region": "Region 5",
+    "leader": "Adi Hasan Ashari"
+  },
+  {
+    "code": "E164",
+    "name": "ERAFONE MAL TAMAN ANGGREK",
+    "region": "Region 5",
+    "leader": "Huda Pratama"
+  },
+  {
+    "code": "M091",
+    "name": "MEGASTORE CENTRAL PARK 3.0",
+    "region": "Region 5",
+    "leader": "Damardika"
+  },
+  {
+    "code": "E158",
+    "name": "ERAFONE MAL CIPUTRA JAKARTA",
+    "region": "Region 5",
+    "leader": "Syafri"
+  },
+  {
+    "code": "E664",
+    "name": "ERAFONE TANJUNG DUREN",
+    "region": "Region 5",
+    "leader": "Sigit Dwi Anggoro"
+  },
+  {
+    "code": "E991",
+    "name": "ERAFONE 2.5 KEMANGGISAN UTAMA RAYA",
+    "region": "Region 5",
+    "leader": "Rudi Noviansyah"
+  },
+  {
+    "code": "E986",
+    "name": "ERAFONE MB JEMBATAN BESI",
+    "region": "Region 5",
+    "leader": "Irvan Egi Saputra"
+  },
+  {
+    "code": "F134",
+    "name": "ERAFONE MAL CIPUTRA JAKARTA 2.5",
+    "region": "Region 5",
+    "leader": "Levia Suci Hardiyanti"
+  },
+  {
+    "code": "M014",
+    "name": "MEGASTORE BINTARO X-CHANGE",
+    "region": "Region 5",
+    "leader": "Akbari Permadika"
+  },
+  {
+    "code": "F077",
+    "name": "ERAFONE BINTARO X-CHANGE II",
+    "region": "Region 5",
+    "leader": "Danyel Shilton Panjaitan"
+  },
+  {
+    "code": "E612",
+    "name": "ERAFONE RUKO JOMBANG TANGSEL",
+    "region": "Region 5",
+    "leader": "Dini Gandini"
+  },
+  {
+    "code": "E160",
+    "name": "ERAFONE RUKO CEGER TANGERANG",
+    "region": "Region 5",
+    "leader": "Diyanti"
+  },
+  {
+    "code": "E620",
+    "name": "ERAFONE 2.5 PAJAJARAN PAMULANG",
+    "region": "Region 5",
+    "leader": "Heru Bachtiar"
+  },
+  {
+    "code": "E299",
+    "name": "ERAFONE CIRENDEU PONDOK CABE",
+    "region": "Region 5",
+    "leader": "Iqbal Firdaus"
+  },
+  {
+    "code": "M104",
+    "name": "MEGASTORE RUKO REMPOA CIPUTAT",
+    "region": "Region 5",
+    "leader": "Iqbal Firdaus"
+  },
+  {
+    "code": "E321",
+    "name": "ERAFONE RUKO SUDIMARA CIPUTAT",
+    "region": "Region 5",
+    "leader": "Mahfudin"
+  },
+  {
+    "code": "M027",
+    "name": "ERAFONE AND MORE CIPUTAT",
+    "region": "Region 5",
+    "leader": "Mochamad Helmi Alatas"
+  },
+  {
+    "code": "E704",
+    "name": "ERAFONE RUKO DEWANTARA CIPUTAT",
+    "region": "Region 5",
+    "leader": "Muhammad Riduan Wahid"
+  },
+  {
+    "code": "E043",
+    "name": "ERAFONE PLAZA BINTARO JAYA",
+    "region": "Region 5",
+    "leader": "Niko Erdian"
+  },
+  {
+    "code": "E685",
+    "name": "ERAFONE MB PONDOK BETUNG",
+    "region": "Region 5",
+    "leader": "Rizki Tazakka"
+  },
+  {
+    "code": "E391",
+    "name": "ERAFONE RUKO WR SUPRATMAN CIPUTAT",
+    "region": "Region 5",
+    "leader": "Muhamad Fahmi"
+  },
+  {
+    "code": "E084",
+    "name": "ERAFONE 1 SUPERMALL KARAWACI",
+    "region": "Region 5",
+    "leader": "Rama Prasetyo"
+  },
+  {
+    "code": "M163",
+    "name": "ERAFONE AND MORE SERPONG",
+    "region": "Region 5",
+    "leader": "Mochammad Ramdan Akbar"
+  },
+  {
+    "code": "E777",
+    "name": "ERAFONE MB CIHUNI PAGEDANGAN (ERAFONE CIHUNI GADING SERPONG)",
+    "region": "Region 5",
+    "leader": "Mulyana"
+  },
+  {
+    "code": "E873",
+    "name": "ERAFONE MB LEGOK",
+    "region": "Region 5",
+    "leader": "Andri Sundara"
+  },
+  {
+    "code": "E874",
+    "name": "ERAFONE MULTIBRAND DASANA INDAH",
+    "region": "Region 5",
+    "leader": "Rezky Nabila"
+  },
+  {
+    "code": "E813",
+    "name": "ERAFONE MULTIBRAND SERPONG GARDEN CISAUK",
+    "region": "Region 5",
+    "leader": "Diki Febriyanto"
+  },
+  {
+    "code": "E259",
+    "name": "ERAFONE RUKO KELAPA DUA TANGERANG",
+    "region": "Region 5",
+    "leader": "Andri Sundara"
+  },
+  {
+    "code": "M019",
+    "name": "MEGASTORE SUMMARECON MAL SERPONG",
+    "region": "Region 5",
+    "leader": "Alfian"
+  },
+  {
+    "code": "M013",
+    "name": "MEGASTORE SUPERMAL KARAWACI",
+    "region": "Region 5",
+    "leader": "Rudi Herdiyanto"
+  },
+  {
+    "code": "M222",
+    "name": "ERAFONE AND MORE EASTVARA MALL",
+    "region": "Region 5",
+    "leader": "Reno Dharmawan"
+  },
+  {
+    "code": "E221",
+    "name": "ERAFONE AND MORE CIPUTRA CITRARAYA TANGERANG",
+    "region": "Region 5",
+    "leader": "Elvirawati"
+  },
+  {
+    "code": "F058",
+    "name": "ERAFONE 2.5 TELAGA BESTARI",
+    "region": "Region 5",
+    "leader": "Aditya Anjasmara"
+  },
+  {
+    "code": "M048",
+    "name": "MEGASTORE RUKO CIKUPA",
+    "region": "Region 5",
+    "leader": "Mochamad Ryan Krisdiana"
+  },
+  {
+    "code": "M167",
+    "name": "ERAFONE AND MORE TELUK NAGA",
+    "region": "Region 5",
+    "leader": "Jatonggo Silitonga"
+  },
+  {
+    "code": "E627",
+    "name": "ERAFONE RUKO CISOKA",
+    "region": "Region 5",
+    "leader": "Fahrul Yanuar"
+  },
+  {
+    "code": "E253",
+    "name": "ERAFONE RUKO CURUG TANGERANG",
+    "region": "Region 5",
+    "leader": "Teguh Prakoso"
+  },
+  {
+    "code": "E787",
+    "name": "ERAFONE MB TIGARAKSA",
+    "region": "Region 5",
+    "leader": "Nana Pratama"
+  },
+  {
+    "code": "E848",
+    "name": "ERAFONE PASAR KEMIS",
+    "region": "Region 5",
+    "leader": "Irfan Supiandi"
+  },
+  {
+    "code": "E695",
+    "name": "ERAFONE MULTIBRAND BINONG",
+    "region": "Region 5",
+    "leader": "Teguh Prakoso"
+  },
+  {
+    "code": "E812",
+    "name": "ERAFONE RUKO KUTABUMI",
+    "region": "Region 5",
+    "leader": "Edi Suryadi"
+  },
+  {
+    "code": "E201",
+    "name": "ERAFONE RUKO KRESEK BALARAJA",
+    "region": "Region 5",
+    "leader": "Dede Dermawan"
+  },
+  {
+    "code": "E744",
+    "name": "ERAFONE RUKO RAJEG TANGERANG",
+    "region": "Region 5",
+    "leader": "Misbahul Badri"
+  },
+  {
+    "code": "F066",
+    "name": "ERAFONE 2.5 SEPATAN",
+    "region": "Region 5",
+    "leader": "Ade Rizky Pajarian"
+  },
+  {
+    "code": "F079",
+    "name": "ERAFONE 2.5 GRAND BATAVIA",
+    "region": "Region 5",
+    "leader": "Oktavian Nurrahmat"
+  },
+  {
+    "code": "M021",
+    "name": "MEGASTORE RUKO CILEDUG",
+    "region": "Region 5",
+    "leader": "Fahruk Azhara"
+  },
+  {
+    "code": "E231",
+    "name": "ERAFONE RUKO COKROAMINOTO CILEDUG",
+    "region": "Region 5",
+    "leader": "Muhammad Dendy"
+  },
+  {
+    "code": "F003",
+    "name": "ERAFONE CILEDUG 2.5 RAYA",
+    "region": "Region 5",
+    "leader": "Rico Toja Hutajulu"
+  },
+  {
+    "code": "M093",
+    "name": "MEGASTORE RUKO CIPONDOH TANGERANG",
+    "region": "Region 5",
+    "leader": "Cukat Yoga Aditya"
+  },
+  {
+    "code": "E290",
+    "name": "ERAFONE FRANCHISE RUKO PORIS",
+    "region": "Region 5",
+    "leader": "Hasril Oktama"
+  },
+  {
+    "code": "E646",
+    "name": "ERAFONE BATU CEPER",
+    "region": "Region 5",
+    "leader": "Saiful Zuhdi"
+  },
+  {
+    "code": "E150",
+    "name": "ERAFONE CILEGON CENTER MALL",
+    "region": "Region 5",
+    "leader": "Arif Abdurahman Aziz"
+  },
+  {
+    "code": "E081",
+    "name": "ERAFONE MALL OF SERANG",
+    "region": "Region 5",
+    "leader": "Andi Saputra"
+  },
+  {
+    "code": "E209",
+    "name": "ERAFONE RUKO AHMAD YANI SERANG",
+    "region": "Region 5",
+    "leader": "Depih Harlan"
+  },
+  {
+    "code": "E194",
+    "name": "ERAFONE RUKO RANGKASBITUNG",
+    "region": "Region 5",
+    "leader": "Fardan Ega Pirmansyah"
+  },
+  {
+    "code": "E308",
+    "name": "ERAFONE RUKO MAYOR SAFEI SERANG",
+    "region": "Region 5",
+    "leader": "Wita Gita Widianti"
+  },
+  {
+    "code": "E320",
+    "name": "ERAFONE RUKO PANDEGLANG BANTEN",
+    "region": "Region 5",
+    "leader": "Tb.Hanifan"
+  },
+  {
+    "code": "E589",
+    "name": "ERAFONE RUKO PANIMBANG PANDEGLANG",
+    "region": "Region 5",
+    "leader": "Ahmad Hidayatulloh"
+  },
+  {
+    "code": "E499",
+    "name": "ERAFONE LABUAN PANDEGLANG",
+    "region": "Region 5",
+    "leader": "Arby Rabiul Tsani"
+  },
+  {
+    "code": "E544",
+    "name": "ERAFONE RUKO MULTIBRAND CILEGON",
+    "region": "Region 5",
+    "leader": "Ahmad Khusnul"
+  },
+  {
+    "code": "E821",
+    "name": "ERAFONE MB ANYER",
+    "region": "Region 5",
+    "leader": "Ali Rohman"
+  },
+  {
+    "code": "E822",
+    "name": "ERAFONE MB KRAGILAN",
+    "region": "Region 5",
+    "leader": "Marvel Ficky Watuseke"
+  },
+  {
+    "code": "E833",
+    "name": "ERAFONE RANGKASBITUNG 2",
+    "region": "Region 5",
+    "leader": "M Dede Nurjeli"
+  },
+  {
+    "code": "E879",
+    "name": "ERAFONE MB CIPARE",
+    "region": "Region 5",
+    "leader": "Hendro Wijaya"
+  },
+  {
+    "code": "E191",
+    "name": "ERAFONE RUKO SURYA KENCANA PAMULANG",
+    "region": "Region 5",
+    "leader": "Muhammad Sidik"
+  },
+  {
+    "code": "F022",
+    "name": "ERAFONE 2.5 PAMULANG",
+    "region": "Region 5",
+    "leader": "Untung"
+  },
+  {
+    "code": "E484",
+    "name": "ERAFONE SERPONG PARADISE WALK",
+    "region": "Region 5",
+    "leader": "Angga Ardian"
+  },
+  {
+    "code": "E705",
+    "name": "ERAFONE RUKO CIATER RAYA SERPONG",
+    "region": "Region 5",
+    "leader": "Maryamah"
+  },
+  {
+    "code": "E087",
+    "name": "ERAFONE ITC BSD",
+    "region": "Region 5",
+    "leader": "Aan"
+  },
+  {
+    "code": "E941",
+    "name": "ERAFONE MB RAYA SERPONG",
+    "region": "Region 5",
+    "leader": "Muhamad Igfir Refi Syarip"
+  },
+  {
+    "code": "E586",
+    "name": "ERAFONE RUKO GRAHA RAYA",
+    "region": "Region 5",
+    "leader": "A Rahman"
+  },
+  {
+    "code": "E834",
+    "name": "ERAFONE KEDAUNG TANGSEL",
+    "region": "Region 5",
+    "leader": "Samsuri"
+  },
+  {
+    "code": "E245",
+    "name": "ERAFONE RUKO BENDA RAYA PAMULANG",
+    "region": "Region 5",
+    "leader": "Ari Firdaus Saputra"
+  },
+  {
+    "code": "E082",
+    "name": "ERAFONE LIVING WORLD ALAM SUTERA",
+    "region": "Region 5",
+    "leader": "Indra Setiawan"
+  },
+  {
+    "code": "E088",
+    "name": "ERAFONE AEON MAL BSD CITY",
+    "region": "Region 5",
+    "leader": "Gina Tania"
+  },
+  {
+    "code": "E119",
+    "name": "ERAFONE TANGERANG CITY MALL",
+    "region": "Region 5",
+    "leader": "Muammar Alfis"
+  },
+  {
+    "code": "E696",
+    "name": "ERAFONE MB RASUNA SAID",
+    "region": "Region 5",
+    "leader": "Muhamad Riyanto"
+  },
+  {
+    "code": "E417",
+    "name": "ERAFONE RUKO HASYIM ASYARI CILEDUG",
+    "region": "Region 5",
+    "leader": "Romi Mulyadi"
+  },
+  {
+    "code": "M176",
+    "name": "ENM KISAMAUN",
+    "region": "Region 5",
+    "leader": "Muammar Alfis"
+  },
+  {
+    "code": "E422",
+    "name": "ERAFONE RUKO M TOHA TANGERANG",
+    "region": "Region 5",
+    "leader": "Michael Roma Nelson"
+  },
+  {
+    "code": "E714",
+    "name": "ERAFONE RUKO JATAKE TANGERANG",
+    "region": "Region 5",
+    "leader": "Santo"
+  },
+  {
+    "code": "E369",
+    "name": "ERAFONE FRANCHISE RUKO BOROBUDUR RAYA",
+    "region": "Region 5",
+    "leader": "Ramdani Andika Pramandana"
+  },
+  {
+    "code": "M061",
+    "name": "MEGASTORE RUKO JATIUWUNG",
+    "region": "Region 5",
+    "leader": "Santo"
+  },
+  {
+    "code": "E684",
+    "name": "ERAFONE RUKO SANGIANG TANGERANG",
+    "region": "Region 5",
+    "leader": "Denny Sanjaya"
+  },
+  {
+    "code": "E370",
+    "name": "ERAFONE FRANCHISE RUKO BERINGIN KARAWACI",
+    "region": "Region 5",
+    "leader": "Sugianto"
+  },
+  {
+    "code": "E251",
+    "name": "ERAFONE RUKO CIMONE",
+    "region": "Region 5",
+    "leader": "Muhamad Pardiansyah"
+  },
+  {
+    "code": "M193",
+    "name": "ERAFONE & MORE EDC",
+    "region": "Region 5",
+    "leader": "Sandi Prasetia"
+  },
+  {
+    "code": "X033",
+    "name": "IBOX BINTARO PLAZA",
+    "region": "Region 5",
+    "leader": "Reza Alya Fadilah"
+  },
+  {
+    "code": "X034",
+    "name": "IBOX - SDC SERPONG",
+    "region": "Region 5",
+    "leader": "Farid Permadi"
+  },
+  {
+    "code": "X035",
+    "name": "IBOX APP SUMMARECON MALL SERPONG",
+    "region": "Region 5",
+    "leader": "Fadli"
+  },
+  {
+    "code": "X191",
+    "name": "IBOX PARAMOUNT BSD",
+    "region": "Region 5",
+    "leader": "Farizqi Muhammad"
+  },
+  {
+    "code": "X058",
+    "name": "IBOX TANGERANG CITY MALL",
+    "region": "Region 5",
+    "leader": "M Taufan Setiawan"
+  },
+  {
+    "code": "X222",
+    "name": "IBOX PAMULANG",
+    "region": "Region 5",
+    "leader": "Nurul Hidayah"
+  },
+  {
+    "code": "X049",
+    "name": "IBOX CILEGON CENTRE",
+    "region": "Region 5",
+    "leader": "Andri Yanuarta"
+  },
+  {
+    "code": "X064",
+    "name": "IBOX CIPUTRA CITRARAYA TANGERANG",
+    "region": "Region 5",
+    "leader": "Dani Andrean"
+  },
+  {
+    "code": "X072",
+    "name": "IBOX LIVING WORLD ALAM SUTRA",
+    "region": "Region 5",
+    "leader": "Ayu Andeka Kartika Sari"
+  },
+  {
+    "code": "X142",
+    "name": "IBOX AHMAD YANI SERANG",
+    "region": "Region 5",
+    "leader": "Rusli Irawan Adiansah"
+  },
+  {
+    "code": "X173",
+    "name": "IBOX MALL ALAM SUTRA",
+    "region": "Region 5",
+    "leader": "Whinar Aviati"
+  },
+  {
+    "code": "X190",
+    "name": "IBOX GREENLAKE",
+    "region": "Region 5",
+    "leader": "Jefri Chandra"
+  },
+  {
+    "code": "X168",
+    "name": "IBOX APP BXC CHANGE 2",
+    "region": "Region 5",
+    "leader": "Abdul Haris"
+  },
+  {
+    "code": "X012",
+    "name": "IBOX  APP CENTRAL PARK",
+    "region": "Region 5",
+    "leader": "Rydho Malta"
+  },
+  {
+    "code": "X043",
+    "name": "IBOX ITC ROXY",
+    "region": "Region 5",
+    "leader": "Cindy Immanuella"
+  },
+  {
+    "code": "X055",
+    "name": "IBOX MAL CIPUTRA JAKARTA",
+    "region": "Region 5",
+    "leader": "Vincentius Alexander Alim"
+  },
+  {
+    "code": "X011",
+    "name": "IBOX  APP ST MORITZ",
+    "region": "Region 5",
+    "leader": "Joko Satria Gama"
+  },
+  {
+    "code": "X110",
+    "name": "IBOX GAJAH MADA MALL",
+    "region": "Region 5",
+    "leader": "Faisal Aziz"
+  },
+  {
+    "code": "X016",
+    "name": "IBOX  MAL ATRIUM SENEN (IBOX MILLENUM MALL)",
+    "region": "Region 5",
+    "leader": "Adhe France Setya"
+  },
+  {
+    "code": "X014",
+    "name": "IBOX MENTENG CENTRAL",
+    "region": "Region 5",
+    "leader": "Lilis Sahita"
+  },
+  {
+    "code": "X015",
+    "name": "IBOX  APP PLAZA INDONESIA",
+    "region": "Region 5",
+    "leader": "Esa Marlis"
+  },
+  {
+    "code": "X022",
+    "name": "IBOX APP SENAYAN CITY",
+    "region": "Region 5",
+    "leader": "Angga Suganda"
+  },
+  {
+    "code": "X037",
+    "name": "IBOX MANGGA DUA",
+    "region": "Region 5",
+    "leader": "Ilyas Febrian"
+  },
+  {
+    "code": "X172",
+    "name": "IBOX SENAYAN PARK",
+    "region": "Region 5",
+    "leader": "Putra Bakti Utama"
+  },
+  {
+    "code": "X192",
+    "name": "IBOX K MALL AT MENARA JAKARTA",
+    "region": "Region 5",
+    "leader": "Bayu Anjasrianto"
+  },
+  {
+    "code": "X135",
+    "name": "IBOX EDC",
+    "region": "Region 5",
+    "leader": "Abdul Hafiz"
+  },
+  {
+    "code": "S044",
+    "name": "SES 2 ITC ROXY MAS",
+    "region": "Region 5",
+    "leader": "Rezki Desnawanto"
+  },
+  {
+    "code": "S015",
+    "name": "SES ST MORITZ MALL",
+    "region": "Region 5",
+    "leader": "Aji Irwansyah"
+  },
+  {
+    "code": "S049",
+    "name": "SEP ITC CEMPAKA MAS",
+    "region": "Region 5",
+    "leader": "FERDINAN"
+  },
+  {
+    "code": "S055",
+    "name": "SES PLAZA SENAYAN",
+    "region": "Region 5",
+    "leader": "Julianto Mardian"
+  },
+  {
+    "code": "S018",
+    "name": "SES SENAYAN CITY",
+    "region": "Region 5",
+    "leader": "Agung Abdul Rahim"
+  },
+  {
+    "code": "S058",
+    "name": "SES GREEN PRAMUKA SQUARE",
+    "region": "Region 5",
+    "leader": "KUSNARI"
+  },
+  {
+    "code": "S098",
+    "name": "SES SENAYAN PARK",
+    "region": "Region 5",
+    "leader": "Aan Supriyanto"
+  },
+  {
+    "code": "S142",
+    "name": "SES CENTRAL PARK",
+    "region": "Region 5",
+    "leader": "Muhamad Bram Saputra"
+  },
+  {
+    "code": "S194",
+    "name": "SAMSUNG AGORA MALL",
+    "region": "Region 5",
+    "leader": "NOVITA SARI"
+  },
+  {
+    "code": "S195",
+    "name": "SES K MALL AT MENARA JAKARTA",
+    "region": "Region 5",
+    "leader": "Oka Nurtediyanto"
+  },
+  {
+    "code": "S228",
+    "name": "SES CIPUTRA MALL JKT",
+    "region": "Region 5",
+    "leader": "Aji Irwansyah"
+  },
+  {
+    "code": "S229",
+    "name": "SES GRAND INDONESIA EAST MALL",
+    "region": "Region 5",
+    "leader": "NOVITA SARI"
+  },
+  {
+    "code": "S230",
+    "name": "SES MALL TAMAN ANGGREK",
+    "region": "Region 5",
+    "leader": "Muhamad Bram Saputra"
+  },
+  {
+    "code": "S231",
+    "name": "SES PLAZA INDONESIA",
+    "region": "Region 5",
+    "leader": "Oka Nurtediyanto"
+  },
+  {
+    "code": "S042",
+    "name": "SES AEON MALL BSD CITY",
+    "region": "Region 5",
+    "leader": "Billy Gilbert Franric Momongan"
+  },
+  {
+    "code": "S041",
+    "name": "SES BINTARO X CHANGE",
+    "region": "Region 5",
+    "leader": "MUHAMMAD SYAMSUDIN"
+  },
+  {
+    "code": "S066",
+    "name": "SES CILEGON CENTER MALL",
+    "region": "Region 5",
+    "leader": "Feby Hermana"
+  },
+  {
+    "code": "S056",
+    "name": "SES SUMMARECON MALL SERPONG",
+    "region": "Region 5",
+    "leader": "Wawan"
+  },
+  {
+    "code": "S040",
+    "name": "SES TANGERANG CITY MALL",
+    "region": "Region 5",
+    "leader": "Ahmad Noerdiansyah"
+  },
+  {
+    "code": "S097",
+    "name": "SES MALL CIPUTRA CITRA RAYA TANGERANG",
+    "region": "Region 5",
+    "leader": "Sopan Ersyaf Putra"
+  },
+  {
+    "code": "S136",
+    "name": "SAMSUNG PARTNER PLAZA PANDEGLANG",
+    "region": "Region 5",
+    "leader": "Yossy"
+  },
+  {
+    "code": "S137",
+    "name": "SAMSUNG PARTNER PLAZA CILEGON",
+    "region": "Region 5",
+    "leader": "Feby Hermana"
+  },
+  {
+    "code": "S158",
+    "name": "SAMSUNG (SEP) SERPONG PARADISE",
+    "region": "Region 5",
+    "leader": "Saiful Anwar"
+  },
+  {
+    "code": "S190",
+    "name": "SAMSUNG BINTARO X CHANGE II",
+    "region": "Region 5",
+    "leader": "Dery Haryanto"
+  },
+  {
+    "code": "S201",
+    "name": "SAMSUNG HAMPTON SQUARE SERPONG",
+    "region": "Region 5",
+    "leader": "Ano Riyansah"
+  },
+  {
+    "code": "S183",
+    "name": "Samsung EDC",
+    "region": "Region 5",
+    "leader": "Muhammad Akbar Darmawan Putra"
+  },
+  {
+    "code": "N216",
+    "name": "XIAOMI STORE CIPUTRA CITRA RAYA TANGERANG",
+    "region": "Region 5",
+    "leader": "Denny Trilaksono Bimo"
+  },
+  {
+    "code": "N200",
+    "name": "XIAOMI STORE 1 SUMMARECON MAL SERPONG",
+    "region": "Region 5",
+    "leader": "Siti Anisah"
+  },
+  {
+    "code": "N191",
+    "name": "XIAOMI STORE TANGERANG CITY MALL",
+    "region": "Region 5",
+    "leader": "La Ode Ikhsan Fazri"
+  },
+  {
+    "code": "N186",
+    "name": "XIAOMI STORE LIVING WORLD ALAM SUTRA",
+    "region": "Region 5",
+    "leader": "Achmad Dian Mauladan"
+  },
+  {
+    "code": "N184",
+    "name": "XIAOMI STORE CENTRAL PARK",
+    "region": "Region 5",
+    "leader": "Aan Fauzi"
+  },
+  {
+    "code": "N183",
+    "name": "XIAOMI STORE BINTARO EXCHANGE MALL",
+    "region": "Region 5",
+    "leader": "Bambang Haryanto"
+  },
+  {
+    "code": "N144",
+    "name": "XIAOMI STORE LIPPO MALL ST. MORITZ",
+    "region": "Region 5",
+    "leader": "Muhammad Rizqi Ramdhani"
+  },
+  {
+    "code": "N140",
+    "name": "XIAOMI STORE CILEGON CENTER MALL",
+    "region": "Region 5",
+    "leader": "Muhammad Taufiq Fahmi A"
+  },
+  {
+    "code": "N131",
+    "name": "XIAOMI STORE AEON MAL BSD CITY",
+    "region": "Region 5",
+    "leader": "M. Dafi Ikbal Firlana"
+  },
+  {
+    "code": "N130",
+    "name": "XIAOMI STORE E-CENTER SUPERMAL KARAWACI",
+    "region": "Region 5",
+    "leader": "Sahat Maleakhi"
+  },
+  {
+    "code": "N354",
+    "name": "MI- STORE K MALL AT MENARA JAKARTA",
+    "region": "Region 5",
+    "leader": "angga maulana"
+  },
+  {
+    "code": "N326",
+    "name": "MI STORE MALL MATAHARI DAAN MOGOT",
+    "region": "Region 5",
+    "leader": "Annisa Yuliani"
+  },
+  {
+    "code": "N380",
+    "name": "MI-STORE PLAZA BINTARO JAYA",
+    "region": "Region 5",
+    "leader": "Riyan Pradipta Nurmawan"
+  },
+  {
+    "code": "N394",
+    "name": "Xiaomi Store Grand Indonesia",
+    "region": "Region 5",
+    "leader": "Muhammad Rizqi Ramdhani"
+  },
+  {
+    "code": "N286",
+    "name": "Xiaomi EDC",
+    "region": "Region 5",
+    "leader": "Mahmud Efendi"
+  }
+]

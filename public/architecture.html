@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERA Walk-In System Blueprint</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0b1020;
+      --muted: #687083;
+      --line: rgba(72, 104, 255, .16);
+      --blue: #315cff;
+      --cyan: #00b8d9;
+      --green: #16a36a;
+      --amber: #d97706;
+      --surface: rgba(255,255,255,.86);
+      --bg: #f6f8ff;
+    }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(247,249,255,.95), rgba(238,244,255,.95)),
+        radial-gradient(circle at 20% 0%, rgba(0,184,217,.14), transparent 32%),
+        radial-gradient(circle at 78% 12%, rgba(49,92,255,.12), transparent 30%);
+    }
+    .topbar {
+      min-height: 72px;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: grid; place-items: center;
+      color: white; font-weight: 900; font-size: 13px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      box-shadow: 0 12px 30px rgba(49,92,255,.24);
+    }
+    h1 { font-size: 18px; letter-spacing: 0; line-height: 1.15; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-top: 3px; }
+    .nav { display: flex; gap: 10px; align-items: center; }
+    .nav a {
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+    .nav a.primary { color: white; background: linear-gradient(135deg, var(--blue), #1a2f98); }
+    main { max-width: 1380px; margin: 0 auto; padding: 30px 32px 56px; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 24px 70px rgba(20,32,84,.08);
+      backdrop-filter: blur(18px);
+    }
+    .pitch { padding: 28px; }
+    .eyebrow {
+      color: var(--blue);
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+    .pitch h2 { font-size: clamp(32px, 4vw, 58px); line-height: .98; letter-spacing: 0; max-width: 780px; }
+    .pitch p { color: var(--muted); line-height: 1.7; font-size: 15px; max-width: 760px; margin-top: 18px; }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.72);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .metric strong { font-size: 30px; color: var(--blue); }
+    .metric span { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .system-card { padding: 24px; display: grid; gap: 14px; }
+    .node {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+    }
+    .node .icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      display: grid; place-items: center;
+      color: white; font-weight: 900;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+    }
+    .node h3 { font-size: 15px; margin-bottom: 4px; }
+    .node p { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .tag {
+      font-size: 11px;
+      color: var(--green);
+      background: rgba(22,163,106,.09);
+      border: 1px solid rgba(22,163,106,.18);
+      padding: 5px 9px;
+      border-radius: 99px;
+      font-weight: 800;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+    .block { padding: 24px; }
+    .block h2 { font-size: 20px; margin-bottom: 16px; }
+    .steps { display: grid; gap: 12px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,.72);
+    }
+    .num {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: grid; place-items: center;
+      color: white; font-weight: 900; font-size: 13px;
+      background: var(--blue);
+    }
+    .step h3 { font-size: 14px; margin-bottom: 5px; }
+    .step p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .layer {
+      position: relative;
+      min-height: 170px;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: white;
+    }
+    .layer::after {
+      content: ">";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--blue);
+      font-weight: 900;
+    }
+    .layer:last-child::after { content: ""; }
+    .layer small { color: var(--blue); font-weight: 850; letter-spacing: 1px; text-transform: uppercase; }
+    .layer h3 { font-size: 15px; margin: 10px 0; }
+    .layer p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .tile {
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: white;
+    }
+    .tile b { display: block; font-size: 14px; margin-bottom: 7px; }
+    .tile span { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    @media (max-width: 980px) {
+      .hero, .section-grid { grid-template-columns: 1fr; }
+      .architecture, .matrix, .kpis { grid-template-columns: 1fr; }
+      .layer::after { content: ""; }
+      .topbar { align-items: flex-start; flex-direction: column; gap: 14px; }
+      main { padding: 20px 16px 40px; }
+      .nav { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">ERA</div>
+      <div>
+        <h1>Walk-In Customer System Blueprint</h1>
+        <div class="subtitle">Workflow, arsitektur web, dan preview konsep operasional</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="/dashboard">Dashboard PIC</a>
+      <a href="/form" class="primary">Form Store</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="panel pitch">
+        <div class="eyebrow">Tanpa sensor pintu, tetap realtime</div>
+        <h2>Sistem laporan walk-in harian berbasis form, API, dan dashboard live.</h2>
+        <p>Store Leader mengisi customer per brand setiap hari. Data langsung masuk ke server lokal, dashboard PIC otomatis menghitung total customer, progress toko yang sudah report, ranking brand, tren harian, dan daftar toko yang belum submit.</p>
+        <div class="kpis">
+          <div class="metric"><strong>198</strong><span>toko dari master Excel All Brand</span></div>
+          <div class="metric"><strong>1x</strong><span>submit per toko per tanggal, bisa update ulang</span></div>
+          <div class="metric"><strong>live</strong><span>dashboard refresh via Server-Sent Events</span></div>
+        </div>
+      </div>
+      <div class="panel system-card">
+        <div class="node">
+          <div class="icon">01</div>
+          <div><h3>Store Master</h3><p>Excel menjadi sumber store code, nama toko, region, dan Store Leader.</p></div>
+          <span class="tag">source</span>
+        </div>
+        <div class="node">
+          <div class="icon">02</div>
+          <div><h3>Daily Form</h3><p>SL pilih tanggal, input walk-in per brand, lalu submit dari HP/laptop toko.</p></div>
+          <span class="tag">input</span>
+        </div>
+        <div class="node">
+          <div class="icon">03</div>
+          <div><h3>API & Validation</h3><p>Server validasi store code, update data tanggal yang sama, dan simpan transaksi.</p></div>
+          <span class="tag">logic</span>
+        </div>
+        <div class="node">
+          <div class="icon">04</div>
+          <div><h3>PIC Dashboard</h3><p>PIC memantau performa semua toko, brand, dan pending report secara realtime.</p></div>
+          <span class="tag">live</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-grid">
+      <div class="panel block">
+        <h2>Workflow Operasional</h2>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><div><h3>Master toko disiapkan</h3><p>File Excel All Brand diekstrak menjadi master store yang dipakai form dan dashboard.</p></div></div>
+          <div class="step"><div class="num">2</div><div><h3>Store Leader submit harian</h3><p>SL mengetik store code, nama toko terdeteksi, nama SL terisi otomatis, lalu mengisi jumlah customer per brand.</p></div></div>
+          <div class="step"><div class="num">3</div><div><h3>Data tersimpan dan bisa diperbarui</h3><p>Jika toko submit ulang pada tanggal yang sama, sistem mengganti laporan lama agar tidak dobel hitung.</p></div></div>
+          <div class="step"><div class="num">4</div><div><h3>PIC monitor live</h3><p>Dashboard memperlihatkan total walk-in, report rate, brand tertinggi, history 7 hari, dan toko belum report.</p></div></div>
+        </div>
+      </div>
+      <div class="panel block">
+        <h2>Kontrol Data</h2>
+        <div class="steps">
+          <div class="step"><div class="num">A</div><div><h3>Validasi store code</h3><p>Hanya store code di master yang diterima oleh form store.</p></div></div>
+          <div class="step"><div class="num">B</div><div><h3>Audit timestamp</h3><p>Setiap laporan menyimpan tanggal report dan waktu submit untuk jejak update.</p></div></div>
+          <div class="step"><div class="num">C</div><div><h3>Single source of truth</h3><p>Untuk preview, data tersimpan di JSON lokal. Versi produksi bisa memakai PostgreSQL, Supabase, Firebase, atau Google Sheets API.</p></div></div>
+          <div class="step"><div class="num">D</div><div><h3>Export lanjutan</h3><p>Data harian dapat ditambah fitur export Excel/CSV, ranking toko, dan laporan bulanan.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel block">
+      <h2>Arsitektur Web Preview</h2>
+      <div class="architecture">
+        <div class="layer"><small>Layer 1</small><h3>Store Master</h3><p>Excel April 2026 diekstrak ke `data/stores.json` untuk lookup dan daftar toko.</p></div>
+        <div class="layer"><small>Layer 2</small><h3>Frontend Store</h3><p>`/form` dipakai Store Leader untuk input customer per brand.</p></div>
+        <div class="layer"><small>Layer 3</small><h3>Express API</h3><p>`/api/submit`, `/api/data`, `/api/today`, `/api/stores`, dan `/api/stream`.</p></div>
+        <div class="layer"><small>Layer 4</small><h3>Data Store</h3><p>`data.json` menyimpan transaksi harian selama preview localhost.</p></div>
+        <div class="layer"><small>Layer 5</small><h3>Dashboard PIC</h3><p>`/dashboard` memvisualkan KPI, chart, feed realtime, dan pending toko.</p></div>
+      </div>
+    </section>
+
+    <section class="panel block" style="margin-top:22px">
+      <h2>Roadmap Produksi</h2>
+      <div class="matrix">
+        <div class="tile"><b>Login Role</b><span>PIC, Area, Store Leader, dan admin master data dengan hak akses terpisah.</span></div>
+        <div class="tile"><b>Database Cloud</b><span>Supabase/Firebase/PostgreSQL agar data live bisa diakses lintas lokasi.</span></div>
+        <div class="tile"><b>Reminder Otomatis</b><span>Notifikasi WA/email untuk toko yang belum report sampai jam tertentu.</span></div>
+        <div class="tile"><b>BI Export</b><span>Export Excel, rekap bulanan, perbandingan area, dan target versus actual.</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
