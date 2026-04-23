@@ -329,6 +329,35 @@
     }
     .search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
     .search-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .brand-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: -4px 0 16px;
+    }
+    .brand-filter-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, color .2s, background .2s;
+    }
+    .brand-filter-btn.active {
+      color: var(--blue);
+      background: var(--light);
+      border-color: rgba(67,97,238,.28);
+      box-shadow: 0 2px 10px rgba(67,97,238,.08);
+    }
+    .brand-filter-count {
+      color: inherit;
+      opacity: .72;
+      font-weight: 800;
+    }
 
     /* ══ SUBMITTED CARDS ══ */
     .done-grid {
@@ -595,6 +624,15 @@
         gap: 8px;
       }
       .search-meta { white-space: normal; }
+      .brand-filter {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .brand-filter-btn {
+        width: 100%;
+        padding: 9px 8px;
+      }
       .pending-panel {
         padding: 0;
         overflow: visible;
@@ -797,6 +835,13 @@
              oninput="filterPending()" />
       <div class="search-meta" id="searchMeta"></div>
     </div>
+    <div class="brand-filter" id="brandFilter">
+      <button class="brand-filter-btn active" type="button" data-channel="ALL" onclick="setPendingChannel('ALL')">Semua <span class="brand-filter-count" id="bfAll">0</span></button>
+      <button class="brand-filter-btn" type="button" data-channel="ERAFONE" onclick="setPendingChannel('ERAFONE')">ERAFONE <span class="brand-filter-count" id="bfErafone">0</span></button>
+      <button class="brand-filter-btn" type="button" data-channel="IBOX" onclick="setPendingChannel('IBOX')">IBOX <span class="brand-filter-count" id="bfIbox">0</span></button>
+      <button class="brand-filter-btn" type="button" data-channel="SAMSUNG" onclick="setPendingChannel('SAMSUNG')">SAMSUNG <span class="brand-filter-count" id="bfSamsung">0</span></button>
+      <button class="brand-filter-btn" type="button" data-channel="XIAOMI" onclick="setPendingChannel('XIAOMI')">XIAOMI <span class="brand-filter-count" id="bfXiaomi">0</span></button>
+    </div>
     <div class="pending-panel">
       <table class="pending-table">
         <thead>
@@ -958,6 +1003,14 @@ function initCharts() {
 const fmt = n => (n||0).toLocaleString('id-ID');
 const fmtTime = s => s ? new Date(s).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
 const fmtDate = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'}); };
+const channelOf = code => {
+  const first = (code || '').charAt(0).toUpperCase();
+  if (first === 'X') return 'IBOX';
+  if (first === 'S') return 'SAMSUNG';
+  if (first === 'N') return 'XIAOMI';
+  return 'ERAFONE';
+};
+let activePendingChannel = 'ALL';
 
 /* ─── DATE ─── */
 const today = new Date().toISOString().split('T')[0];
@@ -1074,8 +1127,8 @@ function renderDashboard(data) {
 
   // ── Pending table ──
   window._pendingCodes = pendingCodes;
-  renderPendingTable(pendingCodes);
-  document.getElementById('searchMeta').textContent = `${pendingCodes.length} toko belum report`;
+  updatePendingFilterCounts(pendingCodes);
+  filterPending();
 }
 
 /* ─── TAB SWITCH ─── */
@@ -1088,6 +1141,24 @@ function switchTab(tab) {
 }
 
 /* ─── PENDING TABLE ─── */
+function updatePendingFilterCounts(codes) {
+  const counts = { ALL: codes.length, ERAFONE: 0, IBOX: 0, SAMSUNG: 0, XIAOMI: 0 };
+  codes.forEach(code => { counts[channelOf(code)] += 1; });
+  document.getElementById('bfAll').textContent = counts.ALL;
+  document.getElementById('bfErafone').textContent = counts.ERAFONE;
+  document.getElementById('bfIbox').textContent = counts.IBOX;
+  document.getElementById('bfSamsung').textContent = counts.SAMSUNG;
+  document.getElementById('bfXiaomi').textContent = counts.XIAOMI;
+}
+
+function setPendingChannel(channel) {
+  activePendingChannel = channel;
+  document.querySelectorAll('.brand-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.channel === channel);
+  });
+  filterPending();
+}
+
 function renderPendingTable(codes) {
   const tbody = document.getElementById('pendingTableBody');
   const footer = document.getElementById('pendingFooter');
@@ -1096,24 +1167,27 @@ function renderPendingTable(codes) {
     footer.textContent = '';
     return;
   }
-  tbody.innerHTML = codes.slice(0, 100).map(code => `
+  tbody.innerHTML = codes.map(code => `
     <tr>
       <td data-label="Store Code"><span class="ptable-code">${code}</span></td>
       <td data-label="Nama Toko"><span class="ptable-name">${STORE_MAP[code]||code}</span></td>
       <td data-label="Status"><span class="ptable-status">✗ Belum Report</span></td>
     </tr>`).join('');
-  footer.textContent = codes.length > 100
-    ? `Menampilkan 100 dari ${codes.length} toko. Gunakan pencarian untuk filter spesifik.`
-    : `Total ${codes.length} toko belum report`;
+  const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
+  footer.textContent = `Menampilkan ${codes.length} toko belum report untuk ${channelLabel}`;
 }
 
 function filterPending() {
   const q = document.getElementById('searchPend').value.trim().toLowerCase();
   const all = window._pendingCodes || [];
+  const channelFiltered = activePendingChannel === 'ALL'
+    ? all
+    : all.filter(c => channelOf(c) === activePendingChannel);
   const filtered = q
-    ? all.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
-    : all;
-  document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan`;
+    ? channelFiltered.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
+    : channelFiltered;
+  const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
+  document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan · ${channelLabel}`;
   renderPendingTable(filtered);
 }
 
