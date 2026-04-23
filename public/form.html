@@ -35,8 +35,15 @@
       padding: 20px 24px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 16px;
       box-shadow: 0 4px 20px rgba(0,52,153,0.25);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
     }
     .header-logo {
       width: 48px;
@@ -53,6 +60,32 @@
     }
     .header h1 { font-size: 18px; font-weight: 700; }
     .header p { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 112px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.14);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    .header-btn:hover { background: rgba(255,255,255,0.2); }
 
     /* Main container */
     .container {
@@ -324,15 +357,35 @@
       white-space: nowrap;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
+    @media (max-width: 640px) {
+      .header {
+        padding: 18px 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .header-left { width: 100%; }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .header-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-logo">ERA</div>
-  <div>
-    <h1>Walk-In Customer Form</h1>
-    <p>Input data customer harian per SPG</p>
+  <div class="header-left">
+    <div class="header-logo">ERA</div>
+    <div>
+      <h1>Walk-In Customer Form</h1>
+      <p>Input data customer harian per SPG</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a class="header-btn" href="/dashboard">Admin</a>
   </div>
 </div>
 
@@ -679,10 +732,27 @@
   // Store master loaded from server
   let STORE_MAP = {};
   let STORE_MASTER = {};
-  fetch('/api/stores').then(r=>r.json()).then(d=>{ STORE_MAP = d; });
+  let STORE_MAP_READY = false;
+  function normalizeStoreCode(value) {
+    return (value || '').toUpperCase().replace(/\s+/g, '').trim();
+  }
+  function isStoreMapLoaded() {
+    return STORE_MAP_READY && Object.keys(STORE_MAP).length > 0;
+  }
+  fetch('/api/stores')
+    .then(r=>r.json())
+    .then(d=>{
+      STORE_MAP = Array.isArray(d) ? Object.fromEntries(d.map(store => [store.code, store.name])) : (d || {});
+      STORE_MAP_READY = true;
+      if (document.getElementById('storeCode').value.trim()) onStoreCodeInput();
+    })
+    .catch(()=>{ STORE_MAP_READY = false; });
   fetch('/api/store-master')
     .then(r=>r.json())
-    .then(list=>{ STORE_MASTER = Object.fromEntries(list.map(store => [store.code, store])); });
+    .then(list=>{
+      STORE_MASTER = Object.fromEntries((Array.isArray(list) ? list : []).map(store => [store.code, store]));
+      if (document.getElementById('storeCode').value.trim()) onStoreCodeInput();
+    });
 
   // Set today's date
   const today = new Date().toISOString().split('T')[0];
@@ -690,11 +760,21 @@
 
   // Live lookup saat Store Code diketik
   function onStoreCodeInput() {
-    const code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const field = document.getElementById('storeCode');
+    const code = normalizeStoreCode(field.value);
     const box  = document.getElementById('storeNameResult');
     const alert = document.getElementById('alertUpdate');
+    field.value = code;
 
     if (!code) { box.style.display='none'; alert.classList.remove('show'); return; }
+    if (!isStoreMapLoaded()) {
+      box.style.display = 'block';
+      box.style.background = '#EEF2FF';
+      box.style.border = '1px solid rgba(67,97,238,0.3)';
+      box.style.color = '#3730A3';
+      box.innerHTML = `⏳ Memuat master store untuk kode <strong>${code}</strong>...`;
+      return;
+    }
 
     const name = STORE_MAP[code];
     if (name) {
@@ -720,7 +800,7 @@
   document.getElementById('submissionDate').addEventListener('change', checkExisting);
 
   async function checkExisting() {
-    const code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const code = normalizeStoreCode(document.getElementById('storeCode').value);
     const date = document.getElementById('submissionDate').value;
     if (!code || !STORE_MAP[code] || !date) return;
 
@@ -744,11 +824,12 @@
   }
 
   async function submitForm() {
-    const store_code = document.getElementById('storeCode').value.trim().toUpperCase();
+    const store_code = normalizeStoreCode(document.getElementById('storeCode').value);
     const store_leader = document.getElementById('storeLeader').value.trim();
     const submission_date = document.getElementById('submissionDate').value;
 
     if (!store_code)           return showToast('Masukkan Store Code / Plant Code toko');
+    if (!isStoreMapLoaded())   return showToast('Master store masih dimuat. Coba submit beberapa detik lagi.');
     if (!STORE_MAP[store_code]) return showToast(`Store Code "${store_code}" tidak valid`);
     if (!store_leader)         return showToast('Masukkan nama Store Leader');
     if (!submission_date)      return showToast('Pilih tanggal');

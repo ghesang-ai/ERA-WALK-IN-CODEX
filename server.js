@@ -147,6 +147,20 @@ app.get('/architecture', (req, res) => res.sendFile(path.join(__dirname, 'public
 // Expose store master to frontend
 app.get('/api/stores', (req, res) => res.json(STORE_DIRECTORY));
 app.get('/api/store-master', (req, res) => res.json(STORE_LIST));
+app.get('/api/admin-status', (req, res) => res.json({ enabled: Boolean(process.env.ADMIN_PIN) }));
+app.post('/api/admin-login', (req, res) => {
+  const pin = (req.body?.pin || '').trim();
+  if (!process.env.ADMIN_PIN) {
+    return res.status(503).json({ error: 'Admin PIN belum dikonfigurasi' });
+  }
+  if (!pin) {
+    return res.status(400).json({ error: 'PIN admin wajib diisi' });
+  }
+  if (pin !== process.env.ADMIN_PIN) {
+    return res.status(401).json({ error: 'PIN admin salah' });
+  }
+  res.json({ success: true });
+});
 
 // ── SSE ──
 let sseClients = [];

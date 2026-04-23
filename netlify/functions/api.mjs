@@ -60,6 +60,25 @@ export default async function handler(request) {
       return json(stores);
     }
 
+    if (request.method === 'GET' && route === 'admin-status') {
+      return json({ enabled: Boolean(process.env.ADMIN_PIN) });
+    }
+
+    if (request.method === 'POST' && route === 'admin-login') {
+      const body = await request.json();
+      const pin = (body.pin || '').trim();
+      if (!process.env.ADMIN_PIN) {
+        return json({ error: 'Admin PIN belum dikonfigurasi' }, 503);
+      }
+      if (!pin) {
+        return json({ error: 'PIN admin wajib diisi' }, 400);
+      }
+      if (pin !== process.env.ADMIN_PIN) {
+        return json({ error: 'PIN admin salah' }, 401);
+      }
+      return json({ success: true });
+    }
+
     if (request.method === 'GET' && route === 'stream') {
       return json({ type: 'polling_mode', message: 'Netlify production uses scheduled polling instead of SSE.' });
     }
