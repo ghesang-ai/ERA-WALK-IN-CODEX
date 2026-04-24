@@ -206,6 +206,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/form',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'form.html')));
+app.get('/admin',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/architecture', (req, res) => res.sendFile(path.join(__dirname, 'public', 'architecture.html')));
 

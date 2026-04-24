@@ -33,8 +33,6 @@
       color: var(--text);
       min-height: 100vh;
     }
-    body.locked { overflow: hidden; }
-
     /* ══ HEADER ══ */
     .header {
       background: var(--surface);
@@ -117,7 +115,9 @@
     }
     .btn-form:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(67,97,238,0.4); }
     .btn-admin {
-      display: inline-flex; align-items: center; gap: 6px;
+      display: none;
+      align-items: center;
+      gap: 6px;
       background: white;
       color: var(--blue);
       border: 1px solid var(--border);
@@ -130,6 +130,7 @@
       box-shadow: 0 4px 14px rgba(67,97,238,0.08);
     }
     body.admin-mode .btn-admin {
+      display: inline-flex;
       background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
       color: #059669;
       border-color: rgba(6,214,160,.3);
@@ -150,108 +151,6 @@
       box-shadow: 0 4px 14px rgba(239,35,60,.08);
     }
     body.admin-mode .btn-reset { display: inline-flex; }
-    .admin-overlay {
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at top left, rgba(76,201,240,.18), transparent 32%),
-        linear-gradient(180deg, rgba(10,15,44,.76), rgba(10,15,44,.88));
-      backdrop-filter: blur(16px);
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    body.locked .admin-overlay { display: flex; }
-    .admin-modal {
-      width: min(100%, 420px);
-      background: rgba(255,255,255,.96);
-      border: 1px solid rgba(99,115,255,.16);
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: 0 20px 80px rgba(10,15,44,.24);
-    }
-    .admin-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #EEF2FF;
-      color: var(--blue);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .6px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-    .admin-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-    .admin-copy {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-    .admin-input {
-      width: 100%;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid var(--border);
-      padding: 0 16px;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: .6px;
-      outline: none;
-      margin-bottom: 12px;
-    }
-    .admin-input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 4px rgba(67,97,238,.12);
-    }
-    .admin-error {
-      min-height: 20px;
-      color: var(--red);
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .admin-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .admin-primary,
-    .admin-secondary {
-      height: 46px;
-      border-radius: 14px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .admin-primary {
-      flex: 1;
-      border: none;
-      color: white;
-      background: linear-gradient(135deg, var(--blue), var(--blue2));
-      box-shadow: 0 10px 24px rgba(67,97,238,.28);
-    }
-    .admin-secondary {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--muted);
-      padding: 0 16px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     /* ══ MAIN ══ */
     .main { padding: 28px 32px 48px; max-width: 1440px; margin: 0 auto; }
     .month-strip {
@@ -923,26 +822,12 @@
     <div class="live-pill"><div class="live-dot"></div>LIVE</div>
     <div class="date-chip" id="dateChipDisplay">—</div>
     <div class="last-upd" id="lastUpd"></div>
-    <button class="btn-admin" type="button" onclick="toggleAdminMode()" aria-label="Admin"><span class="btn-icon">⚙</span><span class="btn-label" id="adminBtnLabel">Admin</span></button>
+    <button class="btn-admin" id="logoutAdminBtn" type="button" onclick="logoutAdmin()" aria-label="Logout Admin"><span class="btn-icon">⚙</span><span class="btn-label">Logout Admin</span></button>
     <button class="btn-reset" type="button" onclick="resetSelectedMonth()" aria-label="Reset Bulan"><span class="btn-icon">⟲</span><span class="btn-label">Reset Bulan</span></button>
     <a href="/architecture" class="btn-form" aria-label="Workflow"><span class="btn-icon">⌬</span><span class="btn-label">Workflow</span></a>
     <a href="/form" class="btn-form" aria-label="Form Submit"><span class="btn-icon">⊕</span><span class="btn-label">Form Submit</span></a>
   </div>
 </header>
-
-<div class="admin-overlay" id="adminOverlay">
-  <div class="admin-modal">
-    <div class="admin-kicker">PIC Access</div>
-    <div class="admin-title">Admin Dashboard</div>
-    <div class="admin-copy">Monitoring dashboard dan tombol hapus report hanya dibuka untuk PIC. Masukkan PIN Admin Anda untuk melanjutkan.</div>
-    <input class="admin-input" id="adminPinInput" type="password" inputmode="numeric" placeholder="Masukkan PIN Admin" />
-    <div class="admin-error" id="adminError"></div>
-    <div class="admin-actions">
-      <button class="admin-primary" type="button" onclick="loginAdmin()">Masuk Admin</button>
-      <a class="admin-secondary" href="/form">Kembali</a>
-    </div>
-  </div>
-</div>
 
 <!-- ═══════ MAIN ═══════ -->
 <main class="main">
@@ -1259,56 +1144,16 @@ function clearAdminPin() { sessionStorage.removeItem('eraWalkinAdminPin'); updat
 function updateAdminState() {
   const isAdmin = !!getAdminPin();
   document.body.classList.toggle('admin-mode', isAdmin);
-  document.body.classList.toggle('locked', adminEnabled && !isAdmin);
-  const label = document.getElementById('adminBtnLabel');
-  if (label) label.textContent = isAdmin ? 'Logout Admin' : 'Admin';
 }
-async function loginAdmin(pinValue) {
-  const pin = (pinValue ?? document.getElementById('adminPinInput')?.value ?? '').trim();
-  const errorEl = document.getElementById('adminError');
-  if (errorEl) errorEl.textContent = '';
-  if (!adminEnabled) {
-    if (errorEl) errorEl.textContent = 'Admin PIN belum dikonfigurasi di server.';
-    else alert('Admin PIN belum dikonfigurasi di server.');
-    return false;
-  }
-  if (!pin) {
-    if (errorEl) errorEl.textContent = 'Masukkan PIN Admin terlebih dahulu.';
-    return false;
-  }
-  try {
-    const res = await fetch('/api/admin-login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
-    });
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-      if (errorEl) errorEl.textContent = data.error || 'PIN admin tidak valid.';
-      return false;
-    }
-    setAdminPin(pin);
-    if (document.getElementById('adminPinInput')) document.getElementById('adminPinInput').value = '';
-    return true;
-  } catch (e) {
-    if (errorEl) errorEl.textContent = 'Gagal terhubung ke server admin.';
-    return false;
-  }
+function redirectToAdminLogin(message) {
+  if (message) alert(message);
+  window.location.href = '/admin';
 }
-async function toggleAdminMode() {
-  if (getAdminPin()) {
-    if (confirm('Keluar dari mode Admin? Tombol Hapus akan disembunyikan lagi.')) clearAdminPin();
-    return;
-  }
-  if (!adminEnabled) {
-    alert('Admin PIN belum dikonfigurasi di server. Set env `ADMIN_PIN` dulu di Netlify/local.');
-    return;
-  }
-  document.body.classList.add('locked');
-  const input = document.getElementById('adminPinInput');
-  if (input) {
-    input.value = '';
-    input.focus();
+function logoutAdmin() {
+  if (!getAdminPin()) return;
+  if (confirm('Keluar dari mode Admin? Tombol Hapus dan Reset akan disembunyikan lagi.')) {
+    clearAdminPin();
+    window.location.href = '/dashboard';
   }
 }
 
@@ -1320,7 +1165,23 @@ async function initAdminAccess() {
   } catch (e) {
     adminEnabled = false;
   }
-  if (!adminEnabled) clearAdminPin();
+  if (!adminEnabled) {
+    clearAdminPin();
+    return updateAdminState();
+  }
+  const pin = getAdminPin();
+  if (pin) {
+    try {
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin })
+      });
+      if (!res.ok) clearAdminPin();
+    } catch (e) {
+      clearAdminPin();
+    }
+  }
   updateAdminState();
 }
 
@@ -1524,8 +1385,7 @@ function filterPending() {
 async function deleteReport(storeCode, date, storeName) {
   const adminPin = getAdminPin();
   if (!adminPin) {
-    alert('Masuk mode Admin dulu untuk menghapus report.');
-    toggleAdminMode();
+    redirectToAdminLogin('Login Admin PIC dulu untuk menghapus report toko.');
     return;
   }
   const ok = window.confirm(`Hapus report WIC ${storeCode} - ${storeName} untuk tanggal ${date}?\n\nData akan hilang dari dashboard dan toko akan kembali masuk daftar Belum Report.`);
@@ -1628,8 +1488,7 @@ function renderActivityFeed(submissions, reportCount, pendingCount, periodLabel)
 async function resetSelectedMonth() {
   const adminPin = getAdminPin();
   if (!adminPin) {
-    alert('Masuk mode Admin dulu untuk reset data bulanan.');
-    toggleAdminMode();
+    redirectToAdminLogin('Login Admin PIC dulu untuk reset data bulanan.');
     return;
   }
   const periodLabel = formatMonthLabel(selectedMonth);
@@ -1700,10 +1559,6 @@ function connectSSE() {
 /* ─── INIT ─── */
 initCharts();
 renderMonthStrip();
-document.getElementById('adminPinInput')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') loginAdmin();
-});
-
 initAdminAccess().then(() => {
   loadData();
   loadTrend();
