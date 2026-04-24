@@ -142,6 +142,25 @@ function normalizeMonth(month) {
 function monthFromDate(date) {
   return (date || '').slice(0, 7);
 }
+function normalizeDate(date) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : '';
+}
+function getMonthDates(month) {
+  if (!normalizeMonth(month)) return [];
+  const [year, mon] = month.split('-').map(Number);
+  const lastDay = new Date(year, mon, 0).getDate();
+  return Array.from({ length: lastDay }, (_, idx) => {
+    const day = String(idx + 1).padStart(2, '0');
+    return `${year}-${String(mon).padStart(2, '0')}-${day}`;
+  });
+}
+function channelOf(code) {
+  const first = (code || '').charAt(0).toUpperCase();
+  if (first === 'X') return 'IBOX';
+  if (first === 'S') return 'SAMSUNG';
+  if (first === 'N') return 'XIAOMI';
+  return 'ERAFONE';
+}
 function summarizeMonth(submissions) {
   const storeMap = {};
   const brandMap = {};
@@ -200,6 +219,25 @@ function summarizeMonth(submissions) {
     brandTotals,
     grandTotal: submissions.reduce((sum, item) => sum + (item.total_customers || 0), 0)
   };
+}
+function buildComplianceMatrix(submissions, month) {
+  const dates = getMonthDates(month);
+  const submittedSet = new Set(submissions.map(item => `${item.store_code}|${item.submission_date}`));
+  const rows = STORE_LIST.map(store => {
+    const statuses = dates.map(date => submittedSet.has(`${store.code}|${date}`));
+    return {
+      store_code: store.code,
+      store_name: store.name,
+      channel: channelOf(store.code),
+      submitted_days: statuses.filter(Boolean).length,
+      statuses
+    };
+  });
+  const dayTotals = dates.map((date, idx) => ({
+    date,
+    submitted: rows.reduce((sum, row) => sum + (row.statuses[idx] ? 1 : 0), 0)
+  }));
+  return { dates, rows, dayTotals };
 }
 
 app.use(express.json());
@@ -375,6 +413,47 @@ app.get('/api/data', (req, res) => {
     storeCount: storeSummaries.length,
     registeredStores: STORE_LIST.length,
     pendingStores: Math.max(STORE_LIST.length - storeSummaries.length, 0)
+  });
+});
+
+app.get('/api/daily', (req, res) => {
+  const date = normalizeDate(req.query.date) || new Date().toISOString().split('T')[0];
+  const month = monthFromDate(date);
+  const db = readDB();
+  const daySubmissions = db.submissions.filter(s => s.submission_date === date);
+  const { storeSummaries, brandTotals, grandTotal } = summarizeMonth(daySubmissions);
+  const submittedCodes = new Set(storeSummaries.map(item => item.store_code));
+  const pendingCodes = STORE_LIST
+    .map(store => store.code)
+    .filter(code => !submittedCodes.has(code));
+
+  res.json({
+    date,
+    month,
+    periodType: 'day',
+    submissions: storeSummaries,
+    activityFeed: [...daySubmissions]
+      .sort((a, b) => (b.submitted_at || '').localeCompare(a.submitted_at || ''))
+      .slice(0, 20),
+    brandTotals,
+    grandTotal,
+    reportCount: daySubmissions.length,
+    storeCount: storeSummaries.length,
+    registeredStores: STORE_LIST.length,
+    pendingStores: pendingCodes.length,
+    pendingCodes
+  });
+});
+
+app.get('/api/compliance', (req, res) => {
+  const month = normalizeMonth(req.query.month) || monthFromDate(new Date().toISOString().split('T')[0]);
+  const db = readDB();
+  const monthSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === month);
+  const matrix = buildComplianceMatrix(monthSubmissions, month);
+  res.json({
+    month,
+    ...matrix,
+    registeredStores: STORE_LIST.length
   });
 });
 

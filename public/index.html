@@ -177,6 +177,228 @@
       border-color: transparent;
       box-shadow: 0 10px 24px rgba(67,97,238,.18);
     }
+    .control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 14px;
+      background: var(--light);
+      border: 1px solid var(--border);
+    }
+    .mode-btn {
+      height: 40px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: white;
+      box-shadow: 0 8px 18px rgba(67,97,238,.18);
+    }
+    .control-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .date-input {
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      padding: 0 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+    }
+    .date-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(67,97,238,.12);
+    }
+    .btn-export {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(67,97,238,.16);
+      background: white;
+      color: var(--blue);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(67,97,238,.08);
+    }
+    body.admin-mode .btn-export { display: inline-flex; }
+    .ops-note {
+      display: none;
+      margin-bottom: 18px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      border: 1px dashed rgba(67,97,238,.22);
+      background: rgba(255,255,255,.76);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+    .ops-note strong {
+      color: var(--text);
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .ops-note.show { display: block; }
+    .admin-section {
+      display: none;
+      margin-top: 24px;
+    }
+    body.admin-mode .admin-section { display: block; }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .admin-mini {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 18px 20px;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+    }
+    .admin-mini-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 8px;
+    }
+    .admin-mini-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .admin-mini-sub {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .compliance-card {
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+    }
+    .compliance-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .compliance-wrap {
+      overflow: auto;
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 16px;
+      background: #FBFCFF;
+    }
+    .compliance-table {
+      border-collapse: collapse;
+      min-width: 1100px;
+      width: 100%;
+    }
+    .compliance-table th,
+    .compliance-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(99,115,255,0.06);
+      border-right: 1px solid rgba(99,115,255,0.05);
+      text-align: center;
+      font-size: 11px;
+    }
+    .compliance-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #F8FAFF;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .compliance-table th:first-child,
+    .compliance-table td:first-child,
+    .compliance-table th:nth-child(2),
+    .compliance-table td:nth-child(2) {
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 2;
+    }
+    .compliance-table th:nth-child(2),
+    .compliance-table td:nth-child(2) {
+      left: 86px;
+      z-index: 2;
+    }
+    .compliance-table thead th:first-child,
+    .compliance-table thead th:nth-child(2) {
+      z-index: 3;
+      background: #F8FAFF;
+    }
+    .compliance-code {
+      width: 86px;
+      min-width: 86px;
+      background: #FBFCFF;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .compliance-name {
+      min-width: 230px;
+      max-width: 230px;
+      text-align: left !important;
+      background: #FBFCFF;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .compliance-cell.done {
+      background: rgba(6,214,160,.12);
+      color: #059669;
+      font-weight: 900;
+    }
+    .compliance-cell.miss {
+      background: rgba(239,35,60,.06);
+      color: var(--red);
+      font-weight: 800;
+    }
+    .compliance-footer {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
 
     /* ══ KPI GRID ══ */
     .kpi-grid {
@@ -565,6 +787,8 @@
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 5px; }
 
     @media (max-width: 1024px) {
+      .control-bar { align-items: stretch; }
+      .admin-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2,1fr); }
       .charts-row { grid-template-columns: 1fr; }
       .header {
@@ -603,6 +827,26 @@
         align-items: center;
       }
       .month-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .control-bar {
+        display: grid;
+        gap: 10px;
+      }
+      .control-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .mode-toggle {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .mode-btn { width: 100%; }
+      .date-input,
+      .btn-export {
+        width: 100%;
+        justify-content: center;
+      }
       .live-pill {
         padding: 6px 10px;
         font-size: 11px;
@@ -727,6 +971,7 @@
         grid-template-columns: 1fr;
         gap: 12px;
       }
+      .admin-grid { gap: 12px; }
       .store-card {
         border-radius: 14px;
         padding: 16px;
@@ -832,6 +1077,22 @@
 <!-- ═══════ MAIN ═══════ -->
 <main class="main">
   <div class="month-strip" id="monthStrip"></div>
+  <div class="control-bar">
+    <div class="mode-toggle" role="tablist" aria-label="Mode Dashboard">
+      <button class="mode-btn active" id="modeMonthBtn" type="button" onclick="setViewMode('month')">Bulanan</button>
+      <button class="mode-btn" id="modeDayBtn" type="button" onclick="setViewMode('day')">Harian</button>
+    </div>
+    <div class="control-actions">
+      <input class="date-input" id="datePicker" type="date" onchange="setSelectedDate(this.value)" />
+      <button class="btn-export" type="button" onclick="exportDailyReport()" aria-label="Export Harian">
+        <span class="btn-icon">⤓</span><span class="btn-label">Export Harian</span>
+      </button>
+    </div>
+  </div>
+  <div class="ops-note" id="opsNote">
+    <strong>Detail operasional harian</strong>
+    Mode harian menampilkan ringkasan publik. Untuk melihat toko yang sudah submit, belum submit, matrix kepatuhan per tanggal, dan export harian, masuk dulu lewat halaman Admin PIC.
+  </div>
 
   <!-- KPI -->
   <div class="kpi-grid">
@@ -977,6 +1238,43 @@
       <div class="pending-footer" id="pendingFooter"></div>
     </div>
   </div>
+
+  <section class="admin-section" id="adminDailySection">
+    <div class="admin-grid">
+      <div class="admin-mini">
+        <div class="admin-mini-label">Tanggal Terpilih</div>
+        <div class="admin-mini-value" id="dailySelectedDate">—</div>
+        <div class="admin-mini-sub">Monitoring submit harian per store</div>
+      </div>
+      <div class="admin-mini">
+        <div class="admin-mini-label">Sudah Submit Harian</div>
+        <div class="admin-mini-value" id="dailyDoneCount">0</div>
+        <div class="admin-mini-sub" id="dailyDoneSub">Belum ada toko submit</div>
+      </div>
+      <div class="admin-mini">
+        <div class="admin-mini-label">Belum Submit Harian</div>
+        <div class="admin-mini-value" id="dailyPendingCount">0</div>
+        <div class="admin-mini-sub" id="dailyPendingSub">Semua toko sudah submit</div>
+      </div>
+    </div>
+
+    <div class="compliance-card">
+      <div class="compliance-head">
+        <div>
+          <div class="card-title">Kalender Kepatuhan Submit</div>
+          <div class="card-sub" id="complianceSub">Matriks submit harian per toko untuk bulan terpilih</div>
+        </div>
+        <span class="badge" id="complianceBadge">0 toko</span>
+      </div>
+      <div class="compliance-wrap">
+        <table class="compliance-table">
+          <thead id="complianceHead"></thead>
+          <tbody id="complianceBody"></tbody>
+        </table>
+      </div>
+      <div class="compliance-footer" id="complianceFooter"></div>
+    </div>
+  </section>
 
 </main>
 
@@ -1129,6 +1427,10 @@ const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt'
 const now = new Date();
 const selectedYear = now.getFullYear();
 let selectedMonth = `${selectedYear}-${String(now.getMonth()+1).padStart(2,'0')}`;
+let selectedDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0,10);
+let viewMode = 'month';
+let latestDailyData = null;
+let latestMonthlyData = null;
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -1190,26 +1492,78 @@ function formatMonthLabel(monthKey) {
   const [year, month] = monthKey.split('-');
   return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
 }
+function formatDateLabel(dateValue) {
+  const d = new Date(`${dateValue}T00:00:00`);
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function syncDatePicker() {
+  const picker = document.getElementById('datePicker');
+  if (picker) {
+    picker.value = selectedDate;
+    picker.max = new Date().toISOString().slice(0,10);
+  }
+}
+function updateControlState() {
+  document.getElementById('modeMonthBtn').classList.toggle('active', viewMode === 'month');
+  document.getElementById('modeDayBtn').classList.toggle('active', viewMode === 'day');
+  const picker = document.getElementById('datePicker');
+  if (picker) picker.style.display = viewMode === 'day' ? '' : 'none';
+  const exportBtn = document.querySelector('.btn-export');
+  if (exportBtn) exportBtn.style.display = viewMode === 'day' && !!getAdminPin() ? 'inline-flex' : 'none';
+  const opsNote = document.getElementById('opsNote');
+  if (opsNote) opsNote.classList.toggle('show', viewMode === 'day' && !getAdminPin());
+  const adminSection = document.getElementById('adminDailySection');
+  if (adminSection) adminSection.style.display = viewMode === 'day' && !!getAdminPin() ? 'block' : 'none';
+}
 function renderMonthStrip() {
   const wrap = document.getElementById('monthStrip');
   wrap.innerHTML = MONTH_SHORT.map((label, idx) => {
     const key = `${selectedYear}-${String(idx + 1).padStart(2,'0')}`;
     return `<button class="month-btn ${key === selectedMonth ? 'active' : ''}" type="button" onclick="setMonthFilter('${key}')">${label}</button>`;
   }).join('');
-  document.getElementById('dateChipDisplay').textContent = formatMonthLabel(selectedMonth);
+  updateControlState();
+  document.getElementById('dateChipDisplay').textContent = viewMode === 'day' ? formatDateLabel(selectedDate) : formatMonthLabel(selectedMonth);
 }
 function setMonthFilter(monthKey) {
   selectedMonth = monthKey;
+  if (!selectedDate.startsWith(monthKey)) {
+    selectedDate = `${monthKey}-01`;
+  }
+  syncDatePicker();
   renderMonthStrip();
   loadData();
   loadTrend();
+  if (viewMode === 'day' && getAdminPin()) loadCompliance();
+}
+function setViewMode(mode) {
+  viewMode = mode;
+  syncDatePicker();
+  renderMonthStrip();
+  loadData();
+  loadTrend();
+  if (mode === 'day' && getAdminPin()) loadCompliance();
+}
+function setSelectedDate(dateValue) {
+  if (!dateValue) return;
+  selectedDate = dateValue;
+  selectedMonth = dateValue.slice(0,7);
+  syncDatePicker();
+  renderMonthStrip();
+  loadData();
+  loadTrend();
+  if (getAdminPin()) loadCompliance();
 }
 
 /* ─── LOAD DATA ─── */
 async function loadData() {
   try {
-    const res = await fetch(`/api/data?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
+    const endpoint = viewMode === 'day'
+      ? `/api/daily?date=${selectedDate}&ts=${Date.now()}`
+      : `/api/data?month=${selectedMonth}&ts=${Date.now()}`;
+    const res = await fetch(endpoint, { cache: 'no-store' });
     const data = await res.json();
+    if (viewMode === 'day') latestDailyData = data;
+    else latestMonthlyData = data;
     renderDashboard(data);
     document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
   } catch(e) { console.error(e); }
@@ -1217,7 +1571,8 @@ async function loadData() {
 
 async function loadTrend() {
   try {
-    const res = await fetch(`/api/history?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
+    const monthKey = viewMode === 'day' ? selectedDate.slice(0,7) : selectedMonth;
+    const res = await fetch(`/api/history?month=${monthKey}&ts=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     trendChart.data.labels = data.map(d=>fmtDate(d.submission_date));
     trendChart.data.datasets[0].data = data.map(d=>d.total);
@@ -1227,16 +1582,29 @@ async function loadTrend() {
 
 /* ─── RENDER ─── */
 function renderDashboard(data) {
-  const periodLabel = formatMonthLabel(data.month || selectedMonth);
+  const isDaily = data.periodType === 'day';
+  const periodLabel = isDaily
+    ? formatDateLabel(data.date || selectedDate)
+    : formatMonthLabel(data.month || selectedMonth);
   document.getElementById('dateChipDisplay').textContent = periodLabel;
+  document.getElementById('kpiTotalLabel').textContent = isDaily ? 'Total Walk-In Hari Ini' : 'Total Walk-In Bulan Ini';
+  document.getElementById('kpiStoresLabel').textContent = isDaily ? 'Toko Sudah Report Hari Ini' : 'Toko Sudah Report Bulan Ini';
+  document.getElementById('kpiAvgLabel').textContent = 'Rata-rata per Toko';
+  document.getElementById('brandChartTitle').textContent = isDaily ? 'Customer per Brand Hari Ini' : 'Customer per Brand';
+  document.getElementById('brandChartSub').textContent = isDaily ? `Agregat semua toko pada ${periodLabel}` : 'Agregat semua toko bulan ini';
+  document.getElementById('trendChartTitle').textContent = isDaily ? 'Tren Harian Bulan Berjalan' : 'Tren Harian Bulan Ini';
+  document.getElementById('trendChartSub').textContent = isDaily ? `Konteks tren di sekitar ${periodLabel}` : 'Total walk-in harian per tanggal';
+  document.getElementById('feedSub').textContent = isDaily ? `Aktivitas submit pada ${periodLabel}` : 'Aktivitas submit terbaru pada bulan terpilih';
+  document.getElementById('progressTitle').textContent = isDaily ? 'Progress Report Harian' : 'Progress Report Bulanan';
 
   // KPIs
   document.getElementById('kpiTotal').textContent = fmt(data.grandTotal);
   document.getElementById('kpiStores').textContent = data.storeCount;
   const registeredStores = data.registeredStores || Object.keys(STORE_MAP).length;
-  document.getElementById('kpiTotalSub').textContent = `Akumulasi WIC ${periodLabel}`;
+  document.getElementById('kpiTotalSub').textContent = isDaily ? `Akumulasi WIC ${periodLabel}` : `Akumulasi WIC ${periodLabel}`;
   document.getElementById('kpiStoresSub').textContent = `dari ${registeredStores} toko terdaftar`;
-  document.getElementById('kpiAvg').textContent = data.storeCount > 0 ? fmt(Math.round(data.grandTotal/data.storeCount)) : '0';
+  document.getElementById('kpiAvg').textContent = data.storeCount > 0 ? fmt(Math.round(data.grandTotal / data.storeCount)) : '0';
+  document.getElementById('kpiAvgSub').textContent = isDaily ? 'customer / toko per hari' : 'customer / toko per bulan';
   document.getElementById('totalBadge').textContent = `${fmt(data.grandTotal)} total`;
 
   if (data.brandTotals.length > 0) {
@@ -1257,7 +1625,7 @@ function renderDashboard(data) {
   // ── Progress banner ──
   const submittedCodes = new Set(data.submissions.map(s => s.store_code));
   const allCodes = Object.keys(STORE_MAP);
-  const pendingCodes = allCodes.filter(c => !submittedCodes.has(c));
+  const pendingCodes = Array.isArray(data.pendingCodes) ? data.pendingCodes : allCodes.filter(c => !submittedCodes.has(c));
   const totalStores = allCodes.length;
   const pct = totalStores > 0 ? Math.round((data.storeCount / totalStores) * 100) : 0;
 
@@ -1320,6 +1688,7 @@ function renderDashboard(data) {
   updatePendingFilterCounts(pendingCodes);
   filterPending();
   renderActivityFeed(data.activityFeed || [], data.reportCount || 0, pendingCodes.length, periodLabel);
+  renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel);
 }
 
 /* ─── TAB SWITCH ─── */
@@ -1353,8 +1722,10 @@ function setPendingChannel(channel) {
 function renderPendingTable(codes) {
   const tbody = document.getElementById('pendingTableBody');
   const footer = document.getElementById('pendingFooter');
+  const currentLabel = viewMode === 'day' ? formatDateLabel(selectedDate) : formatMonthLabel(selectedMonth);
+  const currentUnit = viewMode === 'day' ? 'pada' : 'untuk';
   if (!codes.length) {
-    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">🎉 Semua toko sudah report pada ${formatMonthLabel(selectedMonth)}!</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">🎉 Semua toko sudah report pada ${currentLabel}!</td></tr>`;
     footer.textContent = '';
     return;
   }
@@ -1365,7 +1736,7 @@ function renderPendingTable(codes) {
       <td data-label="Status"><span class="ptable-status">✗ Belum Report</span></td>
     </tr>`).join('');
   const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
-  footer.textContent = `Menampilkan ${codes.length} toko belum report untuk ${channelLabel} pada ${formatMonthLabel(selectedMonth)}`;
+  footer.textContent = `Menampilkan ${codes.length} toko belum report ${currentUnit} ${channelLabel} pada ${currentLabel}`;
 }
 
 function filterPending() {
@@ -1380,6 +1751,109 @@ function filterPending() {
   const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
   document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan · ${channelLabel}`;
   renderPendingTable(filtered);
+}
+
+function renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel) {
+  const section = document.getElementById('adminDailySection');
+  if (!section) return;
+  if (!isDaily) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = getAdminPin() ? 'block' : 'none';
+  document.getElementById('dailySelectedDate').textContent = fmtDate(data.date || selectedDate);
+  document.getElementById('dailyDoneCount').textContent = fmt(data.storeCount || 0);
+  document.getElementById('dailyDoneSub').textContent = `${fmt(data.reportCount || 0)} laporan masuk pada ${periodLabel}`;
+  document.getElementById('dailyPendingCount').textContent = fmt(pendingCodes.length);
+  document.getElementById('dailyPendingSub').textContent = `${pendingCodes.length} toko masih belum submit pada ${periodLabel}`;
+}
+
+async function loadCompliance() {
+  if (!getAdminPin()) return;
+  try {
+    const res = await fetch(`/api/compliance?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
+    const data = await res.json();
+    renderCompliance(data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function renderCompliance(data) {
+  const head = document.getElementById('complianceHead');
+  const body = document.getElementById('complianceBody');
+  if (!head || !body) return;
+  const dates = data.dates || [];
+  const rows = data.rows || [];
+  head.innerHTML = `<tr>
+    <th class="compliance-code">Code</th>
+    <th class="compliance-name">Nama Toko</th>
+    ${dates.map(date => `<th>${date.slice(-2)}</th>`).join('')}
+  </tr>`;
+  body.innerHTML = rows.map(row => `
+    <tr>
+      <td class="compliance-code">${row.store_code}</td>
+      <td class="compliance-name">${row.store_name}</td>
+      ${row.statuses.map(done => `<td class="compliance-cell ${done ? 'done' : 'miss'}">${done ? '✓' : '•'}</td>`).join('')}
+    </tr>
+  `).join('');
+  document.getElementById('complianceBadge').textContent = `${fmt(data.registeredStores || rows.length)} toko`;
+  const dayTotals = (data.dayTotals || []).map(day => `${day.date.slice(-2)}: ${fmt(day.submitted)}`).join(' · ');
+  document.getElementById('complianceFooter').textContent = dayTotals || 'Belum ada data kepatuhan untuk bulan ini.';
+  document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah berarti belum submit untuk ${formatMonthLabel(data.month || selectedMonth)}`;
+}
+
+function exportDailyReport() {
+  if (!getAdminPin()) {
+    redirectToAdminLogin('Login Admin PIC dulu untuk export data harian.');
+    return;
+  }
+  if (viewMode !== 'day' || !latestDailyData) {
+    alert('Pilih mode Harian terlebih dahulu sebelum export.');
+    return;
+  }
+  const rows = latestDailyData.submissions || [];
+  const submittedCodes = new Set(rows.map(item => item.store_code));
+  const pendingCodes = (latestDailyData.pendingCodes || Object.keys(STORE_MAP).filter(code => !submittedCodes.has(code)));
+  const lines = [
+    ['Tanggal', latestDailyData.date],
+    ['Total Walk In', latestDailyData.grandTotal],
+    ['Toko Sudah Submit', latestDailyData.storeCount],
+    ['Toko Belum Submit', pendingCodes.length],
+    [],
+    ['STORE CODE', 'NAMA TOKO', 'STORE LEADER', 'TOTAL WIC', 'TOP BRAND', 'JAM SUBMIT']
+  ];
+  rows.forEach(item => {
+    const topBrand = (item.spg_details || []).sort((a, b) => b.customer_count - a.customer_count)[0];
+    lines.push([
+      item.store_code,
+      item.store_name,
+      item.store_leader,
+      item.total_customers,
+      topBrand ? `${topBrand.brand} ${topBrand.customer_count}` : '-',
+      fmtTime(item.latest_submitted_at)
+    ]);
+  });
+  lines.push([]);
+  lines.push(['BELUM SUBMIT']);
+  pendingCodes.forEach(code => {
+    lines.push([code, STORE_MAP[code] || code]);
+  });
+
+  const csv = lines.map(row => row.map(value => {
+    const text = value == null ? '' : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ERA-WIC-Harian-${latestDailyData.date}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 async function deleteReport(storeCode, date, storeName) {
@@ -1428,6 +1902,7 @@ async function deleteReport(storeCode, date, storeName) {
     }
 
     await Promise.all([loadData(), loadTrend()]);
+    if (viewMode === 'day') await loadCompliance();
   } catch(e) {
     if (deleteBtn) {
       deleteBtn.disabled = false;
@@ -1446,10 +1921,11 @@ function renderActivityFeed(submissions, reportCount, pendingCount, periodLabel)
   const list = document.getElementById('feedList');
   const latest = [...submissions].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
   const last = latest[0];
+  const isDaily = viewMode === 'day';
   summary.innerHTML = `
     <div class="feed-stat">
       <div class="feed-stat-num">${reportCount}</div>
-      <div class="feed-stat-label">Report Bulan Ini</div>
+      <div class="feed-stat-label">${isDaily ? 'Report Hari Ini' : 'Report Bulan Ini'}</div>
     </div>
     <div class="feed-stat">
       <div class="feed-stat-num">${pendingCount}</div>
@@ -1510,6 +1986,7 @@ async function resetSelectedMonth() {
     alert(`Reset selesai. ${fmt(data.removed || 0)} laporan dihapus untuk ${periodLabel}.`);
     loadData();
     loadTrend();
+    loadCompliance();
   } catch (e) {
     alert('Gagal terhubung ke server saat reset data bulanan');
   }
@@ -1545,6 +2022,7 @@ function connectSSE() {
     }
     if(m.type==='new_submission') {
       loadData(); loadTrend();
+      if (viewMode === 'day' && getAdminPin()) loadCompliance();
     }
   };
   es.onerror = () => {
@@ -1558,12 +2036,18 @@ function connectSSE() {
 
 /* ─── INIT ─── */
 initCharts();
+syncDatePicker();
 renderMonthStrip();
 initAdminAccess().then(() => {
   loadData();
   loadTrend();
+  if (getAdminPin()) loadCompliance();
   connectSSE();
-  setInterval(()=>{ loadData(); loadTrend(); }, 15000);
+  setInterval(()=>{
+    loadData();
+    loadTrend();
+    if (viewMode === 'day' && getAdminPin()) loadCompliance();
+  }, 15000);
 });
 </script>
 </body>
