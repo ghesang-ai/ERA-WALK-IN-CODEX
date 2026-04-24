@@ -1436,6 +1436,14 @@ function renderDashboard(data) {
             </div>
             <div class="store-actions">
               <span class="pill-done">✓ ${s.report_count} Report</span>
+              <button
+                type="button"
+                class="delete-report-btn"
+                onclick='deleteReport(${JSON.stringify(s.store_code)}, ${JSON.stringify(s.latest_submission_date)}, ${JSON.stringify(s.store_name)})'
+                aria-label="Hapus report ${s.store_code}"
+              >
+                Hapus
+              </button>
             </div>
           </div>
           <div class="store-num">${fmt(s.total_customers)}</div>
