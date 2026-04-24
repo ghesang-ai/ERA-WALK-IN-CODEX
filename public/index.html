@@ -1347,7 +1347,7 @@ function setMonthFilter(monthKey) {
 /* ─── LOAD DATA ─── */
 async function loadData() {
   try {
-    const res = await fetch(`/api/data?month=${selectedMonth}`);
+    const res = await fetch(`/api/data?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     renderDashboard(data);
     document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
@@ -1356,7 +1356,7 @@ async function loadData() {
 
 async function loadTrend() {
   try {
-    const res = await fetch(`/api/history?month=${selectedMonth}`);
+    const res = await fetch(`/api/history?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     trendChart.data.labels = data.map(d=>fmtDate(d.submission_date));
     trendChart.data.datasets[0].data = data.map(d=>d.total);
@@ -1531,7 +1531,17 @@ async function deleteReport(storeCode, date, storeName) {
   const ok = window.confirm(`Hapus report WIC ${storeCode} - ${storeName} untuk tanggal ${date}?\n\nData akan hilang dari dashboard dan toko akan kembali masuk daftar Belum Report.`);
   if (!ok) return;
 
+  const card = document.getElementById(`sc-${storeCode}`);
+  const deleteBtn = card?.querySelector('.delete-report-btn');
+
   try {
+    if (deleteBtn) {
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Menghapus...';
+      deleteBtn.style.opacity = '0.65';
+      deleteBtn.style.pointerEvents = 'none';
+    }
+
     const res = await fetch('/api/submission', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'x-admin-pin': adminPin },
@@ -1540,12 +1550,31 @@ async function deleteReport(storeCode, date, storeName) {
     const data = await res.json();
     if (!res.ok || !data.success) {
       if (res.status === 401) clearAdminPin();
+      if (deleteBtn) {
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Hapus';
+        deleteBtn.style.opacity = '';
+        deleteBtn.style.pointerEvents = '';
+      }
       alert(data.error || 'Gagal menghapus report');
       return;
     }
-    loadData();
-    loadTrend();
+
+    if (card) {
+      card.style.transition = 'opacity .22s ease, transform .22s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(.98)';
+      setTimeout(() => card.remove(), 220);
+    }
+
+    await Promise.all([loadData(), loadTrend()]);
   } catch(e) {
+    if (deleteBtn) {
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Hapus';
+      deleteBtn.style.opacity = '';
+      deleteBtn.style.pointerEvents = '';
+    }
     alert('Gagal terhubung ke server saat menghapus report');
   }
 }
