@@ -15,6 +15,17 @@ function loadStoreMaster() {
   }
 }
 
+const BRAND_ORDER = ['Apple', 'Samsung', 'Oppo', 'Vivo', 'Infinix', 'Tecno', 'Xiaomi', 'Huawei', 'Realme', 'Honor'];
+const BRAND_PRIORITY = Object.fromEntries(BRAND_ORDER.map((brand, index) => [brand, index]));
+function sortBrandsByPriority(items) {
+  return [...items].sort((a, b) => {
+    const priorityA = BRAND_PRIORITY[a.brand] ?? 999;
+    const priorityB = BRAND_PRIORITY[b.brand] ?? 999;
+    if (priorityA !== priorityB) return priorityA - priorityB;
+    return a.brand.localeCompare(b.brand);
+  });
+}
+
 // ── Store Code → Store Name mapping (198 toko, April 2026) ──
 const STORE_MAP = {
   "E396":"ERAFONE ANDMORE RUKO ITC ROXY MAS","E096":"ERAFONE 2 ITC ROXY MAS",
@@ -199,9 +210,10 @@ function summarizeMonth(submissions) {
   const storeSummaries = Object.values(storeMap)
     .map(store => ({
       ...store,
-      spg_details: Object.entries(store.brand_totals)
-        .map(([brand, customer_count]) => ({ brand, customer_count }))
-        .sort((a, b) => b.customer_count - a.customer_count)
+      spg_details: sortBrandsByPriority(
+        Object.entries(store.brand_totals)
+          .map(([brand, customer_count]) => ({ brand, customer_count }))
+      )
     }))
     .sort((a, b) => {
       if ((b.total_customers || 0) !== (a.total_customers || 0)) {
@@ -210,9 +222,10 @@ function summarizeMonth(submissions) {
       return (b.latest_submitted_at || '').localeCompare(a.latest_submitted_at || '');
     });
 
-  const brandTotals = Object.entries(brandMap)
-    .map(([brand, total]) => ({ brand, total }))
-    .sort((a, b) => b.total - a.total);
+  const brandTotals = sortBrandsByPriority(
+    Object.entries(brandMap)
+      .map(([brand, total]) => ({ brand, total }))
+  );
 
   return {
     storeSummaries,

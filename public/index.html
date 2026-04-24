@@ -1359,6 +1359,19 @@ const BRAND_COLORS = {
   Apple:'#6B7280', Samsung:'#4361EE', Oppo:'#06D6A0', Vivo:'#7209B7',
   Infinix:'#FB8500', Tecno:'#00A6D6', Huawei:'#EF233C', Xiaomi:'#F77F00', Honor:'#3A3A3A', Realme:'#E9C46A'
 };
+const BRAND_ORDER = ['Apple', 'Samsung', 'Oppo', 'Vivo', 'Infinix', 'Tecno', 'Xiaomi', 'Huawei', 'Realme', 'Honor'];
+const BRAND_PRIORITY = Object.fromEntries(BRAND_ORDER.map((brand, index) => [brand, index]));
+const sortBrandsByPriority = items => [...items].sort((a, b) => {
+  const priorityA = BRAND_PRIORITY[a.brand] ?? 999;
+  const priorityB = BRAND_PRIORITY[b.brand] ?? 999;
+  if (priorityA !== priorityB) return priorityA - priorityB;
+  return a.brand.localeCompare(b.brand);
+});
+const getTopBrand = items => (items || []).reduce((top, current) => {
+  const currentValue = current.customer_count ?? current.total ?? 0;
+  const topValue = top ? (top.customer_count ?? top.total ?? 0) : -1;
+  return currentValue > topValue ? current : top;
+}, null);
 
 /* ─── CHARTS ─── */
 let brandChart, trendChart;
@@ -1607,8 +1620,10 @@ function renderDashboard(data) {
   document.getElementById('kpiAvgSub').textContent = isDaily ? 'customer / toko per hari' : 'customer / toko per bulan';
   document.getElementById('totalBadge').textContent = `${fmt(data.grandTotal)} total`;
 
-  if (data.brandTotals.length > 0) {
-    const top = data.brandTotals[0];
+  const orderedBrandTotals = sortBrandsByPriority(data.brandTotals || []);
+  const topBrand = getTopBrand(data.brandTotals || []);
+  if (topBrand) {
+    const top = topBrand;
     document.getElementById('kpiTopBrand').textContent = top.brand;
     document.getElementById('kpiTopSub').textContent = `${fmt(top.total)} customer pada ${periodLabel}`;
   } else {
@@ -1617,9 +1632,9 @@ function renderDashboard(data) {
   }
 
   // Brand chart
-  brandChart.data.labels = data.brandTotals.map(b=>b.brand);
-  brandChart.data.datasets[0].data = data.brandTotals.map(b=>b.total);
-  brandChart.data.datasets[0].backgroundColor = data.brandTotals.map(b=>BRAND_COLORS[b.brand]||'#4361EE');
+  brandChart.data.labels = orderedBrandTotals.map(b=>b.brand);
+  brandChart.data.datasets[0].data = orderedBrandTotals.map(b=>b.total);
+  brandChart.data.datasets[0].backgroundColor = orderedBrandTotals.map(b=>BRAND_COLORS[b.brand]||'#4361EE');
   brandChart.update('active');
 
   // ── Progress banner ──
@@ -1647,7 +1662,7 @@ function renderDashboard(data) {
     </div>`;
   } else {
     doneGrid.innerHTML = data.submissions.map(s => {
-      const spg  = s.spg_details || [];
+      const spg  = sortBrandsByPriority(s.spg_details || []);
       const maxB = Math.max(...spg.map(x=>x.customer_count), 1);
       const bars = spg.slice(0,5).map(x=>`
         <div class="mini-row">
@@ -1824,7 +1839,7 @@ function exportDailyReport() {
     ['STORE CODE', 'NAMA TOKO', 'STORE LEADER', 'TOTAL WIC', 'TOP BRAND', 'JAM SUBMIT']
   ];
   rows.forEach(item => {
-    const topBrand = (item.spg_details || []).sort((a, b) => b.customer_count - a.customer_count)[0];
+    const topBrand = getTopBrand(item.spg_details || []);
     lines.push([
       item.store_code,
       item.store_name,
