@@ -637,6 +637,25 @@
     }
     .search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
     .search-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .btn-text-export {
+      border: 1px solid rgba(67,97,238,.18);
+      background: linear-gradient(135deg, rgba(67,97,238,.08), rgba(76,201,240,.12));
+      color: var(--blue);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: 0 4px 14px rgba(67,97,238,.08);
+    }
+    .btn-text-export:hover {
+      transform: translateY(-1px);
+      border-color: rgba(67,97,238,.28);
+      box-shadow: 0 8px 22px rgba(67,97,238,.12);
+    }
     .brand-filter {
       display: flex;
       gap: 8px;
@@ -985,6 +1004,9 @@
         display: grid;
         gap: 8px;
       }
+      .btn-text-export {
+        width: 100%;
+      }
       .search-meta { white-space: normal; }
       .brand-filter {
         display: grid;
@@ -1215,6 +1237,7 @@
       <input class="search-input" id="searchPend" type="text"
              placeholder="Cari nama toko atau store code…"
              oninput="filterPending()" />
+      <button class="btn-text-export" type="button" onclick="exportPendingText()">Export to Text</button>
       <div class="search-meta" id="searchMeta"></div>
     </div>
     <div class="brand-filter" id="brandFilter">
@@ -1734,6 +1757,17 @@ function setPendingChannel(channel) {
   filterPending();
 }
 
+function getFilteredPendingCodes() {
+  const q = document.getElementById('searchPend').value.trim().toLowerCase();
+  const all = window._pendingCodes || [];
+  const channelFiltered = activePendingChannel === 'ALL'
+    ? all
+    : all.filter(c => channelOf(c) === activePendingChannel);
+  return q
+    ? channelFiltered.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
+    : channelFiltered;
+}
+
 function renderPendingTable(codes) {
   const tbody = document.getElementById('pendingTableBody');
   const footer = document.getElementById('pendingFooter');
@@ -1755,17 +1789,39 @@ function renderPendingTable(codes) {
 }
 
 function filterPending() {
-  const q = document.getElementById('searchPend').value.trim().toLowerCase();
-  const all = window._pendingCodes || [];
-  const channelFiltered = activePendingChannel === 'ALL'
-    ? all
-    : all.filter(c => channelOf(c) === activePendingChannel);
-  const filtered = q
-    ? channelFiltered.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
-    : channelFiltered;
+  const filtered = getFilteredPendingCodes();
   const channelLabel = activePendingChannel === 'ALL' ? 'semua brand/channel' : activePendingChannel;
   document.getElementById('searchMeta').textContent = `${filtered.length} toko ditemukan · ${channelLabel}`;
   renderPendingTable(filtered);
+}
+
+async function exportPendingText() {
+  const filtered = getFilteredPendingCodes();
+  if (!filtered.length) {
+    alert('Tidak ada toko di daftar Belum Report yang bisa diexport.');
+    return;
+  }
+
+  const text = filtered
+    .map(code => `${STORE_MAP[code] || code}❌`)
+    .join('\n');
+
+  try {
+    await navigator.clipboard.writeText(text);
+    alert(`Berhasil copy ${filtered.length} toko ke clipboard. Tinggal paste ke WhatsApp atau chat Store Leader.`);
+    return;
+  } catch (error) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ERA-WIC-Belum-Report-${viewMode === 'day' ? selectedDate : selectedMonth}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    alert('Clipboard browser sedang dibatasi. File TXT sudah diunduh sebagai fallback.');
+  }
 }
 
 function renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel) {
