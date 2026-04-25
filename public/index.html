@@ -1237,7 +1237,7 @@
       <input class="search-input" id="searchPend" type="text"
              placeholder="Cari nama toko atau store code…"
              oninput="filterPending()" />
-      <button class="btn-text-export" type="button" onclick="exportPendingText()">Export to Text</button>
+      <button class="btn-text-export" type="button" onclick="exportPendingText()">Copy to Text</button>
       <div class="search-meta" id="searchMeta"></div>
     </div>
     <div class="brand-filter" id="brandFilter">
@@ -1305,6 +1305,29 @@
 /* ─── STORE MAP (code → name) ─── */
 let STORE_MAP = {};
 fetch('/api/stores').then(r=>r.json()).then(d=>{ STORE_MAP=d; loadData(); });
+const AREA_ORDER = ['AREA JAKARTA', 'AREA TANGSEL & TANGERANG', 'AREA BANTEN'];
+const AREA_KEYWORDS = {
+  'AREA BANTEN': [
+    'SERANG', 'CILEGON', 'RANGKASBITUNG', 'PANDEGLANG', 'LABUAN', 'ANYER', 'KRAGILAN',
+    'CIPARE', 'PANIMBANG'
+  ],
+  'AREA TANGSEL & TANGERANG': [
+    'BINTARO', 'TANGSEL', 'TANGERANG', 'CIPUTAT', 'PAMULANG', 'SERPONG', 'BSD',
+    'ALAM SUTERA', 'KARAWACI', 'CILEDUG', 'CIPONDOH', 'PORIS', 'BATU CEPER',
+    'CIKUPA', 'TELAGA BESTARI', 'TELUK NAGA', 'CISOKA', 'CURUG', 'LEGOK',
+    'DASANA', 'CISAUK', 'TIGARAKSA', 'PASAR KEMIS', 'KUTABUMI', 'BALARAJA',
+    'RAJEG', 'SEPATAN', 'KELAPA DUA', 'BINONG', 'GRAHA RAYA', 'KEDAUNG',
+    'PONDOK CABE', 'REMPOA', 'JOMBANG', 'CEGER', 'CIRENDEU', 'PONDOK BETUNG',
+    'WR SUPRATMAN', 'CIHUNI', 'PAGEDANGAN', 'CITRARAYA', 'EASTVARA'
+  ]
+};
+function getAreaLabel(code) {
+  const name = (STORE_MAP[code] || code || '').toUpperCase();
+  for (const [area, keywords] of Object.entries(AREA_KEYWORDS)) {
+    if (keywords.some(keyword => name.includes(keyword))) return area;
+  }
+  return 'AREA JAKARTA';
+}
 
 /* ─── DATA ─── */
 const ALL_STORES = [
@@ -1802,13 +1825,27 @@ async function exportPendingText() {
     return;
   }
 
-  const text = filtered
-    .map(code => `${STORE_MAP[code] || code}❌`)
-    .join('\n');
+  const grouped = {
+    'AREA JAKARTA': [],
+    'AREA TANGSEL & TANGERANG': [],
+    'AREA BANTEN': []
+  };
+  filtered.forEach(code => {
+    grouped[getAreaLabel(code)].push(code);
+  });
+
+  const text = AREA_ORDER
+    .filter(area => grouped[area].length > 0)
+    .map(area => [
+      area,
+      '',
+      ...grouped[area].map(code => `${STORE_MAP[code] || code}❌`)
+    ].join('\n'))
+    .join('\n\n');
 
   try {
     await navigator.clipboard.writeText(text);
-    alert(`Berhasil copy ${filtered.length} toko ke clipboard. Tinggal paste ke WhatsApp atau chat Store Leader.`);
+    alert(`Berhasil copy ${filtered.length} toko ke clipboard dengan grouping per area. Tinggal paste ke WhatsApp atau chat Store Leader.`);
     return;
   } catch (error) {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
