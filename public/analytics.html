@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERA Walk-In Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f7ff;
+      --surface: #ffffff;
+      --border: rgba(99,115,255,0.12);
+      --blue: #4361ee;
+      --blue2: #3a0ca3;
+      --cyan: #4cc9f0;
+      --purple: #7209b7;
+      --green: #06d6a0;
+      --orange: #fb8500;
+      --red: #ef233c;
+      --text: #0a0f2c;
+      --muted: #6b7280;
+      --light: #eef2ff;
+      --amber: #f6c453;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      scroll-behavior: smooth;
+    }
+    .header {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 24px rgba(67,97,238,0.06);
+    }
+    .header-left, .header-right { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      box-shadow: 0 4px 16px rgba(67,97,238,0.35);
+    }
+    .header-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .header-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .live-pill, .date-chip {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #059669;
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border-color: rgba(6,214,160,0.28);
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .date-chip {
+      color: var(--blue);
+      background: var(--light);
+    }
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      box-shadow: 0 4px 14px rgba(67,97,238,0.22);
+    }
+    .btn-link.ghost {
+      color: var(--blue);
+      background: white;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(67,97,238,0.08);
+    }
+    .main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 32px 56px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .hero-panel {
+      background: linear-gradient(135deg, #1631a4, #2746c6 55%, #4cc9f0 150%);
+      border-radius: 22px;
+      padding: 28px;
+      color: white;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 42px rgba(35,65,190,0.18);
+    }
+    .hero-panel::before,
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      opacity: .22;
+    }
+    .hero-panel::before {
+      width: 360px;
+      height: 360px;
+      right: -160px;
+      top: -190px;
+      background: radial-gradient(circle, rgba(255,255,255,.85), transparent 60%);
+    }
+    .hero-panel::after {
+      width: 300px;
+      height: 300px;
+      left: -160px;
+      bottom: -170px;
+      background: radial-gradient(circle, rgba(76,201,240,.8), transparent 58%);
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      font-weight: 800;
+      opacity: .8;
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(30px, 3vw, 48px);
+      line-height: 1;
+      letter-spacing: -.6px;
+      margin-bottom: 14px;
+      max-width: 620px;
+    }
+    .hero-copy {
+      max-width: 660px;
+      color: rgba(255,255,255,.84);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .hero-tags {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .hero-tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.1);
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .hero-tag:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 10px 24px rgba(14, 31, 107, .18);
+    }
+    .hero-tag.active {
+      background: rgba(255,255,255,.22);
+      border-color: rgba(255,255,255,.36);
+      box-shadow: 0 10px 28px rgba(14, 31, 107, .24);
+    }
+    .side-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(67,97,238,0.06);
+      display: grid;
+      gap: 16px;
+    }
+    .side-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+    .side-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 38px;
+      color: var(--blue);
+      font-weight: 800;
+      line-height: 1;
+    }
+    .side-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .month-strip {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .month-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 14px;
+      padding: 12px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .month-btn.active {
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(67,97,238,0.22);
+    }
+    .sticky-toolbar {
+      position: sticky;
+      top: 84px;
+      z-index: 90;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.84);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(67,97,238,0.08);
+    }
+    .anchor-tabs, .filter-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .anchor-tab, .filter-pill {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+      line-height: 1;
+    }
+    .anchor-tab.active, .filter-pill.active {
+      background: linear-gradient(135deg, rgba(67,97,238,.12), rgba(76,201,240,.16));
+      color: var(--blue);
+      border-color: rgba(67,97,238,.24);
+      box-shadow: 0 8px 22px rgba(67,97,238,.10);
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .9px;
+      text-transform: uppercase;
+      margin-right: 2px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .kpi-card, .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 12px 32px rgba(67,97,238,0.05);
+    }
+    .kpi-card {
+      padding: 20px 22px;
+      min-height: 142px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+    }
+    .kpi-label {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .kpi-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      line-height: .92;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .kpi-sub {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .section-card {
+      padding: 22px;
+      scroll-margin-top: 92px;
+      transition: box-shadow .24s ease, border-color .24s ease, transform .24s ease;
+    }
+    .section-card.focused {
+      border-color: rgba(67,97,238,.26);
+      box-shadow: 0 18px 38px rgba(67,97,238,.12);
+    }
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      line-height: 1.05;
+      letter-spacing: -.4px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.55;
+      max-width: 520px;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .pill-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .pill-btn.active {
+      background: linear-gradient(135deg, rgba(67,97,238,.12), rgba(76,201,240,.16));
+      color: var(--blue);
+      border-color: rgba(67,97,238,.24);
+    }
+    .chart-wrap {
+      position: relative;
+      height: 320px;
+    }
+    .store-list {
+      display: grid;
+      gap: 12px;
+    }
+    .store-row {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid rgba(99,115,255,.08);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,247,255,.94));
+    }
+    .rank-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--light);
+    }
+    .store-title {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .store-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .store-value {
+      text-align: right;
+    }
+    .store-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      line-height: 1;
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .store-caption {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .matrix-table th,
+    .matrix-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(99,115,255,.08);
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .matrix-table th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .matrix-brand {
+      font-weight: 800;
+      color: var(--text);
+    }
+    .note-list {
+      display: grid;
+      gap: 12px;
+    }
+    .note-item {
+      border: 1px solid rgba(99,115,255,.08);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,247,255,.94));
+      padding: 15px 16px;
+    }
+    .note-item strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    .note-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .full-section {
+      margin-bottom: 18px;
+    }
+    .loading {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+    @media (max-width: 1200px) {
+      .hero, .section-grid, .insight-grid, .kpi-grid, .sticky-toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+        padding: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .header-right {
+        flex-wrap: wrap;
+      }
+      .main {
+        padding: 20px 16px 40px;
+      }
+      .hero, .section-grid, .insight-grid, .kpi-grid, .sticky-toolbar {
+        grid-template-columns: 1fr;
+      }
+      .month-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .sticky-toolbar {
+        top: 78px;
+      }
+      .store-row {
+        grid-template-columns: 44px 1fr;
+      }
+      .store-value {
+        text-align: left;
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">ERA</div>
+      <div>
+        <div class="header-title">Analytics WIC</div>
+        <div class="header-sub">Insight brand, area, store ranking, dan prioritas action PIC</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-pill"><span class="live-dot"></span>ANALYTICS LIVE</div>
+      <div class="date-chip" id="dateChip">-</div>
+      <a href="/dashboard" class="btn-link ghost">Dashboard</a>
+      <a href="/architecture" class="btn-link ghost">Workflow</a>
+      <a href="/form" class="btn-link">Form Submit</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero" id="sectionOverview">
+      <div class="hero-panel">
+        <div class="eyebrow">WIC Intelligence Layer</div>
+        <div class="hero-title">Analytics WIC untuk membaca demand brand, kekuatan area, dan toko prioritas.</div>
+        <div class="hero-copy">
+          Halaman ini dirancang khusus untuk PIC agar bisa cepat menjawab pertanyaan seperti brand mana paling dicari, toko mana paling kuat untuk Oppo, Samsung, atau Tecno, dan area mana yang paling layak difollow up.
+        </div>
+        <div class="hero-tags">
+          <button class="hero-tag active" id="heroNavBrand" type="button" onclick="jumpToSection('sectionBrand')">Top store by brand</button>
+          <button class="hero-tag" id="heroNavArea" type="button" onclick="jumpToSection('sectionArea')">Area strength</button>
+          <button class="hero-tag" id="heroNavStore" type="button" onclick="jumpToSection('sectionStore')">Store opportunity</button>
+          <button class="hero-tag" id="heroNavAction" type="button" onclick="jumpToSection('sectionAction')">Action recommendation</button>
+        </div>
+      </div>
+      <div class="side-panel">
+        <div>
+          <div class="side-label">Brand yang sedang dipilih</div>
+          <div class="side-value" id="selectedBrandHero">-</div>
+        </div>
+        <div class="side-copy" id="selectedBrandCopy">
+          Memuat insight brand...
+        </div>
+        <div>
+          <div class="side-label">Store terkuat</div>
+          <div class="side-copy" id="heroTopStore">-</div>
+        </div>
+        <div>
+          <div class="side-label">Area terkuat</div>
+          <div class="side-copy" id="heroTopArea">-</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="month-strip" id="monthStrip"></div>
+    <div class="sticky-toolbar">
+      <div class="anchor-tabs">
+        <button class="anchor-tab active" id="tabOverview" type="button" onclick="jumpToSection('sectionOverview')">Overview</button>
+        <button class="anchor-tab" id="tabBrand" type="button" onclick="jumpToSection('sectionBrand')">Brand</button>
+        <button class="anchor-tab" id="tabArea" type="button" onclick="jumpToSection('sectionArea')">Area</button>
+        <button class="anchor-tab" id="tabStore" type="button" onclick="jumpToSection('sectionStore')">Store</button>
+        <button class="anchor-tab" id="tabAction" type="button" onclick="jumpToSection('sectionAction')">Action</button>
+      </div>
+      <div class="filter-stack">
+        <div class="filter-group">
+          <span class="filter-label">Area</span>
+          <button class="filter-pill active" id="areaAll" type="button" onclick="setAreaFilter('ALL')">Semua</button>
+          <button class="filter-pill" id="areaJakarta" type="button" onclick="setAreaFilter('Jakarta')">Jakarta</button>
+          <button class="filter-pill" id="areaTangsel" type="button" onclick="setAreaFilter('Tangsel & Tangerang')">Tangsel & Tangerang</button>
+          <button class="filter-pill" id="areaBanten" type="button" onclick="setAreaFilter('Banten')">Banten</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Channel</span>
+          <button class="filter-pill active" id="channelAll" type="button" onclick="setChannelFilter('ALL')">Semua</button>
+          <button class="filter-pill" id="channelErafone" type="button" onclick="setChannelFilter('ERAFONE')">ERAFONE</button>
+          <button class="filter-pill" id="channelIbox" type="button" onclick="setChannelFilter('IBOX')">IBOX</button>
+          <button class="filter-pill" id="channelSamsung" type="button" onclick="setChannelFilter('SAMSUNG')">SAMSUNG</button>
+          <button class="filter-pill" id="channelXiaomi" type="button" onclick="setChannelFilter('XIAOMI')">XIAOMI</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total WIC Bulan Ini</div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-sub" id="kpiTotalSub">Akumulasi WIC seluruh toko pada bulan terpilih</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Toko Aktif Submit</div>
+        <div class="kpi-value" id="kpiStores">0</div>
+        <div class="kpi-sub" id="kpiStoresSub">Jumlah toko yang sudah mengirim data WIC</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Brand Tertinggi</div>
+        <div class="kpi-value" id="kpiBrand">-</div>
+        <div class="kpi-sub" id="kpiBrandSub">Brand dengan demand tertinggi bulan terpilih</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Area Terkuat</div>
+        <div class="kpi-value" id="kpiArea">-</div>
+        <div class="kpi-sub" id="kpiAreaSub">Area dengan total WIC paling tinggi</div>
+      </div>
+    </section>
+
+    <section class="section-grid">
+      <div class="section-card" id="sectionBrand">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Top Store by Brand</div>
+            <div class="section-sub">Gunakan filter brand untuk melihat toko mana yang paling banyak menerima demand brand tersebut. Ini blok paling penting untuk menjawab pertanyaan seperti “Oppo paling banyak dicari di toko mana?”.</div>
+          </div>
+        </div>
+        <div class="pill-row" id="brandPills"></div>
+        <div class="chart-wrap">
+          <canvas id="brandStoreChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section-card" id="sectionArea">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Brand Strength by Area</div>
+            <div class="section-sub">Distribusi demand per area untuk brand-brand teratas. Ini memudahkan PIC melihat cluster mana yang kuat di Jakarta, Tangsel & Tangerang, atau Banten.</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="areaChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card full-section" id="sectionStore">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Top 10 Store Ranking</div>
+          <div class="section-sub">Ranking toko dengan WIC tertinggi di bulan terpilih, lengkap dengan dominant brand, leader, dan area. Cocok untuk melihat toko paling produktif dan toko yang bisa dijadikan benchmark.</div>
+        </div>
+      </div>
+      <div class="store-list" id="topStoreList">
+        <div class="loading">Memuat ranking toko...</div>
+      </div>
+    </section>
+
+    <section class="insight-grid">
+      <div class="section-card" id="sectionMatrix">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Brand Opportunity Matrix</div>
+            <div class="section-sub">Ringkasan semua brand: total demand, jumlah toko yang punya demand, rata-rata per toko, dan area paling kuat.</div>
+          </div>
+        </div>
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Total</th>
+              <th>Store</th>
+              <th>Avg/Toko</th>
+              <th>Top Area</th>
+            </tr>
+          </thead>
+          <tbody id="brandMatrixBody">
+            <tr><td colspan="5" class="loading">Memuat matrix brand...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-card" id="sectionAction">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Action Insights</div>
+            <div class="section-sub">Insight cepat yang bisa langsung dijadikan bahan arahan, stok discussion, atau follow up ke area dan store leader.</div>
+          </div>
+        </div>
+        <div class="note-list" id="insightList">
+          <div class="loading">Menyusun insight...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const fmt = n => (n || 0).toLocaleString('id-ID');
+    const now = new Date();
+    const selectedYear = now.getFullYear();
+    let selectedMonth = `${selectedYear}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    let analyticsData = null;
+    let selectedBrand = 'Samsung';
+    let storeMaster = [];
+    let selectedAreaFilter = 'ALL';
+    let selectedChannelFilter = 'ALL';
+
+    const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const BRAND_ORDER = ['Apple', 'Samsung', 'Oppo', 'Vivo', 'Infinix', 'Tecno', 'Xiaomi', 'Huawei', 'Realme', 'Honor'];
+    const BRAND_COLORS = {
+      Apple:'#6B7280', Samsung:'#4361EE', Oppo:'#06D6A0', Vivo:'#7209B7',
+      Infinix:'#FB8500', Tecno:'#00A6D6', Xiaomi:'#F77F00', Huawei:'#EF233C', Realme:'#E9C46A', Honor:'#3A3A3A'
+    };
+    const AREA_ORDER = ['Jakarta', 'Tangsel & Tangerang', 'Banten'];
+    const AREA_KEYWORDS = {
+      'Banten': ['SERANG', 'CILEGON', 'RANGKASBITUNG', 'PANDEGLANG', 'LABUAN', 'ANYER', 'KRAGILAN', 'CIPARE', 'PANIMBANG'],
+      'Tangsel & Tangerang': [
+        'BINTARO', 'TANGSEL', 'TANGERANG', 'CIPUTAT', 'PAMULANG', 'SERPONG', 'BSD', 'ALAM SUTERA', 'KARAWACI',
+        'CILEDUG', 'CIPONDOH', 'PORIS', 'BATU CEPER', 'CIKUPA', 'TELAGA BESTARI', 'TELUK NAGA', 'CISOKA',
+        'CURUG', 'LEGOK', 'DASANA', 'CISAUK', 'TIGARAKSA', 'PASAR KEMIS', 'KUTABUMI', 'BALARAJA', 'RAJEG',
+        'SEPATAN', 'KELAPA DUA', 'BINONG', 'GRAHA RAYA', 'KEDAUNG', 'PONDOK CABE', 'REMPOA', 'JOMBANG',
+        'CEGER', 'CIRENDEU', 'PONDOK BETUNG', 'WR SUPRATMAN', 'CIHUNI', 'PAGEDANGAN', 'CITRARAYA', 'EASTVARA'
+      ]
+    };
+
+    let brandStoreChart;
+    let areaChart;
+    const HERO_SECTION_MAP = {
+      sectionOverview: 'tabOverview',
+      sectionBrand: 'heroNavBrand',
+      sectionArea: 'heroNavArea',
+      sectionStore: 'heroNavStore',
+      sectionAction: 'heroNavAction'
+    };
+    const STICKY_TAB_MAP = {
+      sectionOverview: 'tabOverview',
+      sectionBrand: 'tabBrand',
+      sectionArea: 'tabArea',
+      sectionStore: 'tabStore',
+      sectionAction: 'tabAction'
+    };
+
+    function getAreaLabel(name) {
+      const upper = (name || '').toUpperCase();
+      for (const [area, keywords] of Object.entries(AREA_KEYWORDS)) {
+        if (keywords.some(keyword => upper.includes(keyword))) return area;
+      }
+      return 'Jakarta';
+    }
+    function getChannelLabel(code) {
+      const first = (code || '').charAt(0).toUpperCase();
+      if (first === 'X') return 'IBOX';
+      if (first === 'S') return 'SAMSUNG';
+      if (first === 'N') return 'XIAOMI';
+      return 'ERAFONE';
+    }
+
+    function formatMonthLabel(monthKey) {
+      const [year, month] = monthKey.split('-');
+      return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
+    }
+
+    function renderMonthStrip() {
+      const wrap = document.getElementById('monthStrip');
+      wrap.innerHTML = MONTH_SHORT.map((label, idx) => {
+        const key = `${selectedYear}-${String(idx + 1).padStart(2, '0')}`;
+        return `<button class="month-btn ${key === selectedMonth ? 'active' : ''}" onclick="setMonthFilter('${key}')">${label}</button>`;
+      }).join('');
+      document.getElementById('dateChip').textContent = formatMonthLabel(selectedMonth);
+    }
+
+    function setMonthFilter(monthKey) {
+      selectedMonth = monthKey;
+      renderMonthStrip();
+      loadAnalytics();
+    }
+
+    async function initPage() {
+      renderMonthStrip();
+      await Promise.all([loadStoreMaster(), loadAnalytics()]);
+      initSectionNavigation();
+    }
+
+    function jumpToSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (!section) return;
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveHeroNav(sectionId);
+      setActiveStickyTab(sectionId);
+      pulseSection(sectionId);
+    }
+
+    function setActiveHeroNav(sectionId) {
+      ['heroNavBrand','heroNavArea','heroNavStore','heroNavAction'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.toggle('active', HERO_SECTION_MAP[sectionId] === id);
+      });
+    }
+    function setActiveStickyTab(sectionId) {
+      Object.values(STICKY_TAB_MAP).forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.toggle('active', STICKY_TAB_MAP[sectionId] === id);
+      });
+    }
+
+    function pulseSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (!section) return;
+      section.classList.remove('focused');
+      requestAnimationFrame(() => {
+        section.classList.add('focused');
+        setTimeout(() => section.classList.remove('focused'), 1400);
+      });
+    }
+
+    function initSectionNavigation() {
+      const sections = Object.keys(HERO_SECTION_MAP)
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+      if (!sections.length || !('IntersectionObserver' in window)) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target?.id) {
+          setActiveHeroNav(visible.target.id);
+          setActiveStickyTab(visible.target.id);
+        }
+      }, {
+        root: null,
+        threshold: [0.25, 0.4, 0.6],
+        rootMargin: '-90px 0px -45% 0px'
+      });
+
+      sections.forEach(section => observer.observe(section));
+    }
+
+    async function loadStoreMaster() {
+      const res = await fetch('/api/store-master');
+      storeMaster = await res.json();
+    }
+
+    async function loadAnalytics() {
+      const res = await fetch(`/api/data?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
+      analyticsData = await res.json();
+      const availableBrands = BRAND_ORDER.filter(brand => {
+        return (analyticsData.submissions || []).some(item => getBrandCount(item, brand) > 0);
+      });
+      if (!availableBrands.includes(selectedBrand)) {
+        selectedBrand = availableBrands[0] || BRAND_ORDER[0];
+      }
+      renderAnalytics();
+    }
+
+    function setAreaFilter(area) {
+      selectedAreaFilter = area;
+      document.getElementById('areaAll').classList.toggle('active', area === 'ALL');
+      document.getElementById('areaJakarta').classList.toggle('active', area === 'Jakarta');
+      document.getElementById('areaTangsel').classList.toggle('active', area === 'Tangsel & Tangerang');
+      document.getElementById('areaBanten').classList.toggle('active', area === 'Banten');
+      renderAnalytics();
+    }
+
+    function setChannelFilter(channel) {
+      selectedChannelFilter = channel;
+      document.getElementById('channelAll').classList.toggle('active', channel === 'ALL');
+      document.getElementById('channelErafone').classList.toggle('active', channel === 'ERAFONE');
+      document.getElementById('channelIbox').classList.toggle('active', channel === 'IBOX');
+      document.getElementById('channelSamsung').classList.toggle('active', channel === 'SAMSUNG');
+      document.getElementById('channelXiaomi').classList.toggle('active', channel === 'XIAOMI');
+      renderAnalytics();
+    }
+
+    function getFilteredSubmissions() {
+      return (analyticsData?.submissions || []).filter(item => {
+        const areaPass = selectedAreaFilter === 'ALL' || getAreaLabel(item.store_name) === selectedAreaFilter;
+        const channelPass = selectedChannelFilter === 'ALL' || getChannelLabel(item.store_code) === selectedChannelFilter;
+        return areaPass && channelPass;
+      });
+    }
+
+    function getBrandCount(submission, brand) {
+      const found = (submission.spg_details || []).find(item => item.brand === brand);
+      return found ? found.customer_count : 0;
+    }
+
+    function getDominantBrand(submission) {
+      return (submission.spg_details || []).reduce((top, item) => item.customer_count > (top?.customer_count || 0) ? item : top, null);
+    }
+
+    function buildAreaSummary(submissions) {
+      const map = {};
+      AREA_ORDER.forEach(area => {
+        map[area] = { area, total: 0, storeCount: 0, brandTotals: {} };
+      });
+
+      submissions.forEach(submission => {
+        const area = getAreaLabel(submission.store_name);
+        const bucket = map[area];
+        bucket.total += submission.total_customers || 0;
+        bucket.storeCount += 1;
+        (submission.spg_details || []).forEach(item => {
+          bucket.brandTotals[item.brand] = (bucket.brandTotals[item.brand] || 0) + (item.customer_count || 0);
+        });
+      });
+
+      return AREA_ORDER.map(area => map[area]);
+    }
+
+    function buildBrandMatrix(submissions, areaSummary) {
+      return BRAND_ORDER
+        .map(brand => {
+          const stores = submissions
+            .map(item => ({ ...item, brandCount: getBrandCount(item, brand) }))
+            .filter(item => item.brandCount > 0);
+          const total = stores.reduce((sum, item) => sum + item.brandCount, 0);
+          const topArea = areaSummary
+            .map(area => ({ area: area.area, total: area.brandTotals[brand] || 0 }))
+            .sort((a, b) => b.total - a.total)[0];
+          return {
+            brand,
+            total,
+            storeCount: stores.length,
+            avgStore: stores.length ? Math.round(total / stores.length) : 0,
+            topArea: topArea && topArea.total > 0 ? topArea.area : '-'
+          };
+        })
+        .filter(item => item.total > 0);
+    }
+
+    function buildInsights(submissions, areaSummary, brandMatrix) {
+      const topOverallStore = [...submissions].sort((a, b) => (b.total_customers || 0) - (a.total_customers || 0))[0];
+      const topArea = [...areaSummary].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+      const topBrand = [...brandMatrix].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+      const selectedStores = submissions
+        .map(item => ({ ...item, brandCount: getBrandCount(item, selectedBrand) }))
+        .filter(item => item.brandCount > 0)
+        .sort((a, b) => b.brandCount - a.brandCount);
+      const selectedTopStore = selectedStores[0];
+      const selectedTopArea = [...areaSummary]
+        .map(area => ({ area: area.area, total: area.brandTotals[selectedBrand] || 0 }))
+        .sort((a, b) => b.total - a.total)[0];
+      const lowCoverage = [...brandMatrix]
+        .filter(item => item.storeCount > 0)
+        .sort((a, b) => a.storeCount - b.storeCount)[0];
+
+      return [
+        {
+          title: `${selectedBrand} paling kuat di ${selectedTopStore ? selectedTopStore.store_name : '-'}`,
+          body: selectedTopStore
+            ? `Toko ini menghasilkan ${fmt(selectedTopStore.brandCount)} WIC untuk ${selectedBrand} pada ${formatMonthLabel(selectedMonth)}. Cocok untuk diprioritaskan sebagai reference store atau bahan diskusi stok.`
+            : `Belum ada demand ${selectedBrand} di bulan ini, jadi masih perlu dipantau lebih lanjut.`
+        },
+        {
+          title: `${selectedTopArea?.area || '-'} jadi area utama untuk ${selectedBrand}`,
+          body: selectedTopArea && selectedTopArea.total > 0
+            ? `Area ini menyumbang ${fmt(selectedTopArea.total)} WIC untuk ${selectedBrand}. Insight ini berguna untuk cluster follow up dan pembacaan demand lokal.`
+            : `Belum ada area dominan untuk ${selectedBrand} pada bulan terpilih.`
+        },
+        {
+          title: `${topArea?.area || '-'} memimpin total WIC bulan ini`,
+          body: topArea
+            ? `Total WIC area ini mencapai ${fmt(topArea.total)} dari ${topArea.storeCount} toko aktif submit. Ini area yang paling layak dijadikan benchmark operasional.`
+            : `Belum ada area yang bisa dibandingkan karena data masih kosong.`
+        },
+        {
+          title: `${lowCoverage?.brand || '-'} masih punya coverage rendah`,
+          body: lowCoverage
+            ? `Brand ini baru muncul di ${fmt(lowCoverage.storeCount)} toko dengan total ${fmt(lowCoverage.total)} WIC. Bisa dipakai untuk mengidentifikasi peluang display, promotor, atau campaign tambahan.`
+            : `Semua brand masih belum punya coverage yang cukup untuk dianalisis.`
+        },
+        {
+          title: `${topBrand?.brand || '-'} jadi brand paling dicari`,
+          body: topBrand
+            ? `Brand ini mengumpulkan ${fmt(topBrand.total)} WIC dan jadi benchmark utama demand bulan ${formatMonthLabel(selectedMonth)}.`
+            : `Belum ada brand dominan karena data bulan ini masih kosong.`
+        },
+        {
+          title: `${topOverallStore?.store_name || '-'} memimpin store ranking`,
+          body: topOverallStore
+            ? `Store ini mencatat ${fmt(topOverallStore.total_customers)} total WIC dan bisa dijadikan acuan untuk pola demand maupun performa follow up store leader.`
+            : `Belum ada ranking store karena belum ada data WIC bulan ini.`
+        }
+      ];
+    }
+
+    function renderAnalytics() {
+      const submissions = getFilteredSubmissions();
+      const areaSummary = buildAreaSummary(submissions);
+      const brandMatrix = buildBrandMatrix(submissions, areaSummary);
+      const topBrand = [...brandMatrix].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+      const topArea = [...areaSummary].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+      const selectedBrandStores = submissions
+        .map(item => ({ ...item, brandCount: getBrandCount(item, selectedBrand), dominantBrand: getDominantBrand(item) }))
+        .filter(item => item.brandCount > 0)
+        .sort((a, b) => {
+          if (b.brandCount !== a.brandCount) return b.brandCount - a.brandCount;
+          return (b.total_customers || 0) - (a.total_customers || 0);
+        });
+
+      const filteredGrandTotal = submissions.reduce((sum, item) => sum + (item.total_customers || 0), 0);
+      document.getElementById('kpiTotal').textContent = fmt(filteredGrandTotal);
+      document.getElementById('kpiTotalSub').textContent = `Akumulasi WIC ${selectedAreaFilter === 'ALL' ? 'semua area' : selectedAreaFilter} · ${selectedChannelFilter === 'ALL' ? 'semua channel' : selectedChannelFilter}`;
+      document.getElementById('kpiStores').textContent = fmt(submissions.length);
+      document.getElementById('kpiStoresSub').textContent = `${fmt(submissions.length)} toko aktif dari filter yang dipilih`;
+      document.getElementById('kpiBrand').textContent = topBrand ? topBrand.brand : '-';
+      document.getElementById('kpiBrandSub').textContent = topBrand ? `${fmt(topBrand.total)} WIC terkumpul pada bulan terpilih` : 'Belum ada brand dominan';
+      document.getElementById('kpiArea').textContent = topArea ? topArea.area : '-';
+      document.getElementById('kpiAreaSub').textContent = topArea ? `${fmt(topArea.total)} total WIC dari ${fmt(topArea.storeCount)} toko` : 'Belum ada area dominan';
+
+      const topStoreForBrand = selectedBrandStores[0];
+      const topAreaForBrand = [...areaSummary]
+        .map(item => ({ area: item.area, total: item.brandTotals[selectedBrand] || 0 }))
+        .sort((a, b) => b.total - a.total)[0];
+      document.getElementById('selectedBrandHero').textContent = selectedBrand;
+      document.getElementById('selectedBrandCopy').textContent = topStoreForBrand
+        ? `${selectedBrand} paling kuat di ${topStoreForBrand.store_name} dengan ${fmt(topStoreForBrand.brandCount)} WIC pada ${formatMonthLabel(selectedMonth)}.`
+        : `Belum ada demand ${selectedBrand} pada ${formatMonthLabel(selectedMonth)}.`;
+      document.getElementById('heroTopStore').textContent = topStoreForBrand
+        ? `${topStoreForBrand.store_name} · ${fmt(topStoreForBrand.brandCount)} WIC`
+        : '-';
+      document.getElementById('heroTopArea').textContent = topAreaForBrand && topAreaForBrand.total > 0
+        ? `${topAreaForBrand.area} · ${fmt(topAreaForBrand.total)} WIC`
+        : '-';
+
+      renderBrandPills(brandMatrix.map(item => item.brand));
+      renderBrandStoreChart(selectedBrandStores);
+      renderAreaChart(areaSummary, brandMatrix);
+      renderTopStoreList(submissions);
+      renderBrandMatrix(brandMatrix);
+      renderInsights(buildInsights(submissions, areaSummary, brandMatrix));
+    }
+
+    function renderBrandPills(activeBrands) {
+      const wrap = document.getElementById('brandPills');
+      wrap.innerHTML = activeBrands.map(brand => `
+        <button class="pill-btn ${brand === selectedBrand ? 'active' : ''}" onclick="selectBrand('${brand}')">${brand}</button>
+      `).join('');
+    }
+
+    function selectBrand(brand) {
+      selectedBrand = brand;
+      renderAnalytics();
+    }
+
+    function renderBrandStoreChart(rows) {
+      const labels = rows.slice(0, 8).map(item => item.store_name.length > 26 ? `${item.store_name.slice(0, 26)}...` : item.store_name);
+      const data = rows.slice(0, 8).map(item => item.brandCount);
+      const ctx = document.getElementById('brandStoreChart').getContext('2d');
+      if (brandStoreChart) brandStoreChart.destroy();
+      brandStoreChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: BRAND_COLORS[selectedBrand] || '#4361EE',
+            borderRadius: 12,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'white',
+              titleColor: '#0A0F2C',
+              bodyColor: '#6B7280',
+              borderColor: 'rgba(99,115,255,0.15)',
+              borderWidth: 1,
+              padding: 12
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#9CA3AF', font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, color: '#9CA3AF', font: { size: 11 } },
+              grid: { color: 'rgba(99,115,255,0.08)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAreaChart(areaSummary, brandMatrix) {
+      const topBrands = brandMatrix.slice(0, 5).map(item => item.brand);
+      const datasets = topBrands.map(brand => ({
+        label: brand,
+        data: AREA_ORDER.map(area => {
+          const found = areaSummary.find(item => item.area === area);
+          return found ? (found.brandTotals[brand] || 0) : 0;
+        }),
+        backgroundColor: BRAND_COLORS[brand] || '#4361EE',
+        borderRadius: 10,
+        borderSkipped: false
+      }));
+
+      const ctx = document.getElementById('areaChart').getContext('2d');
+      if (areaChart) areaChart.destroy();
+      areaChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: AREA_ORDER, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 10, usePointStyle: true, pointStyle: 'circle' }
+            },
+            tooltip: {
+              backgroundColor: 'white',
+              titleColor: '#0A0F2C',
+              bodyColor: '#6B7280',
+              borderColor: 'rgba(99,115,255,0.15)',
+              borderWidth: 1,
+              padding: 12
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { precision: 0, color: '#9CA3AF', font: { size: 11 } },
+              grid: { color: 'rgba(99,115,255,0.08)' }
+            },
+            y: {
+              stacked: true,
+              ticks: { color: '#6B7280', font: { size: 12, weight: '700' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTopStoreList(submissions) {
+      const wrap = document.getElementById('topStoreList');
+      const rows = [...submissions]
+        .map(item => ({ ...item, dominantBrand: getDominantBrand(item), area: getAreaLabel(item.store_name) }))
+        .sort((a, b) => (b.total_customers || 0) - (a.total_customers || 0))
+        .slice(0, 10);
+
+      if (!rows.length) {
+        wrap.innerHTML = `<div class="loading">Belum ada data WIC pada ${formatMonthLabel(selectedMonth)}.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = rows.map((item, index) => `
+        <div class="store-row">
+          <div class="rank-badge">#${index + 1}</div>
+          <div>
+            <div class="store-title">${item.store_name}</div>
+            <div class="store-meta">${item.store_code} · ${item.area} · ${item.store_leader || '-'} · Dominant ${item.dominantBrand ? item.dominantBrand.brand : '-'}</div>
+          </div>
+          <div class="store-value">
+            <div class="store-number">${fmt(item.total_customers)}</div>
+            <div class="store-caption">total WIC bulan ini</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBrandMatrix(rows) {
+      const body = document.getElementById('brandMatrixBody');
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="5" class="loading">Belum ada matrix brand untuk bulan ini.</td></tr>`;
+        return;
+      }
+      body.innerHTML = rows.map(item => `
+        <tr>
+          <td class="matrix-brand">${item.brand}</td>
+          <td>${fmt(item.total)}</td>
+          <td>${fmt(item.storeCount)}</td>
+          <td>${fmt(item.avgStore)}</td>
+          <td>${item.topArea}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderInsights(rows) {
+      const wrap = document.getElementById('insightList');
+      wrap.innerHTML = rows.map(item => `
+        <div class="note-item">
+          <strong>${item.title}</strong>
+          <span>${item.body}</span>
+        </div>
+      `).join('');
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
