@@ -841,9 +841,10 @@
       .header-sub { font-size: 11px; }
       .header-right {
         display: grid;
-        grid-template-columns: auto 1fr auto auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
         align-items: center;
+        width: 100%;
       }
       .month-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .control-bar {
@@ -870,8 +871,11 @@
         padding: 6px 10px;
         font-size: 11px;
         white-space: nowrap;
+        grid-column: 1 / 2;
+        justify-content: center;
       }
       .date-chip {
+        grid-column: 2 / 3;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -881,26 +885,42 @@
       }
       .last-upd { display: none; }
       .btn-form {
-        min-width: 38px;
-        height: 38px;
-        padding: 0 10px;
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 10px 12px;
         justify-content: center;
         border-radius: 10px;
         box-shadow: 0 4px 12px rgba(67,97,238,0.22);
       }
-      .btn-label { display: none; }
+      .btn-label {
+        display: inline;
+        font-size: 12px;
+        white-space: nowrap;
+      }
       .btn-icon { font-size: 15px; line-height: 1; }
       .btn-admin {
-        min-width: 38px;
-        height: 38px;
-        padding: 0 10px;
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 10px 12px;
         justify-content: center;
       }
       .btn-reset {
-        min-width: 38px;
-        height: 38px;
-        padding: 0 10px;
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 10px 12px;
         justify-content: center;
+      }
+      .btn-analytics,
+      .btn-workflow {
+        grid-column: span 1;
+      }
+      .btn-submit,
+      .btn-admin,
+      .btn-reset {
+        grid-column: 1 / -1;
       }
 
       .kpi-grid {
@@ -1067,7 +1087,16 @@
     }
 
     @media (max-width: 380px) {
-      .header-right { grid-template-columns: auto 1fr auto auto; }
+      .header-right { grid-template-columns: 1fr; }
+      .live-pill,
+      .date-chip,
+      .btn-analytics,
+      .btn-workflow,
+      .btn-submit,
+      .btn-admin,
+      .btn-reset {
+        grid-column: 1 / -1;
+      }
       .kpi-grid { grid-template-columns: 1fr; }
       .chart-wrap { height: 235px; }
       .month-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1091,9 +1120,9 @@
     <div class="last-upd" id="lastUpd"></div>
     <button class="btn-admin" id="logoutAdminBtn" type="button" onclick="logoutAdmin()" aria-label="Logout Admin"><span class="btn-icon">⚙</span><span class="btn-label">Logout Admin</span></button>
     <button class="btn-reset" type="button" onclick="resetSelectedMonth()" aria-label="Reset Bulan"><span class="btn-icon">⟲</span><span class="btn-label">Reset Bulan</span></button>
-    <a href="/analytics" class="btn-form" aria-label="Analytics"><span class="btn-icon">◫</span><span class="btn-label">Analytics</span></a>
-    <a href="/architecture" class="btn-form" aria-label="Workflow"><span class="btn-icon">⌬</span><span class="btn-label">Workflow</span></a>
-    <a href="/form" class="btn-form" aria-label="Form Submit"><span class="btn-icon">⊕</span><span class="btn-label">Form Submit</span></a>
+    <a href="/analytics" class="btn-form btn-analytics" aria-label="Analytics"><span class="btn-icon">◫</span><span class="btn-label">Analytics</span></a>
+    <a href="/architecture" class="btn-form btn-workflow" aria-label="Workflow"><span class="btn-icon">⌬</span><span class="btn-label">Workflow</span></a>
+    <a href="/form" class="btn-form btn-submit" aria-label="Form Submit"><span class="btn-icon">⊕</span><span class="btn-label">Form Submit</span></a>
   </div>
 </header>
 

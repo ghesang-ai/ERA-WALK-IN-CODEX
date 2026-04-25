@@ -108,6 +108,21 @@
       background: linear-gradient(135deg, var(--blue), var(--blue2));
       box-shadow: 0 4px 14px rgba(67,97,238,0.22);
     }
+    .btn-export-analytics {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--blue);
+      background: white;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(67,97,238,0.08);
+      cursor: pointer;
+    }
     .btn-link.ghost {
       color: var(--blue);
       background: white;
@@ -478,6 +493,75 @@
       gap: 18px;
       margin-bottom: 18px;
     }
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .focus-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 12px 32px rgba(67,97,238,0.05);
+      padding: 20px;
+    }
+    .focus-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .focus-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .focus-badge {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: var(--light);
+      color: var(--blue);
+    }
+    .focus-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .focus-table th,
+    .focus-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(99,115,255,.08);
+      text-align: left;
+      font-size: 12px;
+      vertical-align: top;
+    }
+    .focus-table th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .focus-table td:last-child,
+    .focus-table th:last-child {
+      text-align: right;
+    }
+    .focus-store {
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .focus-empty {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 18px 0 8px;
+    }
     .matrix-table {
       width: 100%;
       border-collapse: collapse;
@@ -534,6 +618,9 @@
       .hero, .section-grid, .insight-grid, .kpi-grid, .sticky-toolbar {
         grid-template-columns: 1fr 1fr;
       }
+      .focus-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
     @media (max-width: 980px) {
       .header {
@@ -544,12 +631,15 @@
         gap: 14px;
       }
       .header-right {
-        flex-wrap: wrap;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
       }
       .main {
         padding: 20px 16px 40px;
       }
-      .hero, .section-grid, .insight-grid, .kpi-grid, .sticky-toolbar {
+      .hero, .section-grid, .insight-grid, .kpi-grid, .sticky-toolbar, .focus-grid {
         grid-template-columns: 1fr;
       }
       .month-strip {
@@ -564,6 +654,30 @@
       .store-value {
         text-align: left;
         grid-column: 2;
+      }
+      .live-pill,
+      .date-chip,
+      .btn-link,
+      .btn-export-analytics {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-link.btn-submit {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 520px) {
+      .header-right {
+        grid-template-columns: 1fr;
+      }
+      .hero-title {
+        font-size: 24px;
+      }
+      .btn-link,
+      .btn-export-analytics,
+      .live-pill,
+      .date-chip {
+        grid-column: 1 / -1;
       }
     }
   </style>
@@ -580,9 +694,10 @@
     <div class="header-right">
       <div class="live-pill"><span class="live-dot"></span>ANALYTICS LIVE</div>
       <div class="date-chip" id="dateChip">-</div>
+      <button class="btn-export-analytics" type="button" onclick="exportAnalytics()">Export Analytics</button>
       <a href="/dashboard" class="btn-link ghost">Dashboard</a>
       <a href="/architecture" class="btn-link ghost">Workflow</a>
-      <a href="/form" class="btn-link">Form Submit</a>
+      <a href="/form" class="btn-link btn-submit">Form Submit</a>
     </div>
   </header>
 
@@ -707,6 +822,60 @@
       </div>
       <div class="store-list" id="topStoreList">
         <div class="loading">Memuat ranking toko...</div>
+      </div>
+    </section>
+
+    <section class="focus-grid">
+      <div class="focus-card">
+        <div class="focus-head">
+          <div class="focus-brand" style="color:#06D6A0">Oppo</div>
+          <div class="focus-badge">Top Store PIC</div>
+        </div>
+        <table class="focus-table">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>WIC</th>
+            </tr>
+          </thead>
+          <tbody id="focusOppoBody">
+            <tr><td colspan="2" class="loading">Memuat data Oppo...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="focus-card">
+        <div class="focus-head">
+          <div class="focus-brand" style="color:#4361EE">Samsung</div>
+          <div class="focus-badge">Top Store PIC</div>
+        </div>
+        <table class="focus-table">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>WIC</th>
+            </tr>
+          </thead>
+          <tbody id="focusSamsungBody">
+            <tr><td colspan="2" class="loading">Memuat data Samsung...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="focus-card">
+        <div class="focus-head">
+          <div class="focus-brand" style="color:#00A6D6">Tecno</div>
+          <div class="focus-badge">Top Store PIC</div>
+        </div>
+        <table class="focus-table">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>WIC</th>
+            </tr>
+          </thead>
+          <tbody id="focusTecnoBody">
+            <tr><td colspan="2" class="loading">Memuat data Tecno...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -1061,8 +1230,16 @@
       document.getElementById('kpiStoresSub').textContent = `${fmt(submissions.length)} toko aktif dari filter yang dipilih`;
       document.getElementById('kpiBrand').textContent = topBrand ? topBrand.brand : '-';
       document.getElementById('kpiBrandSub').textContent = topBrand ? `${fmt(topBrand.total)} WIC terkumpul pada bulan terpilih` : 'Belum ada brand dominan';
-      document.getElementById('kpiArea').textContent = topArea ? topArea.area : '-';
-      document.getElementById('kpiAreaSub').textContent = topArea ? `${fmt(topArea.total)} total WIC dari ${fmt(topArea.storeCount)} toko` : 'Belum ada area dominan';
+      const kpiAreaLabel = document.querySelector('#kpiArea').closest('.kpi-card').querySelector('.kpi-label');
+      if (selectedAreaFilter === 'ALL') {
+        kpiAreaLabel.textContent = 'Area Terkuat';
+        document.getElementById('kpiArea').textContent = topArea ? topArea.area : '-';
+        document.getElementById('kpiAreaSub').textContent = topArea ? `${fmt(topArea.total)} total WIC dari ${fmt(topArea.storeCount)} toko` : 'Belum ada area dominan';
+      } else {
+        kpiAreaLabel.textContent = 'Area yang Sedang Dibaca';
+        document.getElementById('kpiArea').textContent = selectedAreaFilter;
+        document.getElementById('kpiAreaSub').textContent = `${fmt(filteredGrandTotal)} total WIC dari ${fmt(submissions.length)} toko pada area terfilter`;
+      }
 
       const topStoreForBrand = selectedBrandStores[0];
       const topAreaForBrand = [...areaSummary]
@@ -1083,6 +1260,9 @@
       renderBrandStoreChart(selectedBrandStores);
       renderAreaChart(areaSummary, brandMatrix);
       renderTopStoreList(submissions);
+      renderFocusBrandTable('Oppo', 'focusOppoBody', submissions);
+      renderFocusBrandTable('Samsung', 'focusSamsungBody', submissions);
+      renderFocusBrandTable('Tecno', 'focusTecnoBody', submissions);
       renderBrandMatrix(brandMatrix);
       renderInsights(buildInsights(submissions, areaSummary, brandMatrix));
     }
@@ -1241,6 +1421,30 @@
       `).join('');
     }
 
+    function renderFocusBrandTable(brand, targetId, submissions) {
+      const body = document.getElementById(targetId);
+      const rows = [...submissions]
+        .map(item => ({
+          store_name: item.store_name,
+          count: getBrandCount(item, brand)
+        }))
+        .filter(item => item.count > 0)
+        .sort((a, b) => b.count - a.count || a.store_name.localeCompare(b.store_name))
+        .slice(0, 5);
+
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="2"><div class="focus-empty">Belum ada data ${brand} untuk filter ini.</div></td></tr>`;
+        return;
+      }
+
+      body.innerHTML = rows.map(item => `
+        <tr>
+          <td class="focus-store">${item.store_name}</td>
+          <td>${fmt(item.count)}</td>
+        </tr>
+      `).join('');
+    }
+
     function renderInsights(rows) {
       const wrap = document.getElementById('insightList');
       wrap.innerHTML = rows.map(item => `
@@ -1249,6 +1453,65 @@
           <span>${item.body}</span>
         </div>
       `).join('');
+    }
+
+    function exportAnalytics() {
+      const submissions = getFilteredSubmissions();
+      const areaSummary = buildAreaSummary(submissions);
+      const brandMatrix = buildBrandMatrix(submissions, areaSummary);
+      const topStores = [...submissions]
+        .sort((a, b) => (b.total_customers || 0) - (a.total_customers || 0))
+        .slice(0, 10);
+      const focusBrands = ['Oppo', 'Samsung', 'Tecno'];
+
+      const lines = [];
+      lines.push(`ANALYTICS WIC - ${formatMonthLabel(selectedMonth)}`);
+      lines.push(`Area Filter: ${selectedAreaFilter === 'ALL' ? 'Semua' : selectedAreaFilter}`);
+      lines.push(`Channel Filter: ${selectedChannelFilter === 'ALL' ? 'Semua' : selectedChannelFilter}`);
+      lines.push('');
+      lines.push('RINGKASAN');
+      lines.push(`Total WIC: ${fmt(submissions.reduce((sum, item) => sum + (item.total_customers || 0), 0))}`);
+      lines.push(`Toko Aktif Submit: ${fmt(submissions.length)}`);
+      if (brandMatrix[0]) lines.push(`Brand Tertinggi: ${brandMatrix.slice().sort((a, b) => b.total - a.total)[0].brand}`);
+      lines.push('');
+      lines.push('TOP 10 STORE');
+      topStores.forEach((item, index) => {
+        lines.push(`${index + 1}. ${item.store_name} - ${fmt(item.total_customers || 0)} WIC`);
+      });
+
+      focusBrands.forEach((brand) => {
+        const rows = [...submissions]
+          .map(item => ({ store_name: item.store_name, count: getBrandCount(item, brand) }))
+          .filter(item => item.count > 0)
+          .sort((a, b) => b.count - a.count || a.store_name.localeCompare(b.store_name))
+          .slice(0, 5);
+        lines.push('');
+        lines.push(`TOP STORE ${brand.toUpperCase()}`);
+        if (!rows.length) {
+          lines.push(`Belum ada data ${brand}`);
+        } else {
+          rows.forEach((item, index) => {
+            lines.push(`${index + 1}. ${item.store_name} - ${fmt(item.count)} WIC`);
+          });
+        }
+      });
+
+      lines.push('');
+      lines.push('KEKUATAN AREA');
+      areaSummary
+        .filter(item => item.total > 0)
+        .sort((a, b) => b.total - a.total)
+        .forEach(item => lines.push(`${item.area} - ${fmt(item.total)} WIC dari ${fmt(item.storeCount)} toko`));
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics-wic-${selectedMonth}-${selectedAreaFilter === 'ALL' ? 'semua-area' : selectedAreaFilter.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${selectedChannelFilter === 'ALL' ? 'semua-channel' : selectedChannelFilter.toLowerCase()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
     }
 
     initPage();
