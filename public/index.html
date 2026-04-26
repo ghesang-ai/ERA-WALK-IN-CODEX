@@ -354,6 +354,9 @@
       grid-template-columns: 1.2fr .8fr;
       gap: 16px;
     }
+    .management-grid + .management-card {
+      margin-top: 16px;
+    }
     .management-card {
       border: 1px solid rgba(99,115,255,0.08);
       border-radius: 18px;
@@ -468,6 +471,71 @@
       font-size: 11px;
       color: var(--muted);
       line-height: 1.45;
+    }
+    .weekly-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    .weekly-mini {
+      border: 1px solid rgba(99,115,255,.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.88);
+    }
+    .weekly-mini-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .weekly-mini-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .weekly-mini-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .weekly-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .weekly-item {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(99,115,255,.06);
+      background: rgba(255,255,255,.88);
+    }
+    .weekly-item-date {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .weekly-item-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .weekly-item-value {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--blue);
+      text-align: right;
+      line-height: 1.4;
     }
     .compliance-card {
       background: var(--surface);
@@ -1856,6 +1924,20 @@
           </div>
         </div>
       </div>
+      <div class="management-card">
+        <div class="card-title">Weekly Management Recap</div>
+        <div class="card-sub" id="weeklyRecapSub">Ringkasan 7 hari terakhir untuk membaca ritme demand dan coverage submit</div>
+        <div class="weekly-grid" id="weeklyRecapStats">
+          <div class="weekly-mini">
+            <div class="weekly-mini-label">Total WIC 7 Hari</div>
+            <div class="weekly-mini-value">0</div>
+            <div class="weekly-mini-sub">Menunggu data mingguan</div>
+          </div>
+        </div>
+        <div class="weekly-list" id="weeklyRecapList">
+          <div class="empty-feed">Menunggu data dashboard untuk menyusun weekly recap…</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2260,6 +2342,7 @@ let latestMonthlyData = null;
 let latestAuditLogs = [];
 let latestMonthCompare = null;
 let latestComplianceData = null;
+let latestTrendHistory = [];
 let selectedComplianceArea = 'ALL';
 let selectedComplianceChannel = 'ALL';
 let complianceSearchQuery = '';
@@ -2519,9 +2602,11 @@ async function loadTrend() {
     const monthKey = viewMode === 'day' ? selectedDate.slice(0,7) : selectedMonth;
     const res = await fetch(`/api/history?month=${monthKey}&ts=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
+    latestTrendHistory = data || [];
     trendChart.data.labels = data.map(d=>fmtDate(d.submission_date));
     trendChart.data.datasets[0].data = data.map(d=>d.total);
     trendChart.update('active');
+    renderManagementPanels();
   } catch(e) {}
 }
 
@@ -3298,27 +3383,65 @@ function buildManagementInsights() {
   return { data, isDaily, periodLabel, totalStores, pendingCodes, coveragePct, topBrand, topStore, topPendingArea, compare, compareDelta, bestMomentum, criticalRows, summary, alerts };
 }
 
+function buildWeeklyRecap() {
+  const history = latestTrendHistory || [];
+  if (!history.length) return null;
+  const normalized = [...history]
+    .map(item => ({
+      date: item.submission_date,
+      total: item.total || 0,
+      reportCount: item.report_count || 0,
+      storeCount: item.store_count || 0,
+      topBrand: item.top_brand || '-'
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const weeklyRows = normalized.slice(-7);
+  if (!weeklyRows.length) return null;
+  const totalWic = weeklyRows.reduce((sum, row) => sum + row.total, 0);
+  const avgWic = Math.round(totalWic / weeklyRows.length);
+  const bestDay = [...weeklyRows].sort((a, b) => b.total - a.total)[0];
+  const lastDay = weeklyRows[weeklyRows.length - 1];
+  return {
+    rows: weeklyRows,
+    totalWic,
+    avgWic,
+    bestDay,
+    lastDay,
+    trackedDays: weeklyRows.length
+  };
+}
+
 function renderManagementPanels() {
   const summarySub = document.getElementById('execSummarySub');
   const summaryBody = document.getElementById('execSummaryBody');
   const opportunitySub = document.getElementById('opportunitySub');
   const opportunityList = document.getElementById('opportunityList');
   const managementSub = document.getElementById('managementSub');
-  if (!summarySub || !summaryBody || !opportunitySub || !opportunityList || !managementSub) return;
+  const weeklyRecapSub = document.getElementById('weeklyRecapSub');
+  const weeklyRecapStats = document.getElementById('weeklyRecapStats');
+  const weeklyRecapList = document.getElementById('weeklyRecapList');
+  if (!summarySub || !summaryBody || !opportunitySub || !opportunityList || !managementSub || !weeklyRecapSub || !weeklyRecapStats || !weeklyRecapList) return;
 
   const insights = buildManagementInsights();
   if (!insights) {
     managementSub.textContent = 'Ringkasan manajemen dan prioritas action untuk periode yang sedang dipantau';
     summarySub.textContent = 'Belum ada ringkasan untuk periode ini';
     opportunitySub.textContent = 'Belum ada alert yang siap ditampilkan';
+    weeklyRecapSub.textContent = 'Ringkasan 7 hari terakhir untuk membaca ritme demand dan coverage submit';
     summaryBody.innerHTML = `<div class="empty-feed">Menunggu data dashboard untuk menyusun executive summary…</div>`;
     opportunityList.innerHTML = `<div class="empty-feed">Menunggu data dashboard untuk menyusun opportunity alerts…</div>`;
+    weeklyRecapStats.innerHTML = `<div class="weekly-mini"><div class="weekly-mini-label">Total WIC 7 Hari</div><div class="weekly-mini-value">0</div><div class="weekly-mini-sub">Menunggu data mingguan</div></div>`;
+    weeklyRecapList.innerHTML = `<div class="empty-feed">Menunggu data dashboard untuk menyusun weekly recap…</div>`;
     return;
   }
+  const weekly = buildWeeklyRecap();
 
   managementSub.textContent = `Ringkasan ${insights.isDaily ? 'harian' : 'bulanan'} untuk ${insights.periodLabel} dengan fokus action management PIC`;
   summarySub.textContent = `Intisari performa WIC, coverage submit, dan area prioritas pada ${insights.periodLabel}`;
   opportunitySub.textContent = `${fmt(insights.alerts.length)} alert prioritas yang bisa langsung dipakai untuk action area`;
+  weeklyRecapSub.textContent = weekly
+    ? `Rekap ${fmt(weekly.trackedDays)} hari terakhir dalam ${formatMonthLabel(selectedMonth)} untuk membaca ritme demand dan submit`
+    : 'Ringkasan 7 hari terakhir untuk membaca ritme demand dan coverage submit';
 
   summaryBody.innerHTML = insights.summary.map(item => `
     <div class="summary-item">
@@ -3335,6 +3458,41 @@ function renderManagementPanels() {
       </div>
       <div class="alert-detail">${escapeHtml(alert.detail)}</div>
       <div class="alert-action">${escapeHtml(alert.action)}</div>
+    </div>
+  `).join('');
+
+  if (!weekly) {
+    weeklyRecapStats.innerHTML = `<div class="weekly-mini"><div class="weekly-mini-label">Total WIC 7 Hari</div><div class="weekly-mini-value">0</div><div class="weekly-mini-sub">Data history belum tersedia</div></div>`;
+    weeklyRecapList.innerHTML = `<div class="empty-feed">Belum ada history yang cukup untuk weekly recap.</div>`;
+    return;
+  }
+
+  weeklyRecapStats.innerHTML = `
+    <div class="weekly-mini">
+      <div class="weekly-mini-label">Total WIC 7 Hari</div>
+      <div class="weekly-mini-value">${fmt(weekly.totalWic)}</div>
+      <div class="weekly-mini-sub">Akumulasi ${fmt(weekly.trackedDays)} hari terakhir</div>
+    </div>
+    <div class="weekly-mini">
+      <div class="weekly-mini-label">Rata-rata Harian</div>
+      <div class="weekly-mini-value">${fmt(weekly.avgWic)}</div>
+      <div class="weekly-mini-sub">Walk in customer per hari</div>
+    </div>
+    <div class="weekly-mini">
+      <div class="weekly-mini-label">Hari Terkuat</div>
+      <div class="weekly-mini-value">${fmtDate(weekly.bestDay.date)}</div>
+      <div class="weekly-mini-sub">${fmt(weekly.bestDay.total)} WIC · ${fmt(weekly.bestDay.reportCount)} report</div>
+    </div>
+  `;
+
+  weeklyRecapList.innerHTML = weekly.rows.map(row => `
+    <div class="weekly-item">
+      <div>
+        <div class="weekly-item-date">${fmtDate(row.date)}</div>
+        <div class="weekly-item-meta">${fmt(row.reportCount)} report · ${fmt(row.storeCount)} toko</div>
+      </div>
+      <div class="weekly-item-meta">Top brand: ${escapeHtml(row.topBrand || '-')}</div>
+      <div class="weekly-item-value">${fmt(row.total)} WIC</div>
     </div>
   `).join('');
 }
@@ -3357,6 +3515,7 @@ function exportManagementPdf() {
   const topPendingAreaLabel = insights.topPendingArea ? `${insights.topPendingArea[0]} (${fmt(insights.topPendingArea[1])} toko)` : 'Tidak ada pending';
   const topStoreLabel = insights.topStore ? `${insights.topStore.store_name} · ${fmt(insights.topStore.total_customers)} WIC` : 'Belum ada toko leader';
   const topBrandLabel = insights.topBrand ? `${insights.topBrand.brand} · ${fmt(insights.topBrand.total || insights.topBrand.customer_count || 0)} WIC` : 'Belum ada brand leader';
+  const weekly = buildWeeklyRecap();
   const compareBlock = (!insights.isDaily && insights.compare) ? `
     <div class="metric">
       <div class="metric-label">Compare Month vs Month</div>
@@ -3372,6 +3531,15 @@ function exportManagementPdf() {
       <div class="alert-action">${escapeHtml(alert.action)}</div>
     </div>
   `).join('');
+  const weeklyHtml = weekly ? weekly.rows.map(row => `
+    <tr>
+      <td>${escapeHtml(fmtDate(row.date))}</td>
+      <td>${fmt(row.total)}</td>
+      <td>${fmt(row.reportCount)}</td>
+      <td>${fmt(row.storeCount)}</td>
+      <td>${escapeHtml(row.topBrand || '-')}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="5">Belum ada history mingguan.</td></tr>';
   printWindow.document.write(`<!DOCTYPE html>
   <html lang="id">
   <head>
@@ -3402,6 +3570,9 @@ function exportManagementPdf() {
       .alert-title span { font-size: 10px; text-transform: uppercase; margin-left: 6px; color: #64748B; }
       .alert-detail { font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
       .alert-action { font-size: 11px; color: #64748B; line-height: 1.45; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+      th, td { border: 1px solid #E2E8F0; padding: 8px 10px; text-align: left; vertical-align: top; }
+      th { background: #F8FAFF; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
       .footer { margin-top: 18px; font-size: 11px; color: #64748B; }
       @media print {
         body { margin: 16px; }
@@ -3443,6 +3614,13 @@ function exportManagementPdf() {
     <ul>${summaryHtml}</ul>
     <h2>Opportunity Alerts</h2>
     <div class="alert-list">${alertsHtml}</div>
+    <h2>Weekly Management Recap</h2>
+    <table>
+      <thead>
+        <tr><th>Tanggal</th><th>Total WIC</th><th>Report</th><th>Toko Aktif</th><th>Top Brand</th></tr>
+      </thead>
+      <tbody>${weeklyHtml}</tbody>
+    </table>
     <div class="footer">Sumber: dashboard ERA-WALK IN CUSTOMER, compare month, dan kalender kepatuhan admin.</div>
   </body>
   </html>`);
