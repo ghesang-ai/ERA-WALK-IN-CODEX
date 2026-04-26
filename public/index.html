@@ -321,6 +321,50 @@
       margin-bottom: 16px;
       flex-wrap: wrap;
     }
+    .compliance-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .compliance-filter-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .compliance-filter-label {
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      min-width: 52px;
+      padding-top: 8px;
+    }
+    .compliance-filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .compliance-pill {
+      border: 1px solid rgba(99,115,255,0.12);
+      background: white;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .compliance-pill.active {
+      color: var(--blue);
+      background: var(--light);
+      border-color: rgba(67,97,238,.24);
+      box-shadow: 0 4px 12px rgba(67,97,238,.08);
+    }
     .compliance-wrap {
       overflow: auto;
       border: 1px solid rgba(99,115,255,0.08);
@@ -383,6 +427,16 @@
       background: #FBFCFF;
       font-weight: 700;
       color: var(--text);
+    }
+    .compliance-row.problem td:first-child,
+    .compliance-row.problem td:nth-child(2) {
+      background: linear-gradient(180deg, rgba(254,242,242,.98), rgba(255,255,255,.94));
+    }
+    .compliance-row.problem .compliance-code {
+      color: var(--red);
+    }
+    .compliance-row.problem .compliance-name {
+      color: #7F1D1D;
     }
     .compliance-cell.done {
       background: rgba(6,214,160,.12);
@@ -1050,6 +1104,7 @@
       .kpi-grid { grid-template-columns: repeat(2,1fr); }
       .charts-row { grid-template-columns: 1fr; }
       .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .compliance-controls { grid-template-columns: 1fr; }
       .header {
         height: auto;
         min-height: 68px;
@@ -1255,6 +1310,14 @@
       .compare-grid {
         grid-template-columns: 1fr;
         gap: 12px;
+      }
+      .compliance-filter-group {
+        display: grid;
+        gap: 6px;
+      }
+      .compliance-filter-label {
+        min-width: 0;
+        padding-top: 0;
       }
       .compare-section,
       .discipline-card {
@@ -1645,6 +1708,27 @@
         </div>
         <span class="badge" id="complianceBadge">0 toko</span>
       </div>
+      <div class="compliance-controls">
+        <div class="compliance-filter-group">
+          <div class="compliance-filter-label">Area</div>
+          <div class="compliance-filter-pills">
+            <button class="compliance-pill active" type="button" data-area="ALL" onclick="setComplianceArea('ALL')">Semua</button>
+            <button class="compliance-pill" type="button" data-area="AREA JAKARTA" onclick="setComplianceArea('AREA JAKARTA')">Jakarta</button>
+            <button class="compliance-pill" type="button" data-area="AREA TANGSEL & TANGERANG" onclick="setComplianceArea('AREA TANGSEL & TANGERANG')">Tangsel & Tangerang</button>
+            <button class="compliance-pill" type="button" data-area="AREA BANTEN" onclick="setComplianceArea('AREA BANTEN')">Banten</button>
+          </div>
+        </div>
+        <div class="compliance-filter-group">
+          <div class="compliance-filter-label">Channel</div>
+          <div class="compliance-filter-pills">
+            <button class="compliance-pill active" type="button" data-channel="ALL" onclick="setComplianceChannel('ALL')">Semua</button>
+            <button class="compliance-pill" type="button" data-channel="ERAFONE" onclick="setComplianceChannel('ERAFONE')">ERAFONE</button>
+            <button class="compliance-pill" type="button" data-channel="IBOX" onclick="setComplianceChannel('IBOX')">IBOX</button>
+            <button class="compliance-pill" type="button" data-channel="SAMSUNG" onclick="setComplianceChannel('SAMSUNG')">SAMSUNG</button>
+            <button class="compliance-pill" type="button" data-channel="XIAOMI" onclick="setComplianceChannel('XIAOMI')">XIAOMI</button>
+          </div>
+        </div>
+      </div>
       <div class="compliance-wrap">
         <table class="compliance-table">
           <thead id="complianceHead"></thead>
@@ -1863,6 +1947,9 @@ let latestDailyData = null;
 let latestMonthlyData = null;
 let latestAuditLogs = [];
 let latestMonthCompare = null;
+let latestComplianceData = null;
+let selectedComplianceArea = 'ALL';
+let selectedComplianceChannel = 'ALL';
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -2440,10 +2527,35 @@ async function loadCompliance() {
   try {
     const res = await fetch(`/api/compliance?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
+    latestComplianceData = data;
     renderCompliance(data);
   } catch (e) {
     console.error(e);
   }
+}
+
+function setComplianceArea(area) {
+  selectedComplianceArea = area;
+  document.querySelectorAll('.compliance-pill[data-area]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.area === area);
+  });
+  if (latestComplianceData) renderCompliance(latestComplianceData);
+}
+
+function setComplianceChannel(channel) {
+  selectedComplianceChannel = channel;
+  document.querySelectorAll('.compliance-pill[data-channel]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.channel === channel);
+  });
+  if (latestComplianceData) renderCompliance(latestComplianceData);
+}
+
+function getFilteredComplianceRows(rows) {
+  return (rows || []).filter(row => {
+    const areaMatch = selectedComplianceArea === 'ALL' || getAreaLabel(row.store_code) === selectedComplianceArea;
+    const channelMatch = selectedComplianceChannel === 'ALL' || row.channel === selectedComplianceChannel;
+    return areaMatch && channelMatch;
+  });
 }
 
 function renderCompliance(data) {
@@ -2451,38 +2563,57 @@ function renderCompliance(data) {
   const body = document.getElementById('complianceBody');
   if (!head || !body) return;
   const dates = data.dates || [];
-  const rows = data.rows || [];
+  const rows = getFilteredComplianceRows(data.rows || []);
+  const problemCodes = new Set((data.summary?.need_follow_up || []).map(item => item.store_code));
+  const areaLabel = selectedComplianceArea === 'ALL' ? 'semua area' : selectedComplianceArea.replace('AREA ', '');
+  const channelLabel = selectedComplianceChannel === 'ALL' ? 'semua channel' : selectedComplianceChannel;
   head.innerHTML = `<tr>
     <th class="compliance-code">Code</th>
     <th class="compliance-name">Nama Toko</th>
     ${dates.map(date => `<th>${date.slice(-2)}</th>`).join('')}
   </tr>`;
-  body.innerHTML = rows.map(row => `
-    <tr>
+  body.innerHTML = rows.length ? rows.map(row => `
+    <tr class="${problemCodes.has(row.store_code) ? 'compliance-row problem' : ''}">
       <td class="compliance-code">${row.store_code}</td>
       <td class="compliance-name">${row.store_name}</td>
       ${row.statuses.map(status => `<td class="compliance-cell ${status === true ? 'done' : status === false ? 'miss' : 'future'}">${status === true ? '✓' : status === false ? '•' : '—'}</td>`).join('')}
     </tr>
-  `).join('');
-  document.getElementById('complianceBadge').textContent = `${fmt(data.registeredStores || rows.length)} toko`;
+  `).join('') : `<tr><td colspan="${dates.length + 2}" class="table-empty">Tidak ada toko untuk filter ${areaLabel} · ${channelLabel}.</td></tr>`;
+  document.getElementById('complianceBadge').textContent = `${fmt(rows.length)} toko`;
   const dayTotals = (data.dayTotals || [])
     .filter(day => !Array.isArray(data.trackedDates) || data.trackedDates.includes(day.date))
     .map(day => `${day.date.slice(-2)}: ${fmt(day.submitted)}`)
     .join(' · ');
   document.getElementById('complianceFooter').textContent = dayTotals || 'Belum ada data kepatuhan untuk bulan ini.';
-  document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah belum submit, abu-abu tanggal yang belum berjalan untuk ${formatMonthLabel(data.month || selectedMonth)}. Dipantau ${fmt(data.summary?.tracked_days || 0)} hari.`;
-  renderDisciplineSummary(data);
+  document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah belum submit, abu-abu tanggal yang belum berjalan untuk ${formatMonthLabel(data.month || selectedMonth)}. Filter: ${areaLabel} · ${channelLabel}. Dipantau ${fmt(data.summary?.tracked_days || 0)} hari.`;
+  renderDisciplineSummary(data, rows);
 }
 
-function renderDisciplineSummary(data) {
+function renderDisciplineSummary(data, filteredRows = null) {
   const topList = document.getElementById('disciplineTopList');
   const followList = document.getElementById('disciplineFollowList');
   const topSub = document.getElementById('disciplineTopSub');
   const followSub = document.getElementById('disciplineFollowSub');
   if (!topList || !followList) return;
   const trackedDays = data.summary?.tracked_days || 0;
+  const rows = filteredRows || getFilteredComplianceRows(data.rows || []);
+  const topItems = [...rows]
+    .filter(row => row.submitted_days > 0)
+    .sort((a, b) => {
+      if (b.discipline_score !== a.discipline_score) return b.discipline_score - a.discipline_score;
+      if (b.submitted_days !== a.submitted_days) return b.submitted_days - a.submitted_days;
+      return a.store_name.localeCompare(b.store_name);
+    })
+    .slice(0, 5);
+  const followItems = [...rows]
+    .sort((a, b) => {
+      if (b.missed_days !== a.missed_days) return b.missed_days - a.missed_days;
+      if (a.submitted_days !== b.submitted_days) return a.submitted_days - b.submitted_days;
+      return a.store_name.localeCompare(b.store_name);
+    })
+    .slice(0, 5);
   if (topSub) topSub.textContent = `5 toko paling disiplin dari ${fmt(trackedDays)} hari yang sudah berjalan`;
-  if (followSub) followSub.textContent = `5 toko dengan missed day tertinggi pada ${formatMonthLabel(data.month || selectedMonth)}`;
+  if (followSub) followSub.textContent = `5 toko yang paling perlu difollow up pada ${formatMonthLabel(data.month || selectedMonth)}`;
 
   const renderRows = (items, low = false) => {
     if (!items?.length) return `<div class="empty-feed">Belum ada data discipline score.</div>`;
@@ -2497,8 +2628,8 @@ function renderDisciplineSummary(data) {
     `).join('');
   };
 
-  topList.innerHTML = renderRows(data.summary?.top_disciplined);
-  followList.innerHTML = renderRows(data.summary?.need_follow_up, true);
+  topList.innerHTML = renderRows(topItems);
+  followList.innerHTML = renderRows(followItems, true);
 }
 
 function exportCurrentReport() {
