@@ -423,6 +423,25 @@
       border-color: rgba(67,97,238,.28);
       box-shadow: 0 8px 22px rgba(67,97,238,.12);
     }
+    .btn-compliance-pdf {
+      border: 1px solid rgba(239,35,60,.14);
+      background: linear-gradient(135deg, rgba(239,35,60,.08), rgba(255,159,28,.12));
+      color: #C1121F;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: 0 4px 14px rgba(239,35,60,.08);
+    }
+    .btn-compliance-pdf:hover {
+      transform: translateY(-1px);
+      border-color: rgba(239,35,60,.26);
+      box-shadow: 0 8px 22px rgba(239,35,60,.12);
+    }
     .compliance-wrap {
       overflow: auto;
       border: 1px solid rgba(99,115,255,0.08);
@@ -490,6 +509,11 @@
     .compliance-row.problem td:nth-child(2) {
       background: linear-gradient(180deg, rgba(254,242,242,.98), rgba(255,255,255,.94));
     }
+    .compliance-row.critical td:first-child,
+    .compliance-row.critical td:nth-child(2) {
+      background: linear-gradient(180deg, rgba(255,236,236,.98), rgba(255,247,247,.94));
+      box-shadow: inset 4px 0 0 rgba(239,35,60,.72);
+    }
     .compliance-row.problem .compliance-code {
       color: var(--red);
     }
@@ -542,6 +566,11 @@
       border: 1px solid rgba(99,115,255,0.08);
       border-radius: 12px;
       background: rgba(255,255,255,.84);
+    }
+    .discipline-row.critical {
+      border-color: rgba(239,35,60,.18);
+      background: linear-gradient(180deg, rgba(255,245,245,.95), rgba(255,255,255,.94));
+      box-shadow: inset 4px 0 0 rgba(239,35,60,.72);
     }
     .discipline-main {
       min-width: 0;
@@ -905,6 +934,7 @@
     /* Search bar */
     .search-bar {
       display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      flex-wrap: wrap;
     }
     .search-input {
       flex:1; padding: 10px 16px 10px 38px;
@@ -1699,6 +1729,12 @@
       <input class="search-input" id="searchPend" type="text"
              placeholder="Cari nama toko atau store code…"
              oninput="filterPending()" />
+      <select class="compliance-sort" id="pendingSort" onchange="setPendingSort(this.value)">
+        <option value="name_asc">Urutkan: Nama Toko A-Z</option>
+        <option value="code_asc">Urutkan: Store Code A-Z</option>
+        <option value="area_asc">Urutkan: Area A-Z</option>
+        <option value="channel_asc">Urutkan: Channel A-Z</option>
+      </select>
       <button class="btn-text-export" type="button" onclick="exportPendingText()">Copy to Text</button>
       <button class="btn-reminder" type="button" onclick="copyReminderText()">Copy Reminder</button>
       <button class="btn-text-export" type="button" onclick="exportPendingCsv()">Export Pending CSV</button>
@@ -1807,6 +1843,7 @@
           <option value="code_asc">Urutkan: Store Code A-Z</option>
         </select>
         <button class="btn-compliance-export" type="button" onclick="exportComplianceCsv()">Export Compliance</button>
+        <button class="btn-compliance-pdf" type="button" onclick="exportCompliancePdf()">Export PDF Area</button>
       </div>
       <div class="compliance-wrap">
         <table class="compliance-table">
@@ -2031,6 +2068,7 @@ let selectedComplianceArea = 'ALL';
 let selectedComplianceChannel = 'ALL';
 let complianceSearchQuery = '';
 let complianceSortMode = 'missed_desc';
+let pendingSortMode = 'name_asc';
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -2431,15 +2469,38 @@ function setPendingChannel(channel) {
   filterPending();
 }
 
+function setPendingSort(mode) {
+  pendingSortMode = mode || 'name_asc';
+  filterPending();
+}
+
 function getFilteredPendingCodes() {
   const q = document.getElementById('searchPend').value.trim().toLowerCase();
   const all = window._pendingCodes || [];
   const channelFiltered = activePendingChannel === 'ALL'
     ? all
     : all.filter(c => channelOf(c) === activePendingChannel);
-  return q
+  const filtered = q
     ? channelFiltered.filter(c => c.toLowerCase().includes(q) || (STORE_MAP[c]||'').toLowerCase().includes(q))
     : channelFiltered;
+  return filtered.sort((a, b) => {
+    const areaA = getAreaLabel(a).replace('AREA ', '');
+    const areaB = getAreaLabel(b).replace('AREA ', '');
+    const nameA = STORE_MAP[a] || a;
+    const nameB = STORE_MAP[b] || b;
+    const channelA = channelOf(a);
+    const channelB = channelOf(b);
+    if (pendingSortMode === 'code_asc') return a.localeCompare(b);
+    if (pendingSortMode === 'area_asc') {
+      const areaCompare = areaA.localeCompare(areaB);
+      return areaCompare !== 0 ? areaCompare : nameA.localeCompare(nameB);
+    }
+    if (pendingSortMode === 'channel_asc') {
+      const channelCompare = channelA.localeCompare(channelB);
+      return channelCompare !== 0 ? channelCompare : nameA.localeCompare(nameB);
+    }
+    return nameA.localeCompare(nameB);
+  });
 }
 
 function renderPendingTable(codes) {
@@ -2722,6 +2783,114 @@ function exportComplianceCsv() {
   URL.revokeObjectURL(url);
 }
 
+function exportCompliancePdf() {
+  if (!latestComplianceData) {
+    alert('Data compliance belum siap diexport ke PDF.');
+    return;
+  }
+  const rows = getFilteredComplianceRows(latestComplianceData.rows || []);
+  if (!rows.length) {
+    alert('Tidak ada data compliance untuk filter yang sedang aktif.');
+    return;
+  }
+  const trackedDays = latestComplianceData.summary?.tracked_days || 0;
+  const avgScore = rows.length ? Math.round(rows.reduce((sum, row) => sum + row.discipline_score, 0) / rows.length) : 0;
+  const criticalCount = rows.filter(row => row.discipline_score < 30).length;
+  const topRows = [...rows]
+    .sort((a, b) => {
+      if (b.discipline_score !== a.discipline_score) return b.discipline_score - a.discipline_score;
+      return b.submitted_days - a.submitted_days;
+    })
+    .slice(0, 5);
+  const titleMonth = formatMonthLabel(latestComplianceData.month || selectedMonth);
+  const areaLabel = selectedComplianceArea === 'ALL' ? 'Semua Area' : selectedComplianceArea.replace('AREA ', '');
+  const channelLabel = selectedComplianceChannel === 'ALL' ? 'Semua Channel' : selectedComplianceChannel;
+  const searchLabel = complianceSearchQuery || '-';
+  const printWindow = window.open('', '_blank', 'width=1280,height=900');
+  if (!printWindow) {
+    alert('Popup diblokir browser. Izinkan popup dulu untuk Export PDF Area.');
+    return;
+  }
+  const rowsHtml = rows.map(row => `
+    <tr>
+      <td>${row.store_code}</td>
+      <td>${row.store_name}</td>
+      <td>${getAreaLabel(row.store_code).replace('AREA ', '')}</td>
+      <td>${row.channel}</td>
+      <td>${fmt(row.submitted_days)}</td>
+      <td>${fmt(row.missed_days)}</td>
+      <td>${fmt(row.discipline_score)}%</td>
+      <td>${fmt(row.current_streak)}</td>
+    </tr>
+  `).join('');
+  const topHtml = topRows.map((row, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${row.store_code}</td>
+      <td>${row.store_name}</td>
+      <td>${fmt(row.discipline_score)}%</td>
+      <td>${fmt(row.submitted_days)} / ${fmt(trackedDays)}</td>
+    </tr>
+  `).join('');
+  printWindow.document.write(`<!DOCTYPE html>
+  <html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ERA WIC Compliance ${titleMonth}</title>
+    <style>
+      body { font-family: Inter, Arial, sans-serif; margin: 32px; color: #0F172A; }
+      h1 { margin: 0 0 6px; font-size: 28px; }
+      h2 { margin: 28px 0 12px; font-size: 18px; }
+      p.meta { margin: 0 0 18px; color: #64748B; font-size: 13px; }
+      .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+      .card { border: 1px solid #DDE6FF; border-radius: 14px; padding: 14px 16px; background: #F8FAFF; }
+      .label { font-size: 11px; text-transform: uppercase; font-weight: 800; color: #64748B; letter-spacing: .6px; }
+      .value { font-size: 28px; font-weight: 800; color: #4361EE; margin-top: 8px; }
+      .sub { font-size: 12px; color: #64748B; margin-top: 4px; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      th, td { border: 1px solid #E2E8F0; padding: 8px 10px; text-align: left; vertical-align: top; }
+      th { background: #F8FAFF; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+      .small-note { margin-top: 12px; color: #64748B; font-size: 11px; }
+      @media print {
+        body { margin: 18px; }
+        .summary { break-inside: avoid; }
+        table { page-break-inside: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ERA Walk-In Customer Compliance Report</h1>
+    <p class="meta">${titleMonth} · ${areaLabel} · ${channelLabel} · Search: ${searchLabel}</p>
+    <div class="summary">
+      <div class="card"><div class="label">Toko Terfilter</div><div class="value">${fmt(rows.length)}</div><div class="sub">Sesuai filter aktif</div></div>
+      <div class="card"><div class="label">Rata-rata Discipline</div><div class="value">${fmt(avgScore)}%</div><div class="sub">Rata-rata kepatuhan submit</div></div>
+      <div class="card"><div class="label">Toko Kritis</div><div class="value">${fmt(criticalCount)}</div><div class="sub">Discipline score di bawah 30%</div></div>
+      <div class="card"><div class="label">Hari Dipantau</div><div class="value">${fmt(trackedDays)}</div><div class="sub">Hari berjalan dalam bulan ini</div></div>
+    </div>
+
+    <h2>Top Discipline Score</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Store Code</th><th>Nama Toko</th><th>Discipline</th><th>Submit Days</th></tr>
+      </thead>
+      <tbody>${topHtml || '<tr><td colspan="5">Belum ada data.</td></tr>'}</tbody>
+    </table>
+
+    <h2>Compliance Detail</h2>
+    <table>
+      <thead>
+        <tr><th>Store Code</th><th>Nama Toko</th><th>Area</th><th>Channel</th><th>Submit</th><th>Missed</th><th>Discipline</th><th>Streak</th></tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="small-note">Generated dari dashboard ERA-WALK IN CUSTOMER pada ${new Date().toLocaleString('id-ID')}.</div>
+    <script>window.onload = () => setTimeout(() => window.print(), 180);</script>
+  </body>
+  </html>`);
+  printWindow.document.close();
+}
+
 function renderCompliance(data) {
   const head = document.getElementById('complianceHead');
   const body = document.getElementById('complianceBody');
@@ -2737,7 +2906,7 @@ function renderCompliance(data) {
     ${dates.map(date => `<th>${date.slice(-2)}</th>`).join('')}
   </tr>`;
   body.innerHTML = rows.length ? rows.map(row => `
-    <tr class="${problemCodes.has(row.store_code) ? 'compliance-row problem' : ''}">
+    <tr class="compliance-row ${problemCodes.has(row.store_code) ? 'problem' : ''} ${row.discipline_score < 30 ? 'critical' : ''}">
       <td class="compliance-code">${row.store_code}</td>
       <td class="compliance-name">${row.store_name}</td>
       ${row.statuses.map(status => `<td class="compliance-cell ${status === true ? 'done' : status === false ? 'miss' : 'future'}">${status === true ? '✓' : status === false ? '•' : '—'}</td>`).join('')}
@@ -2782,7 +2951,7 @@ function renderDisciplineSummary(data, filteredRows = null) {
   const renderRows = (items, low = false) => {
     if (!items?.length) return `<div class="empty-feed">Belum ada data discipline score.</div>`;
     return items.map(item => `
-      <div class="discipline-row">
+      <div class="discipline-row ${item.discipline_score < 30 ? 'critical' : ''}">
         <div class="discipline-main">
           <div class="discipline-name">[${item.store_code}] ${item.store_name}</div>
           <div class="discipline-meta">${fmt(item.submitted_days)} submit · ${fmt(item.missed_days)} miss · streak ${fmt(item.current_streak)} hari</div>
