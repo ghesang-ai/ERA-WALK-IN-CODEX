@@ -656,6 +656,76 @@
       border-color: rgba(67,97,238,.28);
       box-shadow: 0 8px 22px rgba(67,97,238,.12);
     }
+    .btn-reminder {
+      border: 1px solid rgba(6,214,160,.18);
+      background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+      color: #059669;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: 0 4px 14px rgba(6,214,160,.08);
+    }
+    .btn-reminder:hover {
+      transform: translateY(-1px);
+      border-color: rgba(6,214,160,.28);
+      box-shadow: 0 8px 22px rgba(6,214,160,.12);
+    }
+    .audit-section {
+      display: none;
+      margin-top: 18px;
+    }
+    body.admin-mode .audit-section { display: block; }
+    .audit-card {
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+    }
+    .audit-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .audit-item {
+      display: grid;
+      grid-template-columns: 150px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,247,255,.94));
+    }
+    .audit-type {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: var(--blue);
+      text-transform: uppercase;
+    }
+    .audit-note {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .audit-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .audit-time {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
     .brand-filter {
       display: flex;
       gap: 8px;
@@ -1027,6 +1097,9 @@
       .btn-text-export {
         width: 100%;
       }
+      .btn-reminder {
+        width: 100%;
+      }
       .search-meta { white-space: normal; }
       .brand-filter {
         display: grid;
@@ -1084,6 +1157,12 @@
         border-radius: 12px;
         background: var(--surface);
       }
+      .audit-item {
+        grid-template-columns: 1fr;
+      }
+      .audit-time {
+        text-align: left;
+      }
     }
 
     @media (max-width: 380px) {
@@ -1136,7 +1215,7 @@
     </div>
     <div class="control-actions">
       <input class="date-input" id="datePicker" type="date" onchange="setSelectedDate(this.value)" />
-      <button class="btn-export" type="button" onclick="exportDailyReport()" aria-label="Export Harian">
+      <button class="btn-export" type="button" onclick="exportCurrentReport()" aria-label="Export Harian">
         <span class="btn-icon">⤓</span><span class="btn-label">Export Harian</span>
       </button>
     </div>
@@ -1268,6 +1347,8 @@
              placeholder="Cari nama toko atau store code…"
              oninput="filterPending()" />
       <button class="btn-text-export" type="button" onclick="exportPendingText()">Copy to Text</button>
+      <button class="btn-reminder" type="button" onclick="copyReminderText()">Copy Reminder</button>
+      <button class="btn-text-export" type="button" onclick="exportPendingCsv()">Export Pending CSV</button>
       <div class="search-meta" id="searchMeta"></div>
     </div>
     <div class="brand-filter" id="brandFilter">
@@ -1326,6 +1407,21 @@
         </table>
       </div>
       <div class="compliance-footer" id="complianceFooter"></div>
+    </div>
+  </section>
+
+  <section class="audit-section" id="auditSection">
+    <div class="audit-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Audit Trail Admin</div>
+          <div class="card-sub">Riwayat hapus report dan reset bulan untuk menjaga kontrol data PIC</div>
+        </div>
+        <span class="badge" id="auditBadge">0 aktivitas</span>
+      </div>
+      <div class="audit-list" id="auditList">
+        <div class="empty-feed">Belum ada aktivitas admin yang tercatat.</div>
+      </div>
     </div>
   </section>
 
@@ -1520,6 +1616,7 @@ let selectedDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).t
 let viewMode = 'month';
 let latestDailyData = null;
 let latestMonthlyData = null;
+let latestAuditLogs = [];
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -1558,6 +1655,7 @@ async function initAdminAccess() {
   }
   if (!adminEnabled) {
     clearAdminPin();
+    renderAuditLog([]);
     return updateAdminState();
   }
   const pin = getAdminPin();
@@ -1598,11 +1696,19 @@ function updateControlState() {
   const picker = document.getElementById('datePicker');
   if (picker) picker.style.display = viewMode === 'day' ? '' : 'none';
   const exportBtn = document.querySelector('.btn-export');
-  if (exportBtn) exportBtn.style.display = viewMode === 'day' && !!getAdminPin() ? 'inline-flex' : 'none';
+  if (exportBtn) {
+    exportBtn.style.display = !!getAdminPin() ? 'inline-flex' : 'none';
+    exportBtn.onclick = exportCurrentReport;
+    exportBtn.setAttribute('aria-label', viewMode === 'day' ? 'Export Harian' : 'Export Bulanan');
+    const label = exportBtn.querySelector('.btn-label');
+    if (label) label.textContent = viewMode === 'day' ? 'Export Harian' : 'Export Bulanan';
+  }
   const opsNote = document.getElementById('opsNote');
   if (opsNote) opsNote.classList.toggle('show', viewMode === 'day' && !getAdminPin());
   const adminSection = document.getElementById('adminDailySection');
   if (adminSection) adminSection.style.display = viewMode === 'day' && !!getAdminPin() ? 'block' : 'none';
+  const auditSection = document.getElementById('auditSection');
+  if (auditSection) auditSection.style.display = !!getAdminPin() ? 'block' : 'none';
 }
 function renderMonthStrip() {
   const wrap = document.getElementById('monthStrip');
@@ -1656,6 +1762,31 @@ async function loadData() {
     renderDashboard(data);
     document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
   } catch(e) { console.error(e); }
+}
+
+async function loadAuditLog() {
+  const adminPin = getAdminPin();
+  if (!adminPin) {
+    latestAuditLogs = [];
+    renderAuditLog([]);
+    return;
+  }
+  try {
+    const res = await fetch(`/api/audit-log?limit=20&ts=${Date.now()}`, {
+      headers: { 'x-admin-pin': adminPin },
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) clearAdminPin();
+      renderAuditLog([]);
+      return;
+    }
+    latestAuditLogs = data.logs || [];
+    renderAuditLog(latestAuditLogs);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function loadTrend() {
@@ -1891,6 +2022,86 @@ async function exportPendingText() {
   }
 }
 
+async function copyReminderText() {
+  const filtered = getFilteredPendingCodes();
+  if (!filtered.length) {
+    alert('Semua toko sudah report. Tidak ada reminder yang perlu dikirim.');
+    return;
+  }
+
+  const periodLabel = viewMode === 'day' ? formatDateLabel(selectedDate) : formatMonthLabel(selectedMonth);
+  const grouped = {
+    'AREA JAKARTA': [],
+    'AREA TANGSEL & TANGERANG': [],
+    'AREA BANTEN': []
+  };
+  filtered.forEach(code => grouped[getAreaLabel(code)].push(code));
+
+  const text = [
+    `Reminder WIC ${periodLabel}`,
+    '',
+    'Mohon bantu submit data Walk In Customer untuk toko berikut:',
+    '',
+    ...AREA_ORDER
+      .filter(area => grouped[area].length > 0)
+      .flatMap(area => [
+        area,
+        '',
+        ...grouped[area].map(code => `${STORE_MAP[code] || code}❌`),
+        ''
+      ])
+  ].join('\n').trim();
+
+  try {
+    await navigator.clipboard.writeText(text);
+    alert(`Reminder ${filtered.length} toko berhasil dicopy. Tinggal paste ke WhatsApp area atau Store Leader.`);
+  } catch (error) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ERA-WIC-Reminder-${viewMode === 'day' ? selectedDate : selectedMonth}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    alert('Clipboard browser sedang dibatasi. File reminder TXT sudah diunduh sebagai fallback.');
+  }
+}
+
+function exportPendingCsv() {
+  const filtered = getFilteredPendingCodes();
+  if (!filtered.length) {
+    alert('Tidak ada toko belum report untuk diexport.');
+    return;
+  }
+
+  const lines = [
+    ['Periode', viewMode === 'day' ? selectedDate : selectedMonth],
+    ['Filter Channel', activePendingChannel],
+    [],
+    ['AREA', 'STORE CODE', 'NAMA TOKO', 'STATUS']
+  ];
+  filtered.forEach(code => {
+    lines.push([getAreaLabel(code), code, STORE_MAP[code] || code, 'Belum Report']);
+  });
+
+  const csv = lines.map(row => row.map(value => {
+    const text = value == null ? '' : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ERA-WIC-Belum-Report-${viewMode === 'day' ? selectedDate : selectedMonth}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel) {
   const section = document.getElementById('adminDailySection');
   if (!section) return;
@@ -1941,13 +2152,18 @@ function renderCompliance(data) {
   document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah berarti belum submit untuk ${formatMonthLabel(data.month || selectedMonth)}`;
 }
 
-function exportDailyReport() {
+function exportCurrentReport() {
   if (!getAdminPin()) {
-    redirectToAdminLogin('Login Admin PIC dulu untuk export data harian.');
+    redirectToAdminLogin('Login Admin PIC dulu untuk export data.');
     return;
   }
-  if (viewMode !== 'day' || !latestDailyData) {
-    alert('Pilih mode Harian terlebih dahulu sebelum export.');
+  if (viewMode === 'day') return exportDailyReport();
+  return exportMonthlyReport();
+}
+
+function exportDailyReport() {
+  if (!latestDailyData) {
+    alert('Data harian belum siap diexport.');
     return;
   }
   const rows = latestDailyData.submissions || [];
@@ -1988,6 +2204,58 @@ function exportDailyReport() {
   const a = document.createElement('a');
   a.href = url;
   a.download = `ERA-WIC-Harian-${latestDailyData.date}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportMonthlyReport() {
+  if (!latestMonthlyData) {
+    alert('Data bulanan belum siap diexport.');
+    return;
+  }
+
+  const rows = latestMonthlyData.submissions || [];
+  const lines = [
+    ['Bulan', latestMonthlyData.month],
+    ['Total Walk In', latestMonthlyData.grandTotal],
+    ['Toko Aktif Submit', latestMonthlyData.storeCount],
+    ['Total Report Masuk', latestMonthlyData.reportCount],
+    [],
+    ['STORE CODE', 'NAMA TOKO', 'STORE LEADER', 'TOTAL WIC', 'JUMLAH REPORT', 'TOP BRAND', 'UPDATE TERAKHIR']
+  ];
+
+  rows.forEach(item => {
+    const topBrand = getTopBrand(item.spg_details || []);
+    lines.push([
+      item.store_code,
+      item.store_name,
+      item.store_leader,
+      item.total_customers,
+      item.report_count,
+      topBrand ? `${topBrand.brand} ${topBrand.customer_count}` : '-',
+      `${item.latest_submission_date || ''} ${fmtTime(item.latest_submitted_at)}`.trim()
+    ]);
+  });
+
+  lines.push([]);
+  lines.push(['TOTAL PER BRAND']);
+  lines.push(['BRAND', 'TOTAL WIC']);
+  (latestMonthlyData.brandTotals || []).forEach(item => {
+    lines.push([item.brand, item.total]);
+  });
+
+  const csv = lines.map(row => row.map(value => {
+    const text = value == null ? '' : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ERA-WIC-Bulanan-${latestMonthlyData.month}.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -2041,6 +2309,7 @@ async function deleteReport(storeCode, date, storeName) {
 
     await Promise.all([loadData(), loadTrend()]);
     if (viewMode === 'day') await loadCompliance();
+    await loadAuditLog();
   } catch(e) {
     if (deleteBtn) {
       deleteBtn.disabled = false;
@@ -2050,6 +2319,33 @@ async function deleteReport(storeCode, date, storeName) {
     }
     alert('Gagal terhubung ke server saat menghapus report');
   }
+}
+
+function renderAuditLog(logs) {
+  const list = document.getElementById('auditList');
+  const badge = document.getElementById('auditBadge');
+  if (!list || !badge) return;
+  badge.textContent = `${fmt(logs.length)} aktivitas`;
+  if (!logs.length) {
+    list.innerHTML = `<div class="empty-feed">Belum ada aktivitas admin yang tercatat.</div>`;
+    return;
+  }
+  list.innerHTML = logs.map(log => {
+    const typeLabel = log.action === 'RESET_MONTH' ? 'Reset Bulan' : 'Hapus Report';
+    const note = log.action === 'RESET_MONTH'
+      ? `${log.note || `Reset data bulan ${log.month}`}${typeof log.removed === 'number' ? ` · ${fmt(log.removed)} laporan terhapus` : ''}`
+      : `${log.note || ''}${log.store_name ? ` · ${log.store_name}` : ''}${log.total_customers ? ` · ${fmt(log.total_customers)} WIC` : ''}`;
+    return `
+      <div class="audit-item">
+        <div class="audit-type">${typeLabel}</div>
+        <div>
+          <div class="audit-note">${note || '-'}</div>
+          <div class="audit-meta">${log.actor || 'PIC Admin'}${log.submission_date ? ` · Tanggal data ${log.submission_date}` : ''}${log.month ? ` · Bulan ${log.month}` : ''}</div>
+        </div>
+        <div class="audit-time">${fmtTime(log.created_at)}<br>${log.created_at ? fmtDate(log.created_at.slice(0, 10)) : ''}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 /* ─── FEED ─── */
@@ -2125,6 +2421,7 @@ async function resetSelectedMonth() {
     loadData();
     loadTrend();
     loadCompliance();
+    loadAuditLog();
   } catch (e) {
     alert('Gagal terhubung ke server saat reset data bulanan');
   }
@@ -2161,6 +2458,7 @@ function connectSSE() {
     if(m.type==='new_submission') {
       loadData(); loadTrend();
       if (viewMode === 'day' && getAdminPin()) loadCompliance();
+      if (getAdminPin()) loadAuditLog();
     }
   };
   es.onerror = () => {
@@ -2179,12 +2477,20 @@ renderMonthStrip();
 initAdminAccess().then(() => {
   loadData();
   loadTrend();
-  if (getAdminPin()) loadCompliance();
+  if (getAdminPin()) {
+    loadCompliance();
+    loadAuditLog();
+  } else {
+    renderAuditLog([]);
+  }
   connectSSE();
   setInterval(()=>{
     loadData();
     loadTrend();
-    if (viewMode === 'day' && getAdminPin()) loadCompliance();
+    if (getAdminPin()) {
+      if (viewMode === 'day') loadCompliance();
+      loadAuditLog();
+    }
   }, 15000);
 });
 </script>

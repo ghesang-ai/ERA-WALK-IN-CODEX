@@ -143,10 +143,26 @@ const STORE_META = Object.fromEntries(STORE_LIST.map(store => [store.code, store
 
 // ── DB helpers ──
 if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, JSON.stringify({ submissions: [] }, null, 2));
+  fs.writeFileSync(DB_FILE, JSON.stringify({ submissions: [], audit_logs: [] }, null, 2));
 }
-function readDB()  { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); }
-function writeDB(d){ fs.writeFileSync(DB_FILE, JSON.stringify(d, null, 2)); }
+function ensureDbShape(db) {
+  return {
+    submissions: Array.isArray(db?.submissions) ? db.submissions : [],
+    audit_logs: Array.isArray(db?.audit_logs) ? db.audit_logs : []
+  };
+}
+function readDB()  { return ensureDbShape(JSON.parse(fs.readFileSync(DB_FILE, 'utf8'))); }
+function writeDB(d){ fs.writeFileSync(DB_FILE, JSON.stringify(ensureDbShape(d), null, 2)); }
+function appendAuditLog(db, entry) {
+  db.audit_logs = Array.isArray(db.audit_logs) ? db.audit_logs : [];
+  db.audit_logs.unshift({
+    id: Date.now(),
+    created_at: new Date().toISOString(),
+    actor: 'PIC Admin',
+    ...entry
+  });
+  db.audit_logs = db.audit_logs.slice(0, 300);
+}
 function normalizeMonth(month) {
   return /^\d{4}-\d{2}$/.test(month || '') ? month : '';
 }
@@ -375,6 +391,9 @@ app.delete('/api/submission', (req, res) => {
   }
 
   const db = readDB();
+  const deletedItem = db.submissions.find(
+    s => s.store_code === storeCode && s.submission_date === date
+  );
   const before = db.submissions.length;
   db.submissions = db.submissions.filter(
     s => !(s.store_code === storeCode && s.submission_date === date)
@@ -384,6 +403,14 @@ app.delete('/api/submission', (req, res) => {
     return res.status(404).json({ error: 'Data report tidak ditemukan' });
   }
 
+  appendAuditLog(db, {
+    action: 'DELETE_SUBMISSION',
+    store_code: storeCode,
+    store_name: deletedItem?.store_name || STORE_DIRECTORY[storeCode] || storeCode,
+    submission_date: date,
+    total_customers: deletedItem?.total_customers || 0,
+    note: `Hapus report ${storeCode} untuk ${date}`
+  });
   writeDB(db);
   broadcastUpdate({ type: 'deleted_submission', store_code: storeCode, date, time: new Date().toISOString() });
   res.json({ success: true });
@@ -401,9 +428,22 @@ app.post('/api/reset-month', (req, res) => {
   db.submissions = db.submissions.filter(s => monthFromDate(s.submission_date) !== month);
   const removed = before - db.submissions.length;
 
+  appendAuditLog(db, {
+    action: 'RESET_MONTH',
+    month,
+    removed,
+    note: `Reset data bulan ${month}`
+  });
   writeDB(db);
   broadcastUpdate({ type: 'reset_month', month, removed, time: new Date().toISOString() });
   res.json({ success: true, removed });
+});
+
+app.get('/api/audit-log', (req, res) => {
+  if (!validateAdminPin(req, res)) return;
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+  const db = readDB();
+  res.json({ logs: db.audit_logs.slice(0, limit) });
 });
 
 // ── Dashboard data ──

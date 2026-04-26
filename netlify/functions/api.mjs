@@ -144,17 +144,33 @@ function getRoute(request) {
 
 async function readDB(store) {
   const text = await store.get('data.json');
-  if (!text) return { submissions: [] };
+  if (!text) return { submissions: [], audit_logs: [] };
   try {
     const parsed = JSON.parse(text);
-    return { submissions: Array.isArray(parsed.submissions) ? parsed.submissions : [] };
+    return {
+      submissions: Array.isArray(parsed.submissions) ? parsed.submissions : [],
+      audit_logs: Array.isArray(parsed.audit_logs) ? parsed.audit_logs : []
+    };
   } catch (e) {
-    return { submissions: [] };
+    return { submissions: [], audit_logs: [] };
   }
 }
 
 async function writeDB(store, db) {
-  await store.set('data.json', JSON.stringify(db, null, 2));
+  await store.set('data.json', JSON.stringify({
+    submissions: Array.isArray(db?.submissions) ? db.submissions : [],
+    audit_logs: Array.isArray(db?.audit_logs) ? db.audit_logs : []
+  }, null, 2));
+}
+function appendAuditLog(db, entry) {
+  db.audit_logs = Array.isArray(db.audit_logs) ? db.audit_logs : [];
+  db.audit_logs.unshift({
+    id: Date.now(),
+    created_at: new Date().toISOString(),
+    actor: 'PIC Admin',
+    ...entry
+  });
+  db.audit_logs = db.audit_logs.slice(0, 300);
 }
 function validateAdminPin(request) {
   const adminPin = request.headers.get('x-admin-pin');
@@ -298,6 +314,14 @@ export default async function handler(request) {
       return json(month ? rows : rows.slice(-days));
     }
 
+    if (request.method === 'GET' && route === 'audit-log') {
+      const adminCheck = validateAdminPin(request);
+      if (!adminCheck.ok) return adminCheck.response;
+      const limit = Math.min(parseInt(url.searchParams.get('limit'), 10) || 20, 100);
+      const db = await readDB(store);
+      return json({ logs: db.audit_logs.slice(0, limit) });
+    }
+
     if (request.method === 'POST' && route === 'submit') {
       const body = await request.json();
       const { store_code, store_leader, submission_date, spg_data } = body;
@@ -351,6 +375,9 @@ export default async function handler(request) {
       }
 
       const db = await readDB(store);
+      const deletedItem = db.submissions.find(
+        s => s.store_code === storeCode && s.submission_date === date
+      );
       const before = db.submissions.length;
       db.submissions = db.submissions.filter(
         s => !(s.store_code === storeCode && s.submission_date === date)
@@ -360,6 +387,14 @@ export default async function handler(request) {
         return json({ error: 'Data report tidak ditemukan' }, 404);
       }
 
+      appendAuditLog(db, {
+        action: 'DELETE_SUBMISSION',
+        store_code: storeCode,
+        store_name: deletedItem?.store_name || STORE_DIRECTORY[storeCode] || storeCode,
+        submission_date: date,
+        total_customers: deletedItem?.total_customers || 0,
+        note: `Hapus report ${storeCode} untuk ${date}`
+      });
       await writeDB(store, db);
       return json({ success: true });
     }
@@ -381,6 +416,12 @@ export default async function handler(request) {
       db.submissions = db.submissions.filter(s => monthFromDate(s.submission_date) !== month);
       const removed = before - db.submissions.length;
 
+      appendAuditLog(db, {
+        action: 'RESET_MONTH',
+        month,
+        removed,
+        note: `Reset data bulan ${month}`
+      });
       await writeDB(store, db);
       return json({ success: true, removed });
     }
