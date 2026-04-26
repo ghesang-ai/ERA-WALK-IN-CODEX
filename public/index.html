@@ -306,6 +306,169 @@
       color: var(--muted);
       font-size: 12px;
     }
+    .management-section {
+      display: none;
+      margin-bottom: 24px;
+    }
+    body.admin-mode .management-section {
+      display: block;
+    }
+    .management-shell {
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 22px;
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+    }
+    .management-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .btn-management-pdf {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(67,97,238,.16);
+      background: linear-gradient(135deg, rgba(67,97,238,.08), rgba(76,201,240,.12));
+      color: var(--blue);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: 0 4px 14px rgba(67,97,238,.08);
+    }
+    .btn-management-pdf:hover {
+      transform: translateY(-1px);
+      border-color: rgba(67,97,238,.28);
+      box-shadow: 0 8px 22px rgba(67,97,238,.12);
+    }
+    .management-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+    .management-card {
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,247,255,.94));
+    }
+    .summary-list,
+    .alert-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .summary-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(99,115,255,.06);
+    }
+    .summary-bullet {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(67,97,238,.1);
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      margin-top: 1px;
+    }
+    .summary-copy {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .alert-item {
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(99,115,255,.08);
+      background: rgba(255,255,255,.88);
+    }
+    .alert-item.critical {
+      border-color: rgba(239,35,60,.18);
+      background: linear-gradient(180deg, rgba(255,244,244,.96), rgba(255,255,255,.94));
+    }
+    .alert-item.warn {
+      border-color: rgba(251,133,0,.18);
+      background: linear-gradient(180deg, rgba(255,248,238,.96), rgba(255,255,255,.94));
+    }
+    .alert-item.info {
+      border-color: rgba(67,97,238,.14);
+      background: linear-gradient(180deg, rgba(244,247,255,.96), rgba(255,255,255,.94));
+    }
+    .alert-item.success {
+      border-color: rgba(6,214,160,.18);
+      background: linear-gradient(180deg, rgba(240,253,249,.96), rgba(255,255,255,.94));
+    }
+    .alert-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .alert-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .alert-badge {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .alert-badge.critical {
+      color: var(--red);
+      background: rgba(239,35,60,.08);
+      border-color: rgba(239,35,60,.18);
+    }
+    .alert-badge.warn {
+      color: #C2410C;
+      background: rgba(251,133,0,.1);
+      border-color: rgba(251,133,0,.18);
+    }
+    .alert-badge.info {
+      color: var(--blue);
+      background: rgba(67,97,238,.08);
+      border-color: rgba(67,97,238,.16);
+    }
+    .alert-badge.success {
+      color: #059669;
+      background: rgba(6,214,160,.1);
+      border-color: rgba(6,214,160,.18);
+    }
+    .alert-detail {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .alert-action {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
     .compliance-card {
       background: var(--surface);
       border-radius: 20px;
@@ -1396,7 +1559,8 @@
       }
       .admin-grid { gap: 12px; }
       .discipline-grid,
-      .compare-grid {
+      .compare-grid,
+      .management-grid {
         grid-template-columns: 1fr;
         gap: 12px;
       }
@@ -1412,7 +1576,9 @@
         padding-top: 0;
       }
       .compare-section,
-      .discipline-card {
+      .discipline-card,
+      .management-shell,
+      .management-card {
         border-radius: 14px;
         padding: 16px;
       }
@@ -1660,6 +1826,36 @@
     </div>
     <div class="brand-delta-board" id="brandDeltaBoard">
       <div class="table-empty">Belum ada data brand untuk dibandingkan.</div>
+    </div>
+  </section>
+
+  <section class="management-section" id="managementSection">
+    <div class="management-shell">
+      <div class="management-head">
+        <div>
+          <div class="card-title">Executive Summary & Opportunity Alerts</div>
+          <div class="card-sub" id="managementSub">Ringkasan manajemen dan prioritas action untuk periode yang sedang dipantau</div>
+        </div>
+        <button class="btn-management-pdf" type="button" onclick="exportManagementPdf()">
+          <span>⤓</span><span>Export PDF Management Report</span>
+        </button>
+      </div>
+      <div class="management-grid">
+        <div class="management-card">
+          <div class="card-title">Executive Summary</div>
+          <div class="card-sub" id="execSummarySub">Belum ada ringkasan untuk periode ini</div>
+          <div class="summary-list" id="execSummaryBody">
+            <div class="empty-feed">Menyiapkan ringkasan executive summary…</div>
+          </div>
+        </div>
+        <div class="management-card">
+          <div class="card-title">Opportunity Alerts</div>
+          <div class="card-sub" id="opportunitySub">Belum ada alert yang siap ditampilkan</div>
+          <div class="alert-list" id="opportunityList">
+            <div class="empty-feed">Menyiapkan alert operasional…</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2290,6 +2486,7 @@ function renderMonthCompare(data) {
       </div>
     `;
   }).join('');
+  renderManagementPanels();
 }
 
 async function loadAuditLog() {
@@ -2439,6 +2636,7 @@ function renderDashboard(data) {
   filterPending();
   renderActivityFeed(data.activityFeed || [], data.reportCount || 0, pendingCodes.length, periodLabel);
   renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel);
+  renderManagementPanels();
 }
 
 /* ─── TAB SWITCH ─── */
@@ -2920,6 +3118,7 @@ function renderCompliance(data) {
   document.getElementById('complianceFooter').textContent = dayTotals || 'Belum ada data kepatuhan untuk bulan ini.';
   document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah belum submit, abu-abu tanggal yang belum berjalan untuk ${formatMonthLabel(data.month || selectedMonth)}. Filter: ${areaLabel} · ${channelLabel}. Dipantau ${fmt(data.summary?.tracked_days || 0)} hari.`;
   renderDisciplineSummary(data, rows);
+  renderManagementPanels();
 }
 
 function renderDisciplineSummary(data, filteredRows = null) {
@@ -2963,6 +3162,279 @@ function renderDisciplineSummary(data, filteredRows = null) {
 
   topList.innerHTML = renderRows(topItems);
   followList.innerHTML = renderRows(followItems, true);
+}
+
+function escapeHtml(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getActiveDashboardData() {
+  return viewMode === 'day' ? latestDailyData : latestMonthlyData;
+}
+
+function buildManagementInsights() {
+  const data = getActiveDashboardData();
+  if (!data) return null;
+  const isDaily = data.periodType === 'day';
+  const periodLabel = isDaily
+    ? formatDateLabel(data.date || selectedDate)
+    : formatMonthLabel(data.month || selectedMonth);
+  const totalStores = data.registeredStores || Object.keys(STORE_MAP).length;
+  const submittedCodes = new Set((data.submissions || []).map(item => item.store_code));
+  const pendingCodes = Array.isArray(data.pendingCodes)
+    ? data.pendingCodes
+    : Object.keys(STORE_MAP).filter(code => !submittedCodes.has(code));
+  const coveragePct = totalStores > 0 ? Math.round(((data.storeCount || 0) / totalStores) * 100) : 0;
+  const topBrand = getTopBrand(data.brandTotals || []);
+  const topStore = [...(data.submissions || [])].sort((a, b) => (b.total_customers || 0) - (a.total_customers || 0))[0] || null;
+  const pendingAreaMap = pendingCodes.reduce((acc, code) => {
+    const area = getAreaLabel(code).replace('AREA ', '');
+    acc[area] = (acc[area] || 0) + 1;
+    return acc;
+  }, {});
+  const topPendingArea = Object.entries(pendingAreaMap).sort((a, b) => b[1] - a[1])[0] || null;
+  const criticalRows = (latestComplianceData?.rows || []).filter(row => row.discipline_score < 30);
+  const compare = !isDaily ? latestMonthCompare : null;
+  const compareDelta = compare?.deltas?.grandTotal || 0;
+  const bestMomentum = !isDaily && compare?.brandDeltas?.length
+    ? [...compare.brandDeltas].sort((a, b) => b.delta - a.delta)[0]
+    : null;
+  const dominantShare = topBrand && data.grandTotal > 0 ? Math.round(((topBrand.total || topBrand.customer_count || 0) / data.grandTotal) * 100) : 0;
+
+  const summary = [
+    `${fmt(data.storeCount || 0)} dari ${fmt(totalStores)} toko sudah submit pada ${periodLabel}, dengan coverage ${fmt(coveragePct)}%.`,
+    `Total Walk In Customer tercatat ${fmt(data.grandTotal || 0)} dan brand tertinggi saat ini ${topBrand ? `${topBrand.brand} (${fmt(topBrand.total || topBrand.customer_count || 0)} WIC)` : 'belum ada'}.`,
+    topStore
+      ? `Toko dengan demand tertinggi adalah ${topStore.store_name} dengan ${fmt(topStore.total_customers || 0)} WIC.`
+      : `Belum ada toko yang menjadi leader demand pada periode ini.`,
+    topPendingArea
+      ? `Area follow up terbesar ada di ${topPendingArea[0]} dengan ${fmt(topPendingArea[1])} toko belum report.`
+      : `Semua area sudah disiplin submit pada periode ini.`,
+    !isDaily && compare
+      ? `Dibanding ${formatMonthLabel(compare.previousMonth || selectedMonth)}, total WIC ${compareDelta >= 0 ? 'naik' : 'turun'} ${fmt(Math.abs(compareDelta))}.`
+      : `Monitoring harian fokus pada eksekusi submit toko dan kualitas demand per brand.`
+  ];
+
+  const alerts = [];
+  if (coveragePct < 40) {
+    alerts.push({
+      severity: 'critical',
+      label: 'Kritis',
+      title: 'Coverage submit masih rendah',
+      detail: `${fmt(pendingCodes.length)} toko belum report dan coverage baru ${fmt(coveragePct)}% pada ${periodLabel}.`,
+      action: `Prioritaskan follow up ke area ${topPendingArea ? topPendingArea[0] : 'dengan pending terbanyak'} dan kirim reminder ke Store Leader sebelum cut-off.`
+    });
+  } else if (pendingCodes.length > 0) {
+    alerts.push({
+      severity: 'warn',
+      label: 'Waspada',
+      title: 'Masih ada toko belum report',
+      detail: `${fmt(pendingCodes.length)} toko masih belum submit pada ${periodLabel}.`,
+      action: `Gunakan tab Belum Report dan fitur Copy Reminder untuk follow up area yang tertinggal.`
+    });
+  } else {
+    alerts.push({
+      severity: 'success',
+      label: 'Sehat',
+      title: 'Semua toko sudah report',
+      detail: `Tidak ada toko pending submit pada ${periodLabel}.`,
+      action: `Lanjutkan review kualitas demand per brand dan toko prioritas untuk action penjualan.`
+    });
+  }
+
+  if (!isDaily && compare) {
+    alerts.push({
+      severity: compareDelta >= 0 ? 'success' : 'warn',
+      label: compareDelta >= 0 ? 'Naik' : 'Turun',
+      title: compareDelta >= 0 ? 'Performa bulan ini tumbuh' : 'Performa bulan ini melemah',
+      detail: `Total WIC ${compareDelta >= 0 ? 'bertambah' : 'berkurang'} ${fmt(Math.abs(compareDelta))} dibanding ${formatMonthLabel(compare.previousMonth || selectedMonth)}.`,
+      action: compareDelta >= 0
+        ? `Amankan momentum di brand dan toko yang sedang tumbuh agar kenaikan ini stabil sampai akhir bulan.`
+        : `Bandingkan store ranking dan brand delta untuk menemukan area penurunan lalu follow up cepat.`
+    });
+  }
+
+  if (criticalRows.length > 0) {
+    alerts.push({
+      severity: 'critical',
+      label: 'Kritis',
+      title: 'Ada toko dengan discipline score rendah',
+      detail: `${fmt(criticalRows.length)} toko berada di bawah 30% discipline score pada ${formatMonthLabel(selectedMonth)}.`,
+      action: `Gunakan Kalender Kepatuhan untuk sortir Missed Days Tertinggi dan follow up toko yang paling sering bolong.`
+    });
+  }
+
+  if (topBrand) {
+    alerts.push({
+      severity: dominantShare >= 40 ? 'info' : 'success',
+      label: dominantShare >= 40 ? 'Fokus' : 'Peluang',
+      title: `${topBrand.brand} memimpin demand`,
+      detail: `${topBrand.brand} menyumbang sekitar ${fmt(dominantShare)}% dari total WIC pada periode ini.`,
+      action: `Cek analytics untuk lihat toko mana yang paling kuat di ${topBrand.brand} dan dorong display, stok, atau promotor di cluster tersebut.`
+    });
+  }
+
+  if (bestMomentum && bestMomentum.delta > 0) {
+    alerts.push({
+      severity: 'info',
+      label: 'Momentum',
+      title: `${bestMomentum.brand} menunjukkan pertumbuhan terbaik`,
+      detail: `${bestMomentum.brand} naik ${fmt(bestMomentum.delta)} WIC dibanding bulan sebelumnya.`,
+      action: `Gunakan insight ini untuk replikasi best practice ke area lain dengan karakter toko yang mirip.`
+    });
+  }
+
+  return { data, isDaily, periodLabel, totalStores, pendingCodes, coveragePct, topBrand, topStore, topPendingArea, compare, compareDelta, bestMomentum, criticalRows, summary, alerts };
+}
+
+function renderManagementPanels() {
+  const summarySub = document.getElementById('execSummarySub');
+  const summaryBody = document.getElementById('execSummaryBody');
+  const opportunitySub = document.getElementById('opportunitySub');
+  const opportunityList = document.getElementById('opportunityList');
+  const managementSub = document.getElementById('managementSub');
+  if (!summarySub || !summaryBody || !opportunitySub || !opportunityList || !managementSub) return;
+
+  const insights = buildManagementInsights();
+  if (!insights) {
+    managementSub.textContent = 'Ringkasan manajemen dan prioritas action untuk periode yang sedang dipantau';
+    summarySub.textContent = 'Belum ada ringkasan untuk periode ini';
+    opportunitySub.textContent = 'Belum ada alert yang siap ditampilkan';
+    summaryBody.innerHTML = `<div class="empty-feed">Menunggu data dashboard untuk menyusun executive summary…</div>`;
+    opportunityList.innerHTML = `<div class="empty-feed">Menunggu data dashboard untuk menyusun opportunity alerts…</div>`;
+    return;
+  }
+
+  managementSub.textContent = `Ringkasan ${insights.isDaily ? 'harian' : 'bulanan'} untuk ${insights.periodLabel} dengan fokus action management PIC`;
+  summarySub.textContent = `Intisari performa WIC, coverage submit, dan area prioritas pada ${insights.periodLabel}`;
+  opportunitySub.textContent = `${fmt(insights.alerts.length)} alert prioritas yang bisa langsung dipakai untuk action area`;
+
+  summaryBody.innerHTML = insights.summary.map(item => `
+    <div class="summary-item">
+      <div class="summary-bullet">•</div>
+      <div class="summary-copy">${escapeHtml(item)}</div>
+    </div>
+  `).join('');
+
+  opportunityList.innerHTML = insights.alerts.map(alert => `
+    <div class="alert-item ${alert.severity}">
+      <div class="alert-topline">
+        <div class="alert-title">${escapeHtml(alert.title)}</div>
+        <span class="alert-badge ${alert.severity}">${escapeHtml(alert.label)}</span>
+      </div>
+      <div class="alert-detail">${escapeHtml(alert.detail)}</div>
+      <div class="alert-action">${escapeHtml(alert.action)}</div>
+    </div>
+  `).join('');
+}
+
+function exportManagementPdf() {
+  if (!getAdminPin()) {
+    redirectToAdminLogin('Login Admin PIC dulu untuk export management report.');
+    return;
+  }
+  const insights = buildManagementInsights();
+  if (!insights) {
+    alert('Data management report belum siap diexport.');
+    return;
+  }
+  const printWindow = window.open('', '_blank', 'width=1280,height=960');
+  if (!printWindow) {
+    alert('Popup diblokir browser. Izinkan popup dulu untuk Export PDF Management Report.');
+    return;
+  }
+  const topPendingAreaLabel = insights.topPendingArea ? `${insights.topPendingArea[0]} (${fmt(insights.topPendingArea[1])} toko)` : 'Tidak ada pending';
+  const topStoreLabel = insights.topStore ? `${insights.topStore.store_name} · ${fmt(insights.topStore.total_customers)} WIC` : 'Belum ada toko leader';
+  const topBrandLabel = insights.topBrand ? `${insights.topBrand.brand} · ${fmt(insights.topBrand.total || insights.topBrand.customer_count || 0)} WIC` : 'Belum ada brand leader';
+  const compareBlock = (!insights.isDaily && insights.compare) ? `
+    <div class="metric">
+      <div class="metric-label">Compare Month vs Month</div>
+      <div class="metric-value">${insights.compareDelta >= 0 ? '+' : '-'}${fmt(Math.abs(insights.compareDelta))}</div>
+      <div class="metric-sub">${escapeHtml(formatMonthLabel(insights.compare.previousMonth || selectedMonth))}</div>
+    </div>
+  ` : '';
+  const summaryHtml = insights.summary.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+  const alertsHtml = insights.alerts.map(alert => `
+    <div class="alert ${alert.severity}">
+      <div class="alert-title">${escapeHtml(alert.title)} <span>${escapeHtml(alert.label)}</span></div>
+      <div class="alert-detail">${escapeHtml(alert.detail)}</div>
+      <div class="alert-action">${escapeHtml(alert.action)}</div>
+    </div>
+  `).join('');
+  printWindow.document.write(`<!DOCTYPE html>
+  <html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ERA WIC Management Report ${escapeHtml(insights.periodLabel)}</title>
+    <style>
+      body { font-family: Inter, Arial, sans-serif; margin: 28px; color: #0F172A; }
+      h1 { margin: 0 0 6px; font-size: 30px; }
+      .subhead { color: #64748B; font-size: 13px; margin-bottom: 18px; }
+      .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+      .metric { border: 1px solid #DDE6FF; border-radius: 14px; background: #F8FAFF; padding: 14px 16px; }
+      .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: #64748B; font-weight: 800; }
+      .metric-value { font-size: 28px; font-weight: 800; color: #4361EE; margin-top: 8px; }
+      .metric-sub { font-size: 12px; color: #64748B; margin-top: 4px; line-height: 1.45; }
+      h2 { margin: 26px 0 12px; font-size: 18px; }
+      ul { margin: 0; padding-left: 20px; }
+      li { margin: 8px 0; line-height: 1.55; }
+      .alert-list { display: grid; gap: 12px; }
+      .alert { border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; background: #FFF; }
+      .alert.critical { background: #FFF6F6; border-color: #FECACA; }
+      .alert.warn { background: #FFF9F2; border-color: #FED7AA; }
+      .alert.info { background: #F7F9FF; border-color: #DDE6FF; }
+      .alert.success { background: #F0FDF9; border-color: #BBF7D0; }
+      .alert-title { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+      .alert-title span { font-size: 10px; text-transform: uppercase; margin-left: 6px; color: #64748B; }
+      .alert-detail { font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
+      .alert-action { font-size: 11px; color: #64748B; line-height: 1.45; }
+      .footer { margin-top: 18px; font-size: 11px; color: #64748B; }
+      @media print {
+        body { margin: 16px; }
+        .metrics { break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ERA Walk-In Customer Management Report</h1>
+    <div class="subhead">${escapeHtml(insights.periodLabel)} · Generated ${escapeHtml(new Date().toLocaleString('id-ID'))}</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total WIC</div>
+        <div class="metric-value">${fmt(insights.data.grandTotal || 0)}</div>
+        <div class="metric-sub">Coverage submit ${fmt(insights.coveragePct)}%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Brand Tertinggi</div>
+        <div class="metric-value" style="font-size:22px">${escapeHtml(insights.topBrand?.brand || '—')}</div>
+        <div class="metric-sub">${escapeHtml(topBrandLabel)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Top Store</div>
+        <div class="metric-value" style="font-size:18px">${escapeHtml(insights.topStore?.store_code || '—')}</div>
+        <div class="metric-sub">${escapeHtml(topStoreLabel)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Area Follow Up</div>
+        <div class="metric-value" style="font-size:18px">${escapeHtml(insights.topPendingArea?.[0] || 'Tidak ada')}</div>
+        <div class="metric-sub">${escapeHtml(topPendingAreaLabel)}</div>
+      </div>
+      ${compareBlock}
+    </div>
+    <h2>Executive Summary</h2>
+    <ul>${summaryHtml}</ul>
+    <h2>Opportunity Alerts</h2>
+    <div class="alert-list">${alertsHtml}</div>
+    <div class="footer">Sumber: dashboard ERA-WALK IN CUSTOMER, compare month, dan kalender kepatuhan admin.</div>
+    <script>window.onload = () => setTimeout(() => window.print(), 180);</script>
+  </body>
+  </html>`);
+  printWindow.document.close();
 }
 
 function exportCurrentReport() {
