@@ -169,6 +169,11 @@ function normalizeMonth(month) {
 function monthFromDate(date) {
   return (date || '').slice(0, 7);
 }
+function todayISOJakarta() {
+  const now = new Date();
+  const jakarta = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+  return jakarta.toISOString().slice(0, 10);
+}
 function normalizeDate(date) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : '';
 }
@@ -180,6 +185,12 @@ function getMonthDates(month) {
     const day = String(idx + 1).padStart(2, '0');
     return `${year}-${String(mon).padStart(2, '0')}-${day}`;
   });
+}
+function previousMonth(month) {
+  if (!normalizeMonth(month)) return '';
+  const [year, mon] = month.split('-').map(Number);
+  const date = new Date(year, mon - 2, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 function channelOf(code) {
   const first = (code || '').charAt(0).toUpperCase();
@@ -252,21 +263,74 @@ function summarizeMonth(submissions) {
 function buildComplianceMatrix(submissions, month) {
   const dates = getMonthDates(month);
   const submittedSet = new Set(submissions.map(item => `${item.store_code}|${item.submission_date}`));
+  const today = todayISOJakarta();
+  const currentMonth = today.slice(0, 7);
+  const trackedDates = month === currentMonth ? dates.filter(date => date <= today) : dates;
   const rows = STORE_LIST.map(store => {
-    const statuses = dates.map(date => submittedSet.has(`${store.code}|${date}`));
+    const statuses = dates.map(date => {
+      if (month === currentMonth && date > today) return null;
+      return submittedSet.has(`${store.code}|${date}`);
+    });
+    const trackedStatuses = trackedDates.map(date => submittedSet.has(`${store.code}|${date}`));
+    let currentStreak = 0;
+    for (let i = trackedStatuses.length - 1; i >= 0; i -= 1) {
+      if (!trackedStatuses[i]) break;
+      currentStreak += 1;
+    }
+    const submittedDays = trackedStatuses.filter(Boolean).length;
+    const missedDays = trackedStatuses.length - submittedDays;
     return {
       store_code: store.code,
       store_name: store.name,
       channel: channelOf(store.code),
-      submitted_days: statuses.filter(Boolean).length,
+      submitted_days: submittedDays,
+      missed_days: missedDays,
+      tracked_days: trackedStatuses.length,
+      discipline_score: trackedStatuses.length ? Math.round((submittedDays / trackedStatuses.length) * 100) : 0,
+      current_streak: currentStreak,
       statuses
     };
   });
   const dayTotals = dates.map((date, idx) => ({
     date,
-    submitted: rows.reduce((sum, row) => sum + (row.statuses[idx] ? 1 : 0), 0)
+    submitted: rows.reduce((sum, row) => sum + (row.statuses[idx] === true ? 1 : 0), 0)
   }));
-  return { dates, rows, dayTotals };
+  const ranked = [...rows].sort((a, b) => {
+    if (b.discipline_score !== a.discipline_score) return b.discipline_score - a.discipline_score;
+    if (b.submitted_days !== a.submitted_days) return b.submitted_days - a.submitted_days;
+    return a.store_name.localeCompare(b.store_name);
+  });
+  const topDisciplined = ranked.filter(row => row.submitted_days > 0).slice(0, 5);
+  const needFollowUp = [...rows].sort((a, b) => {
+    if (b.missed_days !== a.missed_days) return b.missed_days - a.missed_days;
+    if (a.submitted_days !== b.submitted_days) return a.submitted_days - b.submitted_days;
+    return a.store_name.localeCompare(b.store_name);
+  }).slice(0, 5);
+  return {
+    dates,
+    trackedDates,
+    rows,
+    dayTotals,
+    summary: {
+      tracked_days: trackedDates.length,
+      top_disciplined: topDisciplined.length ? topDisciplined : ranked.slice(0, 5),
+      need_follow_up: needFollowUp
+    }
+  };
+}
+function summarizeMonthMeta(monthSubmissions, month) {
+  const { storeSummaries, brandTotals, grandTotal } = summarizeMonth(monthSubmissions);
+  return {
+    month,
+    grandTotal,
+    storeCount: storeSummaries.length,
+    reportCount: monthSubmissions.length,
+    topBrand: brandTotals.reduce((top, current) => {
+      const topValue = top ? top.total : -1;
+      return current.total > topValue ? current : top;
+    }, null),
+    brandTotals
+  };
 }
 
 app.use(express.json());
@@ -500,7 +564,7 @@ app.get('/api/daily', (req, res) => {
 });
 
 app.get('/api/compliance', (req, res) => {
-  const month = normalizeMonth(req.query.month) || monthFromDate(new Date().toISOString().split('T')[0]);
+  const month = normalizeMonth(req.query.month) || monthFromDate(todayISOJakarta());
   const db = readDB();
   const monthSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === month);
   const matrix = buildComplianceMatrix(monthSubmissions, month);
@@ -508,6 +572,37 @@ app.get('/api/compliance', (req, res) => {
     month,
     ...matrix,
     registeredStores: STORE_LIST.length
+  });
+});
+
+app.get('/api/month-compare', (req, res) => {
+  const month = normalizeMonth(req.query.month) || monthFromDate(todayISOJakarta());
+  const prevMonth = previousMonth(month);
+  const db = readDB();
+  const currentSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === month);
+  const previousSubmissions = db.submissions.filter(s => monthFromDate(s.submission_date) === prevMonth);
+  const current = summarizeMonthMeta(currentSubmissions, month);
+  const previous = summarizeMonthMeta(previousSubmissions, prevMonth);
+  const currentBrandMap = Object.fromEntries((current.brandTotals || []).map(item => [item.brand, item.total]));
+  const previousBrandMap = Object.fromEntries((previous.brandTotals || []).map(item => [item.brand, item.total]));
+  const brands = BRAND_ORDER.filter(brand => (currentBrandMap[brand] || 0) > 0 || (previousBrandMap[brand] || 0) > 0);
+
+  res.json({
+    month,
+    previousMonth: prevMonth,
+    current,
+    previous,
+    deltas: {
+      grandTotal: current.grandTotal - previous.grandTotal,
+      storeCount: current.storeCount - previous.storeCount,
+      reportCount: current.reportCount - previous.reportCount
+    },
+    brandDeltas: brands.map(brand => ({
+      brand,
+      current: currentBrandMap[brand] || 0,
+      previous: previousBrandMap[brand] || 0,
+      delta: (currentBrandMap[brand] || 0) - (previousBrandMap[brand] || 0)
+    }))
   });
 });
 

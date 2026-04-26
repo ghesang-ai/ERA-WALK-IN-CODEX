@@ -394,10 +394,178 @@
       color: var(--red);
       font-weight: 800;
     }
+    .compliance-cell.future {
+      background: rgba(148,163,184,.08);
+      color: #94A3B8;
+      font-weight: 700;
+    }
     .compliance-footer {
       margin-top: 12px;
       color: var(--muted);
       font-size: 12px;
+    }
+    .discipline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .discipline-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,247,255,.95));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+    }
+    .discipline-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .discipline-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 12px;
+      background: rgba(255,255,255,.84);
+    }
+    .discipline-main {
+      min-width: 0;
+    }
+    .discipline-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .discipline-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .discipline-score {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      text-align: right;
+    }
+    .discipline-score.low {
+      color: var(--red);
+    }
+    .compare-section {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(67,97,238,0.05);
+      margin-bottom: 24px;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .compare-item {
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,247,255,.92));
+    }
+    .compare-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 8px;
+    }
+    .compare-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .compare-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .delta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+    .delta-pill.up {
+      color: #059669;
+      background: rgba(6,214,160,.1);
+      border-color: rgba(6,214,160,.22);
+    }
+    .delta-pill.down {
+      color: var(--red);
+      background: rgba(239,35,60,.08);
+      border-color: rgba(239,35,60,.16);
+    }
+    .delta-pill.flat {
+      color: var(--muted);
+      background: rgba(148,163,184,.12);
+      border-color: rgba(148,163,184,.18);
+    }
+    .brand-delta-board {
+      margin-top: 18px;
+      border: 1px solid rgba(99,115,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #FBFCFF;
+    }
+    .brand-delta-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 120px;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(99,115,255,0.06);
+    }
+    .brand-delta-row:last-child {
+      border-bottom: none;
+    }
+    .brand-delta-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .brand-delta-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .brand-delta-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #EEF2FF;
+      overflow: hidden;
+      position: relative;
+    }
+    .brand-delta-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+    .brand-delta-value {
+      justify-self: end;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     /* ══ KPI GRID ══ */
@@ -878,8 +1046,10 @@
     @media (max-width: 1024px) {
       .control-bar { align-items: stretch; }
       .admin-grid { grid-template-columns: 1fr; }
+      .discipline-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2,1fr); }
       .charts-row { grid-template-columns: 1fr; }
+      .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .header {
         height: auto;
         min-height: 68px;
@@ -1081,6 +1251,25 @@
         gap: 12px;
       }
       .admin-grid { gap: 12px; }
+      .discipline-grid,
+      .compare-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .compare-section,
+      .discipline-card {
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .compare-value { font-size: 26px; }
+      .brand-delta-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .brand-delta-value {
+        justify-self: start;
+        text-align: left;
+      }
       .store-card {
         border-radius: 14px;
         padding: 16px;
@@ -1280,6 +1469,45 @@
     </div>
   </div>
 
+  <section class="compare-section" id="monthCompareSection">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Compare Month vs Month</div>
+        <div class="card-sub" id="compareSub">Membandingkan performa bulan terpilih dengan bulan sebelumnya</div>
+      </div>
+      <span class="badge" id="compareBadge">Belum ada data</span>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-item">
+        <div class="compare-label">Total WIC</div>
+        <div class="compare-value" id="compareTotalValue">0</div>
+        <div class="compare-sub" id="compareTotalSub">Belum ada perbandingan</div>
+        <div class="delta-pill flat" id="compareTotalDelta">0 vs bulan lalu</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">Toko Aktif Submit</div>
+        <div class="compare-value" id="compareStoreValue">0</div>
+        <div class="compare-sub" id="compareStoreSub">Belum ada perbandingan</div>
+        <div class="delta-pill flat" id="compareStoreDelta">0 vs bulan lalu</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">Total Report Masuk</div>
+        <div class="compare-value" id="compareReportValue">0</div>
+        <div class="compare-sub" id="compareReportSub">Belum ada perbandingan</div>
+        <div class="delta-pill flat" id="compareReportDelta">0 vs bulan lalu</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">Brand Tertinggi</div>
+        <div class="compare-value" id="compareBrandValue">—</div>
+        <div class="compare-sub" id="compareBrandSub">Belum ada perbandingan</div>
+        <div class="delta-pill flat" id="compareBrandDelta">Tidak ada perubahan</div>
+      </div>
+    </div>
+    <div class="brand-delta-board" id="brandDeltaBoard">
+      <div class="table-empty">Belum ada data brand untuk dibandingkan.</div>
+    </div>
+  </section>
+
   <!-- Live Feed -->
   <div class="feed-card">
     <div class="card-header">
@@ -1376,19 +1604,36 @@
   <section class="admin-section" id="adminDailySection">
     <div class="admin-grid">
       <div class="admin-mini">
-        <div class="admin-mini-label">Tanggal Terpilih</div>
+        <div class="admin-mini-label">Periode Dipantau</div>
         <div class="admin-mini-value" id="dailySelectedDate">—</div>
         <div class="admin-mini-sub">Monitoring submit harian per store</div>
       </div>
       <div class="admin-mini">
-        <div class="admin-mini-label">Sudah Submit Harian</div>
+        <div class="admin-mini-label">Toko Sudah Report</div>
         <div class="admin-mini-value" id="dailyDoneCount">0</div>
         <div class="admin-mini-sub" id="dailyDoneSub">Belum ada toko submit</div>
       </div>
       <div class="admin-mini">
-        <div class="admin-mini-label">Belum Submit Harian</div>
+        <div class="admin-mini-label">Toko Belum Report</div>
         <div class="admin-mini-value" id="dailyPendingCount">0</div>
         <div class="admin-mini-sub" id="dailyPendingSub">Semua toko sudah submit</div>
+      </div>
+    </div>
+
+    <div class="discipline-grid">
+      <div class="discipline-card">
+        <div class="card-title">Top Discipline Score</div>
+        <div class="card-sub" id="disciplineTopSub">5 toko paling disiplin pada bulan terpilih</div>
+        <div class="discipline-list" id="disciplineTopList">
+          <div class="empty-feed">Belum ada data discipline score.</div>
+        </div>
+      </div>
+      <div class="discipline-card">
+        <div class="card-title">Need Follow Up</div>
+        <div class="card-sub" id="disciplineFollowSub">5 toko dengan kepatuhan submit terendah</div>
+        <div class="discipline-list" id="disciplineFollowList">
+          <div class="empty-feed">Belum ada toko yang perlu difollow up.</div>
+        </div>
       </div>
     </div>
 
@@ -1617,6 +1862,7 @@ let viewMode = 'month';
 let latestDailyData = null;
 let latestMonthlyData = null;
 let latestAuditLogs = [];
+let latestMonthCompare = null;
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -1706,7 +1952,7 @@ function updateControlState() {
   const opsNote = document.getElementById('opsNote');
   if (opsNote) opsNote.classList.toggle('show', viewMode === 'day' && !getAdminPin());
   const adminSection = document.getElementById('adminDailySection');
-  if (adminSection) adminSection.style.display = viewMode === 'day' && !!getAdminPin() ? 'block' : 'none';
+  if (adminSection) adminSection.style.display = !!getAdminPin() ? 'block' : 'none';
   const auditSection = document.getElementById('auditSection');
   if (auditSection) auditSection.style.display = !!getAdminPin() ? 'block' : 'none';
 }
@@ -1760,8 +2006,84 @@ async function loadData() {
     if (viewMode === 'day') latestDailyData = data;
     else latestMonthlyData = data;
     renderDashboard(data);
+    loadMonthCompare();
     document.getElementById('lastUpd').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
   } catch(e) { console.error(e); }
+}
+
+function setDeltaPill(el, delta, suffix = 'vs bulan lalu') {
+  if (!el) return;
+  const className = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+  const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '•';
+  const value = `${delta > 0 ? '+' : ''}${fmt(delta)}`;
+  el.className = `delta-pill ${className}`;
+  el.textContent = `${arrow} ${value} ${suffix}`;
+}
+
+async function loadMonthCompare() {
+  try {
+    const res = await fetch(`/api/month-compare?month=${selectedMonth}&ts=${Date.now()}`, { cache: 'no-store' });
+    const data = await res.json();
+    latestMonthCompare = data;
+    renderMonthCompare(data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function renderMonthCompare(data) {
+  const currentMonthLabel = formatMonthLabel(data.month || selectedMonth);
+  const previousMonthLabel = formatMonthLabel(data.previousMonth || selectedMonth);
+  document.getElementById('compareSub').textContent = `${currentMonthLabel} dibanding ${previousMonthLabel}`;
+  document.getElementById('compareBadge').textContent = `${currentMonthLabel} vs ${previousMonthLabel}`;
+
+  document.getElementById('compareTotalValue').textContent = fmt(data.current?.grandTotal || 0);
+  document.getElementById('compareTotalSub').textContent = `${fmt(data.previous?.grandTotal || 0)} pada ${previousMonthLabel}`;
+  setDeltaPill(document.getElementById('compareTotalDelta'), data.deltas?.grandTotal || 0);
+
+  document.getElementById('compareStoreValue').textContent = fmt(data.current?.storeCount || 0);
+  document.getElementById('compareStoreSub').textContent = `${fmt(data.previous?.storeCount || 0)} toko aktif pada ${previousMonthLabel}`;
+  setDeltaPill(document.getElementById('compareStoreDelta'), data.deltas?.storeCount || 0, 'toko vs bulan lalu');
+
+  document.getElementById('compareReportValue').textContent = fmt(data.current?.reportCount || 0);
+  document.getElementById('compareReportSub').textContent = `${fmt(data.previous?.reportCount || 0)} report pada ${previousMonthLabel}`;
+  setDeltaPill(document.getElementById('compareReportDelta'), data.deltas?.reportCount || 0, 'report vs bulan lalu');
+
+  const currentTopBrand = data.current?.topBrand;
+  const previousTopBrand = data.previous?.topBrand;
+  document.getElementById('compareBrandValue').textContent = currentTopBrand?.brand || '—';
+  document.getElementById('compareBrandSub').textContent = currentTopBrand
+    ? `${fmt(currentTopBrand.total)} WIC pada ${currentMonthLabel}`
+    : `Belum ada data pada ${currentMonthLabel}`;
+  const sameTopBrand = currentTopBrand?.brand && previousTopBrand?.brand && currentTopBrand.brand === previousTopBrand.brand;
+  const brandDelta = sameTopBrand ? (currentTopBrand.total - previousTopBrand.total) : (currentTopBrand?.total || 0);
+  setDeltaPill(document.getElementById('compareBrandDelta'), brandDelta || 0, sameTopBrand ? `${currentTopBrand.brand} vs bulan lalu` : 'brand leader baru');
+
+  const board = document.getElementById('brandDeltaBoard');
+  const deltas = data.brandDeltas || [];
+  if (!board) return;
+  if (!deltas.length) {
+    board.innerHTML = `<div class="table-empty">Belum ada data brand untuk dibandingkan.</div>`;
+    return;
+  }
+  const maxValue = Math.max(...deltas.map(item => Math.abs(item.delta)), 1);
+  board.innerHTML = deltas.map(item => {
+    const fillWidth = Math.max(8, Math.round((Math.abs(item.delta) / maxValue) * 100));
+    const fillColor = item.delta > 0 ? '#06D6A0' : item.delta < 0 ? '#EF233C' : '#CBD5E1';
+    const valueClass = item.delta > 0 ? 'style="color:#059669"' : item.delta < 0 ? 'style="color:#EF233C"' : 'style="color:#6B7280"';
+    return `
+      <div class="brand-delta-row">
+        <div>
+          <div class="brand-delta-name">${item.brand}</div>
+          <div class="brand-delta-meta">${fmt(item.current)} sekarang · ${fmt(item.previous)} sebelumnya</div>
+        </div>
+        <div class="brand-delta-bar">
+          <div class="brand-delta-fill" style="width:${fillWidth}%;background:${fillColor}"></div>
+        </div>
+        <div class="brand-delta-value" ${valueClass}>${item.delta > 0 ? '+' : ''}${fmt(item.delta)}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function loadAuditLog() {
@@ -2105,12 +2427,8 @@ function exportPendingCsv() {
 function renderDailyAdminSummary(isDaily, data, pendingCodes, periodLabel) {
   const section = document.getElementById('adminDailySection');
   if (!section) return;
-  if (!isDaily) {
-    section.style.display = 'none';
-    return;
-  }
   section.style.display = getAdminPin() ? 'block' : 'none';
-  document.getElementById('dailySelectedDate').textContent = fmtDate(data.date || selectedDate);
+  document.getElementById('dailySelectedDate').textContent = isDaily ? fmtDate(data.date || selectedDate) : formatMonthLabel(data.month || selectedMonth);
   document.getElementById('dailyDoneCount').textContent = fmt(data.storeCount || 0);
   document.getElementById('dailyDoneSub').textContent = `${fmt(data.reportCount || 0)} laporan masuk pada ${periodLabel}`;
   document.getElementById('dailyPendingCount').textContent = fmt(pendingCodes.length);
@@ -2143,13 +2461,44 @@ function renderCompliance(data) {
     <tr>
       <td class="compliance-code">${row.store_code}</td>
       <td class="compliance-name">${row.store_name}</td>
-      ${row.statuses.map(done => `<td class="compliance-cell ${done ? 'done' : 'miss'}">${done ? '✓' : '•'}</td>`).join('')}
+      ${row.statuses.map(status => `<td class="compliance-cell ${status === true ? 'done' : status === false ? 'miss' : 'future'}">${status === true ? '✓' : status === false ? '•' : '—'}</td>`).join('')}
     </tr>
   `).join('');
   document.getElementById('complianceBadge').textContent = `${fmt(data.registeredStores || rows.length)} toko`;
-  const dayTotals = (data.dayTotals || []).map(day => `${day.date.slice(-2)}: ${fmt(day.submitted)}`).join(' · ');
+  const dayTotals = (data.dayTotals || [])
+    .filter(day => !Array.isArray(data.trackedDates) || data.trackedDates.includes(day.date))
+    .map(day => `${day.date.slice(-2)}: ${fmt(day.submitted)}`)
+    .join(' · ');
   document.getElementById('complianceFooter').textContent = dayTotals || 'Belum ada data kepatuhan untuk bulan ini.';
-  document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah berarti belum submit untuk ${formatMonthLabel(data.month || selectedMonth)}`;
+  document.getElementById('complianceSub').textContent = `Hijau berarti sudah submit, merah belum submit, abu-abu tanggal yang belum berjalan untuk ${formatMonthLabel(data.month || selectedMonth)}. Dipantau ${fmt(data.summary?.tracked_days || 0)} hari.`;
+  renderDisciplineSummary(data);
+}
+
+function renderDisciplineSummary(data) {
+  const topList = document.getElementById('disciplineTopList');
+  const followList = document.getElementById('disciplineFollowList');
+  const topSub = document.getElementById('disciplineTopSub');
+  const followSub = document.getElementById('disciplineFollowSub');
+  if (!topList || !followList) return;
+  const trackedDays = data.summary?.tracked_days || 0;
+  if (topSub) topSub.textContent = `5 toko paling disiplin dari ${fmt(trackedDays)} hari yang sudah berjalan`;
+  if (followSub) followSub.textContent = `5 toko dengan missed day tertinggi pada ${formatMonthLabel(data.month || selectedMonth)}`;
+
+  const renderRows = (items, low = false) => {
+    if (!items?.length) return `<div class="empty-feed">Belum ada data discipline score.</div>`;
+    return items.map(item => `
+      <div class="discipline-row">
+        <div class="discipline-main">
+          <div class="discipline-name">[${item.store_code}] ${item.store_name}</div>
+          <div class="discipline-meta">${fmt(item.submitted_days)} submit · ${fmt(item.missed_days)} miss · streak ${fmt(item.current_streak)} hari</div>
+        </div>
+        <div class="discipline-score ${low ? 'low' : ''}">${fmt(item.discipline_score)}%</div>
+      </div>
+    `).join('');
+  };
+
+  topList.innerHTML = renderRows(data.summary?.top_disciplined);
+  followList.innerHTML = renderRows(data.summary?.need_follow_up, true);
 }
 
 function exportCurrentReport() {
@@ -2308,7 +2657,7 @@ async function deleteReport(storeCode, date, storeName) {
     }
 
     await Promise.all([loadData(), loadTrend()]);
-    if (viewMode === 'day') await loadCompliance();
+    await loadCompliance();
     await loadAuditLog();
   } catch(e) {
     if (deleteBtn) {
@@ -2457,7 +2806,7 @@ function connectSSE() {
     }
     if(m.type==='new_submission') {
       loadData(); loadTrend();
-      if (viewMode === 'day' && getAdminPin()) loadCompliance();
+      if (getAdminPin()) loadCompliance();
       if (getAdminPin()) loadAuditLog();
     }
   };
@@ -2488,7 +2837,7 @@ initAdminAccess().then(() => {
     loadData();
     loadTrend();
     if (getAdminPin()) {
-      if (viewMode === 'day') loadCompliance();
+      loadCompliance();
       loadAuditLog();
     }
   }, 15000);
