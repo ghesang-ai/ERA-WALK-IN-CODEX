@@ -327,6 +327,13 @@
       gap: 12px;
       margin-bottom: 14px;
     }
+    .compliance-tools {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px auto;
+      gap: 10px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
     .compliance-filter-group {
       display: flex;
       align-items: flex-start;
@@ -364,6 +371,57 @@
       background: var(--light);
       border-color: rgba(67,97,238,.24);
       box-shadow: 0 4px 12px rgba(67,97,238,.08);
+    }
+    .compliance-search {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+    }
+    .compliance-search:focus,
+    .compliance-sort:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(67,97,238,.1);
+    }
+    .compliance-sort {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      color: var(--text);
+      background: white;
+      outline: none;
+    }
+    .btn-compliance-export {
+      border: 1px solid rgba(67,97,238,.18);
+      background: linear-gradient(135deg, rgba(67,97,238,.08), rgba(76,201,240,.12));
+      color: var(--blue);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: 0 4px 14px rgba(67,97,238,.08);
+    }
+    .btn-compliance-export:hover {
+      transform: translateY(-1px);
+      border-color: rgba(67,97,238,.28);
+      box-shadow: 0 8px 22px rgba(67,97,238,.12);
     }
     .compliance-wrap {
       overflow: auto;
@@ -1105,6 +1163,7 @@
       .charts-row { grid-template-columns: 1fr; }
       .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .compliance-controls { grid-template-columns: 1fr; }
+      .compliance-tools { grid-template-columns: 1fr; }
       .header {
         height: auto;
         min-height: 68px;
@@ -1314,6 +1373,9 @@
       .compliance-filter-group {
         display: grid;
         gap: 6px;
+      }
+      .compliance-tools {
+        gap: 8px;
       }
       .compliance-filter-label {
         min-width: 0;
@@ -1729,6 +1791,23 @@
           </div>
         </div>
       </div>
+      <div class="compliance-tools">
+        <input
+          class="compliance-search"
+          id="complianceSearch"
+          type="text"
+          placeholder="Cari store code atau nama toko di kalender..."
+          oninput="setComplianceSearch(this.value)"
+        />
+        <select class="compliance-sort" id="complianceSort" onchange="setComplianceSort(this.value)">
+          <option value="missed_desc">Urutkan: Missed Days Tertinggi</option>
+          <option value="discipline_desc">Urutkan: Discipline Score Tertinggi</option>
+          <option value="discipline_asc">Urutkan: Discipline Score Terendah</option>
+          <option value="name_asc">Urutkan: Nama Toko A-Z</option>
+          <option value="code_asc">Urutkan: Store Code A-Z</option>
+        </select>
+        <button class="btn-compliance-export" type="button" onclick="exportComplianceCsv()">Export Compliance</button>
+      </div>
       <div class="compliance-wrap">
         <table class="compliance-table">
           <thead id="complianceHead"></thead>
@@ -1950,6 +2029,8 @@ let latestMonthCompare = null;
 let latestComplianceData = null;
 let selectedComplianceArea = 'ALL';
 let selectedComplianceChannel = 'ALL';
+let complianceSearchQuery = '';
+let complianceSortMode = 'missed_desc';
 const channelOf = code => {
   const first = (code || '').charAt(0).toUpperCase();
   if (first === 'X') return 'IBOX';
@@ -2550,12 +2631,95 @@ function setComplianceChannel(channel) {
   if (latestComplianceData) renderCompliance(latestComplianceData);
 }
 
+function setComplianceSearch(query) {
+  complianceSearchQuery = (query || '').trim().toLowerCase();
+  if (latestComplianceData) renderCompliance(latestComplianceData);
+}
+
+function setComplianceSort(mode) {
+  complianceSortMode = mode || 'missed_desc';
+  if (latestComplianceData) renderCompliance(latestComplianceData);
+}
+
 function getFilteredComplianceRows(rows) {
-  return (rows || []).filter(row => {
+  const filtered = (rows || []).filter(row => {
     const areaMatch = selectedComplianceArea === 'ALL' || getAreaLabel(row.store_code) === selectedComplianceArea;
     const channelMatch = selectedComplianceChannel === 'ALL' || row.channel === selectedComplianceChannel;
-    return areaMatch && channelMatch;
+    const searchTarget = `${row.store_code} ${(row.store_name || '')}`.toLowerCase();
+    const searchMatch = !complianceSearchQuery || searchTarget.includes(complianceSearchQuery);
+    return areaMatch && channelMatch && searchMatch;
   });
+  return filtered.sort((a, b) => {
+    if (complianceSortMode === 'discipline_desc') {
+      if (b.discipline_score !== a.discipline_score) return b.discipline_score - a.discipline_score;
+      if (b.submitted_days !== a.submitted_days) return b.submitted_days - a.submitted_days;
+      return a.store_name.localeCompare(b.store_name);
+    }
+    if (complianceSortMode === 'discipline_asc') {
+      if (a.discipline_score !== b.discipline_score) return a.discipline_score - b.discipline_score;
+      if (b.missed_days !== a.missed_days) return b.missed_days - a.missed_days;
+      return a.store_name.localeCompare(b.store_name);
+    }
+    if (complianceSortMode === 'name_asc') {
+      return a.store_name.localeCompare(b.store_name);
+    }
+    if (complianceSortMode === 'code_asc') {
+      return a.store_code.localeCompare(b.store_code);
+    }
+    if (b.missed_days !== a.missed_days) return b.missed_days - a.missed_days;
+    if (a.submitted_days !== b.submitted_days) return a.submitted_days - b.submitted_days;
+    return a.store_name.localeCompare(b.store_name);
+  });
+}
+
+function exportComplianceCsv() {
+  if (!latestComplianceData) {
+    alert('Data compliance belum siap diexport.');
+    return;
+  }
+  const rows = getFilteredComplianceRows(latestComplianceData.rows || []);
+  if (!rows.length) {
+    alert('Tidak ada data compliance untuk filter yang sedang aktif.');
+    return;
+  }
+  const areaLabel = selectedComplianceArea === 'ALL' ? 'SEMUA-AREA' : selectedComplianceArea.replace('AREA ', '').replaceAll(' & ', '-').replaceAll(' ', '-');
+  const channelLabel = selectedComplianceChannel === 'ALL' ? 'SEMUA-CHANNEL' : selectedComplianceChannel;
+  const lines = [
+    ['Bulan', latestComplianceData.month || selectedMonth],
+    ['Area', selectedComplianceArea],
+    ['Channel', selectedComplianceChannel],
+    ['Search', complianceSearchQuery || '-'],
+    ['Sort', complianceSortMode],
+    [],
+    ['STORE CODE', 'NAMA TOKO', 'AREA', 'CHANNEL', 'SUBMIT DAYS', 'MISSED DAYS', 'TRACKED DAYS', 'DISCIPLINE SCORE', 'CURRENT STREAK']
+  ];
+  rows.forEach(row => {
+    lines.push([
+      row.store_code,
+      row.store_name,
+      getAreaLabel(row.store_code),
+      row.channel,
+      row.submitted_days,
+      row.missed_days,
+      row.tracked_days,
+      `${row.discipline_score}%`,
+      row.current_streak
+    ]);
+  });
+  const csv = lines.map(row => row.map(value => {
+    const text = value == null ? '' : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ERA-WIC-Compliance-${latestComplianceData.month || selectedMonth}-${areaLabel}-${channelLabel}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function renderCompliance(data) {
